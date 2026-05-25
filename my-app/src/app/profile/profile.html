@@ -1,0 +1,167 @@
+<main class="profile-page">
+  <div class="profile-header">
+    <h1>Thông tin tài khoản</h1>
+    <div class="breadcrumb">
+      Trang chủ / Tài khoản
+    </div>
+  </div>
+
+  <div class="profile-container">
+    <aside class="profile-sidebar">
+      <h2>Tài khoản</h2>
+      <nav>
+        <button [class.active]="activeTab() === 'personal'" (click)="setTab('personal')">Thông tin cá nhân</button>
+        <button [class.active]="activeTab() === 'account'" (click)="setTab('account')">Tài khoản & bảo mật</button>
+        <button [class.active]="activeTab() === 'policy'" (click)="setTab('policy')">Chính sách & điều khoản</button>
+        <button [class.active]="activeTab() === 'help'" (click)="setTab('help')">Trung tâm trợ giúp</button>
+        <button class="btn-logout-sidebar" (click)="logout()">Đăng xuất</button>
+      </nav>
+    </aside>
+
+    <section class="profile-content">
+      <div *ngIf="activeTab() === 'personal'" class="tab-pane">
+        <h3>Thông tin cá nhân</h3>
+        <div class="divider-main"></div>
+        
+        <h4 class="section-title">Thông tin cơ bản</h4>
+        
+        <div class="info-row">
+          <span class="label">Hình ảnh</span>
+          <div class="avatar-row">
+            <div class="avatar-wrapper">
+              <img [src]="user()?.avatar || 'avata.jpeg'" alt="Avatar">
+              <div class="avatar-overlay"><i class="ph ph-camera"></i></div>
+            </div>
+            <div class="avatar-actions">
+              <span class="btn-upload-text">Tải lên ảnh đại diện mới</span>
+              <button class="btn-remove-avatar">Gỡ ảnh đại diện</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Họ và tên:</span>
+          <span class="value">{{ user()?.username || 'Nguyễn Thị Hồng Hạnh' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Ngày sinh:</span>
+          <span class="value">31/07/2005</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Giới tính:</span>
+          <span class="value">Nam</span>
+        </div>
+
+        <h4 class="section-title">Thông tin tài khoản</h4>
+
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">{{ user()?.email || 'badudeptrai@gmail.com' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Số điện thoại:</span>
+          <span class="value">0123456789</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Địa chỉ giao hàng:</span>
+          <span class="value">HT Pearl, Quốc lộ 1K, Thành phố Thủ Đức, Thành phố Hồ Chí Minh.</span>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn-edit">Chỉnh sửa thông tin</button>
+        </div>
+      </div>
+
+      <!-- Policy & Terms -->
+      <div *ngIf="activeTab() === 'policy'" class="tab-pane">
+        <div class="policy-header-icon">
+           <i class="ph ph-file-text"></i>
+           <h3 class="center-title">Chính sách</h3>
+        </div>
+        
+        <div class="policy-block">
+          <div class="policy-item">
+            <h4>a. Chính sách đặt hàng & thanh toán</h4>
+            <ul>
+              <li>Khách hàng có thể đặt trực tiếp tại quán, qua hotline, hoặc qua website chính thức của Hồng trà Ngô Gia.</li>
+              <li>Giá niêm yết là giá tại thời điểm đặt hàng, bao gồm thuế VAT (nếu có).</li>
+              <li>Thanh toán có thể bằng tiền mặt, mã qr, hoặc ví điện tử.</li>
+            </ul>
+          </div>
+          <div class="policy-item">
+            <h4>b. Chính sách đổi trả - hoàn tiền</h4>
+            <ul>
+              <li>Sản phẩm là đồ uống tươi nên không áp dụng đổi trả sau khi giao hàng.</li>
+              <li>Trường hợp đơn hàng sai, hư hỏng, hoặc chất lượng không đảm bảo, khách hàng liên hệ hotline để được hỗ trợ đổi hoặc hoàn tiền trong vòng 24h.</li>
+            </ul>
+          </div>
+          <div class="policy-item">
+            <h4>c. Chính sách bảo mật thông tin khách hàng</h4>
+            <ul>
+              <li>Mọi thông tin cá nhân (số điện thoại, địa chỉ, lịch sử đặt hàng) được bảo mật tuyệt đối, chỉ dùng để phục vụ chăm sóc khách hàng.</li>
+              <li>Ngô Gia không chia sẻ dữ liệu cho bên thứ ba khi chưa được sự đồng ý.</li>
+            </ul>
+          </div>
+          <div class="policy-item">
+            <h4>d. Chính sách khuyến mãi & tích điểm</h4>
+            <ul>
+              <li>Mỗi chương trình khuyến mãi sẽ có điều kiện riêng (ví dụ: hóa đơn tối thiểu, thời gian áp dụng).</li>
+              <li>Với thẻ thành viên hoặc app, điểm thưởng được quy đổi theo quy định từng thời kỳ.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="policy-header-icon mt-50">
+           <h3 class="center-title">Điều khoản</h3>
+        </div>
+        <div class="policy-block">
+          <div class="policy-item">
+            <h4>a. Điều khoản sử dụng</h4>
+            <ul>
+              <li>Khách hàng đồng ý tuân thủ quy định và chính sách của Hồng trà Ngô Gia khi sử dụng sản phẩm và dịch vụ.</li>
+              <li>Cửa hàng có quyền từ chối phục vụ nếu khách hàng có hành vi không tôn trọng nhân viên hoặc vi phạm quy định chung.</li>
+              <li>Các chương trình khuyến mãi không được quy đổi thành tiền mặt trừ khi có quy định riêng.</li>
+            </ul>
+          </div>
+          <div class="policy-item">
+            <h4>b. Điều khoản bổ sung</h4>
+            <ul>
+              <li>Hồng trà Ngô Gia có thể cập nhật, thay đổi hoặc bổ sung điều khoản theo từng giai đoạn phát triển.</li>
+              <li>Mọi thay đổi sẽ được công khai trên kênh chính thức (Fanpage, website hoặc tại cửa hàng).</li>
+              <li>Khi tiếp tục mua hàng sau khi điều khoản được cập nhật, khách hàng được xem như đã đồng ý với các thay đổi mới.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Help Center -->
+      <div *ngIf="activeTab() === 'help'" class="tab-pane help-pane">
+        <div class="help-hero-banner">
+           <div class="help-hero-content">
+             <h2>Xin chào {{ user()?.username || 'Nguyễn Ba Đù' }},<br>Hồng trà Ngô Gia giúp được gì cho bạn?</h2>
+             <div class="search-bar-wrapper">
+               <i class="ph ph-list"></i>
+               <input type="text" placeholder="Bạn có đang gặp khó khăn gì không nè?">
+               <i class="ph ph-magnifying-glass"></i>
+             </div>
+           </div>
+        </div>
+
+        <div class="help-contact-section">
+          <h4>Liên hệ hỗ trợ</h4>
+          <div class="contact-methods-grid">
+            <a href="#" class="contact-link"><i class="ph ph-facebook-logo"></i> https://byvn.net/o4Yn</a>
+            <a href="#" class="contact-link"><i class="ph ph-tiktok-logo"></i> https://www.tiktok.com/@hongtrangogiavn</a>
+            <a href="#" class="contact-link"><i class="ph ph-instagram-logo"></i> https://www.instagram.com/wujiablacktea/</a>
+            <a href="#" class="contact-link"><i class="ph ph-envelope"></i> marketing@wujiateavn.com</a>
+            <a href="#" class="contact-link"><i class="ph ph-phone"></i> 0.999.888.777</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>

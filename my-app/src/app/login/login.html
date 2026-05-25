@@ -1,0 +1,56 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="brand-mini-label">LỊM DONUT</div>
+        <h1 class="welcome-text">Chào mừng bạn đã trở lại!</h1>
+        <p class="welcome-subtext">Cùng Lịm thưởng thức những chiếc bánh ngọt ngào nhất.</p>
+      </div>
+
+      <div class="login-type-title">
+        <span>{{ isLoginMode() ? 'Đăng nhập Khách hàng' : 'Đăng ký thành viên' }}</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <div class="input-group">
+          <label for="username">Tên đăng nhập <span class="required">*</span></label>
+          <input type="text" id="username" [ngModel]="username()" (ngModelChange)="username.set($event)" name="username" placeholder="Nhập tên đăng nhập" required>
+        </div>
+
+        @if (!isLoginMode()) {
+          <div class="input-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" placeholder="Nhập địa chỉ email" required>
+          </div>
+        }
+
+        <div class="input-group">
+          <label for="password">Mật khẩu <span class="required">*</span></label>
+          <div class="pwd-wrapper">
+            <input type="password" id="password" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" placeholder="Nhập mật khẩu" required>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <div class="remember-me">
+            <input type="checkbox" id="remember">
+            <label for="remember">Ghi nhớ?</label>
+          </div>
+          @if (isLoginMode()) {
+            <a routerLink="/forgot-password" class="forgot-pwd">Quên mật khẩu?</a>
+          }
+        </div>
+
+        <button type="submit" class="submit-btn">
+          {{ isLoginMode() ? 'Đăng nhập' : 'Đăng ký' }}
+        </button>
+
+        <div class="divider-text">Hoặc</div>
+
+        <button type="button" class="create-account-btn" (click)="toggleMode()">
+          {{ isLoginMode() ? 'Tạo tài khoản mới' : 'Đã có tài khoản? Đăng nhập' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

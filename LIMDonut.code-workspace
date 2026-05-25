@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "my-app"
+    },
+    {
+      "path": "my-app-admin"
+    },
+    {
+      "path": "my-server-mongodb"
+    }
+  ],
+  "settings": {}
+}

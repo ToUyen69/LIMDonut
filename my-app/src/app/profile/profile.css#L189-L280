@@ -1,0 +1,125 @@
+/* Policy Styles */
+.policy-header-icon {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.policy-header-icon i {
+  font-size: 3.5rem;
+  color: #333;
+}
+
+.center-title {
+  font-size: 2.2rem;
+  color: #4a90e2;
+  margin-top: 10px;
+}
+
+.policy-block {
+  background: #f1f1f1;
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.policy-item {
+  margin-bottom: 25px;
+}
+
+.policy-item:last-child {
+  margin-bottom: 0;
+}
+
+.policy-item h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 15px;
+}
+
+.policy-item ul {
+  padding-left: 20px;
+}
+
+.policy-item li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.mt-50 {
+  margin-top: 50px;
+}
+
+/* Help Center Styles */
+.help-hero-banner {
+  background: linear-gradient(to right, #2b32b2, #1488cc);
+  border-radius: 20px;
+  padding: 50px 30px;
+  color: white;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.help-hero-content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  line-height: 1.4;
+}
+
+.search-bar-wrapper {
+  background: white;
+  border-radius: 30px;
+  padding: 10px 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-bar-wrapper i {
+  color: #4a90e2;
+  font-size: 1.2rem;
+}
+
+.search-bar-wrapper input {
+  border: none;
+  width: 100%;
+  font-size: 1rem;
+  outline: none;
+}
+
+.help-contact-section h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #4a90e2;
+}
+
+.contact-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  border-bottom: 1.5px solid #f0f0f0;
+  text-decoration: none;
+  color: #444;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.contact-link i {
+  font-size: 1.5rem;
+  color: #4a90e2;
+}
+
+.contact-link:hover {
+  background: #f8fbff;
+}

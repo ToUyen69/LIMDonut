@@ -1,0 +1,92 @@
+<main class="menu-page">
+  <!-- Menu Banner -->
+  <section class="menu-banner">
+    <div class="menu-banner-content">
+      <span class="subtitle">MENU DONUT</span>
+      <h1 class="title">Thoải mái chọn món yêu thích của bạn</h1>
+      <p class="desc">Từ donut truyền thống, donut kem béo đến những công thức mới lạ - mọi chiếc bánh đều được nướng mới mỗi ngày.</p>
+    </div>
+    <div class="menu-banner-image">
+      <img src="product_cốm-hương-mộc.jpg" alt="Donut Menu" />
+    </div>
+  </section>
+
+  <!-- Filter & Search -->
+  <section class="menu-filters-container">
+    <div class="search-sort-bar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Tìm donut bạn muốn..." />
+      </div>
+      <div class="sort-box">
+        <label>Sắp xếp:</label>
+        <select>
+          <option>Nổi bật</option>
+          <option>Mới nhất</option>
+          <option>Giá: Thấp đến Cao</option>
+        </select>
+      </div>
+    </div>
+    <div class="category-tabs">
+      <button class="tab" [class.active]="selectedCategory === 'Tất cả'" (click)="selectCategory('Tất cả')">Tất cả</button>
+      <button class="tab" [class.active]="selectedCategory === 'Nguyên Bản'" (click)="selectCategory('Nguyên Bản')">Nguyên Bản</button>
+      <button class="tab" [class.active]="selectedCategory === 'Trà & Quả'" (click)="selectCategory('Trà & Quả')">Trà & Quả</button>
+      <button class="tab" [class.active]="selectedCategory === 'Cà phê & Cacao'" (click)="selectCategory('Cà phê & Cacao')">Cà phê & Cacao</button>
+      <button class="tab" [class.active]="selectedCategory === 'Bất ngờ Lịm'" (click)="selectCategory('Bất ngờ Lịm')">Bất ngờ Lịm</button>
+      <button class="tab" [class.active]="selectedCategory === 'Donut hot'" (click)="selectCategory('Donut hot')">Donut hot</button>
+      <button class="tab" [class.active]="selectedCategory === 'Món mới'" (click)="selectCategory('Món mới')">Món mới</button>
+    </div>
+    @if (selectedCategory !== 'Tất cả') {
+      <div class="category-description">
+        <p>{{ getCategoryDesc(selectedCategory) }}</p>
+      </div>
+    }
+  </section>
+
+  <!-- Menu Grid Container -->
+  <section class="menu-grid-section">
+    <div class="menu-grid-container">
+      <div class="menu-product-grid">
+        @for (product of filteredProducts; track product.id) {
+          <div class="seller-card" [routerLink]="['/product', product.id]">
+            <div class="seller-img">
+              <img [src]="product.image" [alt]="product.name" />
+            </div>
+            <div class="seller-info">
+              <h4>{{ product.name }}</h4>
+              <div class="rating">
+                <span class="stars">
+                  @for (star of [].constructor(product.rating); track $index) { ⭐ }
+                </span>
+                <span class="reviews">{{ product.reviews }} đánh giá</span>
+              </div>
+              <div class="price-row">
+                <span class="price">{{ product.price }}</span>
+              </div>
+              <div class="card-actions">
+                <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+                <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart(product)">🛒 Thêm vào giỏ hàng</button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="menu-subscription-section">
+    <div class="email-box full-width-email-box">
+      <div class="email-img">
+        <img src="new_product_vietnamese-coffee.jpg" alt="Donut float" />
+      </div>
+      <div class="email-content">
+        <p>Đăng ký bản tin của chúng tôi để được nhận những thông báo mới nhất về các ưu đãi và khuyến mãi cực hot</p>
+        <div class="email-input-group">
+          <input type="email" placeholder="Nhập email của bạn tại đây" />
+          <button>Đăng ký</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

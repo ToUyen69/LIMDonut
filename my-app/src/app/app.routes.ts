@@ -1,0 +1,29 @@
+import { Routes } from '@angular/router';
+import { HomepageComponent } from './homepage/homepage.component';
+import { MenuComponent } from './menu/menu.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { ContactComponent } from './contact/contact.component';
+import { ForumComponent } from './forum/forum.component';
+import { ForumDetailComponent } from './forum-detail/forum-detail.component';
+import { BranchesComponent } from './branches/branches.component';
+import { CheckoutComponent } from './checkout/checkout.component';
+import { Orders } from './orders/orders';
+import { Login } from './login/login';
+import { Profile } from './profile/profile';
+import { ForgotPassword } from './forgot-password/forgot-password';
+
+export const routes: Routes = [
+  { path: '', component: HomepageComponent },
+  { path: 'homepage', component: HomepageComponent },
+  { path: 'menu', component: MenuComponent },
+  { path: 'product/:id', component: ProductDetailComponent },
+  { path: 'contact', component: ContactComponent },
+  { path: 'forum', component: ForumComponent },
+  { path: 'forum/:id', component: ForumDetailComponent },
+  { path: 'chinhanh', component: BranchesComponent },
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'orders', component: Orders },
+  { path: 'login', component: Login },
+  { path: 'forgot-password', component: ForgotPassword },
+  { path: 'profile', component: Profile }
+];

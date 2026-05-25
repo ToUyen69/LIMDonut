@@ -1,0 +1,242 @@
+<main class="checkout-page">
+  <div class="checkout-header">
+    <h1>Thanh toán</h1>
+    <div class="breadcrumb">
+      <a routerLink="/">Trang chủ</a> / <span>Giỏ hàng</span>
+    </div>
+  </div>
+
+  <div class="checkout-container">
+    <!-- Left Column: Delivery Info -->
+    <div class="delivery-info">
+      <div class="section-card">
+        <h2 class="section-title">Thông tin giao hàng</h2>
+        
+        <div class="info-group">
+          <label>Người nhận <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="text" [ngModel]="recipient()" (ngModelChange)="recipient.set($event)" placeholder="Tên người nhận">
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Số điện thoại <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="tel" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event); validatePhone()" placeholder="Nhập số điện thoại (10 chữ số)">
+          </div>
+          <span class="error-msg" *ngIf="phoneError()">{{ phoneError() }}</span>
+        </div>
+
+        <div class="info-group">
+          <label>Địa chỉ giao hàng <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="text" [ngModel]="address()" (ngModelChange)="address.set($event)" placeholder="Nhập địa chỉ giao hàng">
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Thời gian giao hàng <span class="required">*</span></label>
+          <div class="input-wrapper cursor-pointer" (click)="openTimeModal()">
+            <input type="text" [ngModel]="deliveryTime()" placeholder="Chọn thời gian" readonly>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Ghi chú cho cửa hàng</label>
+          <div class="input-wrapper">
+            <input type="text" [ngModel]="notes()" (ngModelChange)="notes.set($event)" placeholder="Thêm ghi chú nếu có">
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Chi nhánh giao hàng <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select [ngModel]="branch()" (ngModelChange)="branch.set($event)">
+              <option value="" disabled selected>Chọn chi nhánh</option>
+              <option value="chinhanh1">Chi nhánh 1: 107-B9 P. Tô Hiệu</option>
+              <option value="chinhanh2">Chi nhánh 2: 44 P. Thợ Nhuộm</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Cart Summary -->
+    <div class="cart-summary">
+      <div class="section-card">
+        <div class="cart-header">
+          <h2 class="section-title">Giỏ hàng của bạn</h2>
+          <span class="item-count">{{ cartService.totalItems() }} món</span>
+        </div>
+
+        <div class="cart-items">
+          @for (item of cartService.items(); track item.id) {
+            <div class="cart-item">
+              <div class="item-img" [routerLink]="['/product', item.productId]">
+                <img [src]="item.image" [alt]="item.name">
+              </div>
+              <div class="item-details">
+                <h4 class="item-name" [routerLink]="['/product', item.productId]">{{ item.name }}</h4>
+                <div class="item-options-list">
+                  @if (item.options.heating !== 'Không') {
+                    <span class="option-tag">
+                      Làm nóng: {{ item.options.heating }}
+                      <button class="remove-opt" (click)="removeOption(item.id, 'heating')">×</button>
+                    </span>
+                  }
+                  @for (topping of item.options.toppings; track topping.name) {
+                    <span class="option-tag">
+                      {{ topping.name }} @if(topping.quantity > 1){ (x{{topping.quantity}}) }
+                      <button class="remove-opt" (click)="removeOption(item.id, 'topping', topping.name)">×</button>
+                    </span>
+                  }
+                </div>
+                @if (item.options.boxDonuts && item.options.boxDonuts.length > 0) {
+                  <div class="box-donuts-summary">
+                    <p class="box-donuts-title">Danh sách bánh trong Box:</p>
+                    <ul class="box-donuts-list">
+                      @for (donut of item.options.boxDonuts; track $index) {
+                        <li class="box-donut-item">
+                          - {{ donut.name }}
+                          @if (donut.heating === 'Có' || (donut.toppings && donut.toppings.length > 0)) {
+                            <span class="box-donut-sub-options">
+                              (
+                              @if (donut.heating === 'Có') { Làm nóng }
+                              @for (t of donut.toppings; track t.name) {
+                                {{ donut.heating === 'Có' || !$first ? ', ' : '' }}{{ t.name }}@if(t.quantity > 1){ x{{t.quantity}} }
+                              }
+                              )
+                            </span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+                <p class="item-price">{{ formatPrice(item.price) }}</p>
+              </div>
+              <div class="item-actions">
+                <div class="qty-control">
+                  <button (click)="decreaseQty(item.id, item.quantity)">-</button>
+                  <span>{{ item.quantity }}</span>
+                  <button (click)="increaseQty(item.id, item.quantity)">+</button>
+                </div>
+                <button class="delete-btn" (click)="removeItem(item.id)">🗑️</button>
+              </div>
+            </div>
+          }
+          @if (cartService.items().length === 0) {
+            <div class="empty-cart">
+              <p>Giỏ hàng của bạn đang trống.</p>
+              <a routerLink="/menu" class="btn-primary">Chọn bánh ngay</a>
+            </div>
+          }
+        </div>
+
+        <div class="payment-details">
+          <h3 class="payment-title">Thông tin thanh toán</h3>
+          
+          <div class="promo-code">
+            <div class="promo-input">
+              <input type="text" placeholder="Nhập mã giảm giá">
+              <button>Nhập mã giảm giá</button>
+            </div>
+            <span class="promo-status">Chưa áp dụng</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Tổng tiền tạm tính</span>
+            <span>{{ formatPrice(subtotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Phí vận chuyển</span>
+            <span>{{ formatPrice(shippingFee) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Mã giảm giá</span>
+            <span>0đ</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>Tổng cộng</span>
+            <span class="total-val">{{ formatPrice(total) }}</span>
+          </div>
+        </div>
+
+        <div class="payment-methods">
+          <h3 class="payment-title">Phương thức thanh toán</h3>
+          
+          <div class="method-option" [class.selected]="paymentMethod() === 'cash'" (click)="paymentMethod.set('cash')">
+            <input type="radio" name="payment" value="cash" [checked]="paymentMethod() === 'cash'">
+            <label>Tiền mặt</label>
+          </div>
+          <div class="method-option" [class.selected]="paymentMethod() === 'momo'" (click)="paymentMethod.set('momo')">
+            <input type="radio" name="payment" value="momo" [checked]="paymentMethod() === 'momo'">
+            <label>MoMo</label>
+          </div>
+          <div class="method-option" [class.selected]="paymentMethod() === 'zalopay'" (click)="paymentMethod.set('zalopay')">
+            <input type="radio" name="payment" value="zalopay" [checked]="paymentMethod() === 'zalopay'">
+            <label>ZaloPay</label>
+          </div>
+          <div class="method-option" [class.selected]="paymentMethod() === 'wallet'" (click)="paymentMethod.set('wallet')">
+            <input type="radio" name="payment" value="wallet" [checked]="paymentMethod() === 'wallet'">
+            <label>Ví điện tử</label>
+          </div>
+
+          <div class="method-info">
+            <p>Thanh toán khi nhận hàng (COD).</p>
+          </div>
+        </div>
+
+        <div class="terms-check">
+          <input type="checkbox" id="terms">
+          <label for="terms">Tôi đã đọc, hiểu và đồng ý với tất cả các điều khoản, điều kiện và chính sách liên quan</label>
+        </div>
+
+        <button class="checkout-btn" [disabled]="!isFormValid" (click)="placeOrder()">Kiểm tra đơn hàng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Time Selection Modal -->
+  <div class="modal-overlay" *ngIf="showTimeModal()" (click)="closeTimeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-modal" (click)="closeTimeModal()">×</button>
+      <h2 class="modal-title">Thời gian nhận hàng</h2>
+      
+      <div class="modal-body">
+        <div class="selection-grid">
+          <div class="select-group">
+            <label>Ngày nhận hàng</label>
+            <div class="date-input-wrapper">
+              <input type="date" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event)" [min]="minDate">
+            </div>
+          </div>
+          
+          <div class="select-group">
+            <label>Giờ (24h)</label>
+            <select [ngModel]="selectedHour()" (ngModelChange)="selectedHour.set($event)">
+              <option *ngFor="let h of hours" [value]="h">{{ h }}</option>
+            </select>
+          </div>
+          
+          <div class="select-group">
+            <label>Phút</label>
+            <select [ngModel]="selectedMinute()" (ngModelChange)="selectedMinute.set($event)">
+              <option *ngFor="let m of minutes" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-note">
+          <p>Cửa hàng sẽ giao trong vòng +/- 30 phút quanh thời gian bạn chọn. Mặc định: giờ hiện tại.</p>
+          <p class="error-msg" *ngIf="timeError()">{{ timeError() }}</p>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-close" (click)="closeTimeModal()">Đóng</button>
+          <button class="btn-confirm" (click)="confirmTime()">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

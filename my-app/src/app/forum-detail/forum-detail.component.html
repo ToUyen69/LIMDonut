@@ -1,0 +1,52 @@
+<div class="forum-detail-page" *ngIf="post">
+  <!-- Detail Banner -->
+  <section class="page-banner">
+    <div class="banner-content">
+      <h1 class="title">{{ post.title }}</h1>
+    </div>
+  </section>
+
+  <section class="detail-content">
+    <div class="container">
+      <div class="post-meta">
+        <span class="date">{{ post.date }}</span>
+      </div>
+
+      <h2 class="post-title-main">{{ post.title }}</h2>
+      
+      <div class="author-info">
+        <div class="logo-circle">
+          <img src="logo.png" alt="LIMDonut">
+        </div>
+      </div>
+
+      <!-- Main Image -->
+      <div class="main-image-wrapper">
+        <img [src]="post.mainImage" [alt]="post.title" class="main-img">
+      </div>
+
+      <!-- Content Text -->
+      <div class="post-text">
+        <p>{{ post.content }}</p>
+      </div>
+
+      <!-- Detail Images (2-3 in a row) -->
+      <div class="detail-images-grid" [ngClass]="{'two-cols': post.detailImages.length === 2, 'three-cols': post.detailImages.length >= 3}">
+        <div class="detail-img-item" *ngFor="let img of post.detailImages">
+          <img [src]="img" alt="Detail image">
+        </div>
+      </div>
+
+      <!-- Footer Tags -->
+      <div class="post-footer" *ngIf="post.tags && post.tags.length > 0">
+        <div class="tags">
+          <span *ngFor="let tag of post.tags">{{ tag }}</span>
+        </div>
+      </div>
+
+      <div class="back-action">
+        <button class="back-btn" routerLink="/forum">Quay lại Diễn đàn</button>
+      </div>
+    </div>
+  </section>
+</div>

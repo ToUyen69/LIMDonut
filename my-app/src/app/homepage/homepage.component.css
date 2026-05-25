@@ -1,0 +1,136 @@
+/* Styles specific to homepage */
+:host {
+  display: block;
+}
+
+/* Combo Box Section Styles */
+.combo-box-section {
+  padding: 80px 5%;
+  background-color: #faf6f0; /* Cream background matching theme */
+  text-align: center;
+}
+
+.combo-box-section .section-title {
+  font-size: 2.2rem;
+  color: #b22222; /* Standard red fallback */
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.combo-box-section .section-desc {
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto 3rem auto;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.combo-box-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.combo-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #f1ece4;
+}
+
+.combo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(178, 34, 34, 0.08);
+  border-color: #b22222;
+}
+
+.combo-img {
+  width: 100%;
+  aspect-ratio: 1.5;
+  overflow: hidden;
+  background-color: #f7f3eb;
+}
+
+.combo-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.combo-card:hover .combo-img img {
+  transform: scale(1.05);
+}
+
+.combo-info {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.combo-info h3 {
+  font-size: 1.4rem;
+  color: #222;
+  margin: 0;
+  font-weight: 700;
+}
+
+.combo-info p {
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0 0 10px 0;
+}
+
+.combo-discount {
+  display: inline-block;
+  background-color: #fff1f2;
+  color: #e11d48;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #ffe4e6;
+}
+
+.combo-btn {
+  margin-top: 15px;
+  width: 80%;
+  height: 44px;
+  border-radius: 22px;
+  background-color: #b22222;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.combo-card:hover .combo-btn {
+  background-color: #901c1c;
+  box-shadow: 0 5px 15px rgba(178, 34, 34, 0.2);
+}
+
+@media (max-width: 768px) {
+  .combo-box-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .combo-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,114 @@
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <img src="logo.png" alt="LIMDonut Logo" />
+    </div>
+    <nav class="navigation">
+      <ul>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><i class="icon-home"></i> Trang chủ</a></li>
+        <li><a href="#"><i class="icon-about"></i> Về chúng tôi</a></li>
+        <li><a routerLink="/menu" routerLinkActive="active"><i class="icon-menu"></i> Menu Donut</a></li>
+        <li><a routerLink="/contact" routerLinkActive="active"><i class="icon-contact"></i> Liên hệ</a></li>
+        <li><a routerLink="/forum" routerLinkActive="active"><i class="icon-blog"></i> Diễn đàn</a></li>
+        <li><a routerLink="/chinhanh" routerLinkActive="active"><i class="icon-location"></i> Chi nhánh</a></li>
+      </ul>
+    </nav>
+    <div class="user-actions">
+      <div class="cart" [class.cart-updated]="cartAnimation()" routerLink="/checkout">
+        <span class="cart-icon">🛒</span>
+        <div class="cart-info">
+          <span class="cart-label">Giỏ hàng</span>
+          <span class="cart-price">{{ formatPrice(cartTotal()) }}</span>
+        </div>
+      </div>
+      <div class="user-profile-container">
+        <div class="user-profile" (click)="toggleUserMenu()">
+          <ng-container *ngIf="isLoggedIn(); else guestUser">
+            <img [src]="user()?.avatar || 'avata.jpeg'" alt="User Avatar" class="avatar" />
+            <span class="username">{{ user()?.name }} ▾</span>
+          </ng-container>
+          <ng-template #guestUser>
+            <div class="guest-avatar">
+              <i class="icon-user">👤</i>
+            </div>
+            <span class="username">Tài khoản ▾</span>
+          </ng-template>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown" *ngIf="showUserMenu()">
+          <ul>
+            <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'login' }" (click)="closeUserMenu()"> Đăng nhập</a></li>
+            <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'register' }" (click)="closeUserMenu()"> Đăng ký</a></li>
+            <li *ngIf="isLoggedIn()"><a routerLink="/profile" (click)="closeUserMenu()"><i class="ph ph-user-circle"></i> Hồ sơ</a></li>
+            <li><a routerLink="/orders" (click)="closeUserMenu()"> Đơn hàng</a></li>
+            <li *ngIf="isLoggedIn()" class="divider"></li>
+            <li *ngIf="isLoggedIn()"><a href="javascript:void(0)" (click)="logout()"><i class="icon-logout"></i> Đăng xuất</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Add to Cart Notification -->
+<div class="cart-notification" [class.visible]="notification().visible">
+  <div class="notification-content">
+    <span class="notif-message" [innerHTML]="notification().message"></span>
+  </div>
+</div>
+
+<router-outlet></router-outlet>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-logo">
+      <img src="logo.png" alt="LIMDonut Logo" />
+    </div>
+    <div class="footer-links">
+      <h4>Liên kết nhanh</h4>
+      <ul>
+        <li><a href="#">Trang chủ</a></li>
+        <li><a href="#">Về chúng tôi</a></li>
+        <li><a href="#">Menu Donut</a></li>
+        <li><a routerLink="/contact">Liên hệ</a></li>
+        <li><a routerLink="/forum">Diễn đàn</a></li>
+      </ul>
+    </div>
+    <div class="footer-locations">
+      <h4>Địa chỉ các chi nhánh</h4>
+      <ul>
+        <li>• Chi nhánh 1: 107-B9 P. Tô Hiệu, Nghĩa Tân, Cầu Giấy, Hà Nội.</li>
+        <li>• Chi nhánh 2: 44 P. Thợ Nhuộm, Cửa Nam, Hoàn Kiếm, Hà Nội.</li>
+      </ul>
+    </div>
+    <div class="footer-contact">
+      <h4>Liên hệ</h4>
+      <p>📞 1222-888</p>
+      <p>✉️ limdonut@gmail.com</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>LIMDonut © 2026 All right reserved.</p>
+    <div class="social-icons">
+      <span>Fb</span>
+      <span>Ig</span>
+      <span>Tt</span>
+      <span>Yt</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showLogoutModal()">
+  <div class="modal-card">
+    <div class="modal-content">
+      <h2 class="modal-title">Xác nhận đăng xuất</h2>
+      <p class="modal-text">Bạn có chắc muốn đăng xuất?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cancelLogout()">Đóng</button>
+      <button class="btn-confirm" (click)="confirmLogout()">Xác nhận</button>
+    </div>
+  </div>
+</div>

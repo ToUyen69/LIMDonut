@@ -1,0 +1,137 @@
+<main class="orders-page">
+  <div class="orders-header">
+    <h1>Đơn hàng của tôi</h1>
+    <div class="breadcrumb">
+      <a routerLink="/">Trang chủ</a> / <span>Lịch sử đơn hàng</span>
+    </div>
+  </div>
+
+  <div class="orders-container">
+    <!-- Status Tabs -->
+    <div class="status-tabs">
+      <button [class.active]="selectedStatus() === 'all'" (click)="selectedStatus.set('all')">
+        📦 Tất cả <span class="badge">{{ statusCounts().all }}</span>
+      </button>
+      <button [class.active]="selectedStatus() === 'Chờ xác nhận'" (click)="selectedStatus.set('Chờ xác nhận')">
+        🕒 Xác nhận đơn hàng <span class="badge">{{ statusCounts().pending }}</span>
+      </button>
+      <button [class.active]="selectedStatus() === 'Chuẩn bị'" (click)="selectedStatus.set('Chuẩn bị')">
+        🍩 Chuẩn bị đơn hàng <span class="badge">{{ statusCounts().preparing }}</span>
+      </button>
+      <button [class.active]="selectedStatus() === 'Đang giao'" (click)="selectedStatus.set('Đang giao')">
+        🚚 Đang giao hàng <span class="badge">{{ statusCounts().shipping }}</span>
+      </button>
+      <button [class.active]="selectedStatus() === 'Hoàn thành'" (click)="selectedStatus.set('Hoàn thành')">
+        ⭐ Giao thành công <span class="badge">{{ statusCounts().completed }}</span>
+      </button>
+    </div>
+
+    <!-- Order List -->
+    <div class="orders-list">
+      @for (order of filteredOrders(); track order.orderId) {
+        <div class="order-card">
+          <div class="order-card-header">
+            <div class="order-id-info">
+              Mã đơn hàng <span class="order-id">{{ order.orderId }}</span>
+              <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="order-status-tag" [attr.data-status]="order.status">
+              ● {{ order.status }}
+            </div>
+          </div>
+
+          <div class="order-items">
+            @for (item of order.items; track item.name) {
+              <div class="order-item">
+                <img [src]="item.image" [alt]="item.name" class="item-thumb">
+                <div class="item-info">
+                  <h4>{{ item.name }}</h4>
+                  <div class="item-meta">
+                    @if (item.options?.heating && item.options.heating !== 'Không') {
+                      <span>Làm nóng: {{ item.options.heating }}</span>
+                    }
+                    @for (topping of item.options?.toppings; track topping.name) {
+                      <span>{{ topping.name }} (x{{ topping.quantity }})</span>
+                    }
+                    <span>x{{ item.quantity }}</span>
+                  </div>
+                </div>
+                <div class="item-price">{{ formatPrice(item.price * item.quantity) }}</div>
+              </div>
+            }
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="order-progress">
+            <div class="progress-line">
+              <div class="line-fill" [style.width.%]="
+                order.status === 'Chờ xác nhận' ? 10 :
+                order.status === 'Chuẩn bị' ? 40 :
+                order.status === 'Đang giao' ? 70 :
+                order.status === 'Hoàn thành' ? 100 : 0
+              "></div>
+            </div>
+            <div class="progress-steps">
+              <div class="step" [class.active]="order.status === 'Chờ xác nhận' || order.status === 'Chuẩn bị' || order.status === 'Đang giao' || order.status === 'Hoàn thành'">
+                <div class="step-icon">🕒</div>
+                <span>Xác nhận</span>
+              </div>
+              <div class="step" [class.active]="order.status === 'Chuẩn bị' || order.status === 'Đang giao' || order.status === 'Hoàn thành'">
+                <div class="step-icon">🍩</div>
+                <span>Chuẩn bị</span>
+              </div>
+              <div class="step" [class.active]="order.status === 'Đang giao' || order.status === 'Hoàn thành'">
+                <div class="step-icon">🚚</div>
+                <span>Đang giao</span>
+              </div>
+              <div class="step" [class.active]="order.status === 'Hoàn thành'">
+                <div class="step-icon">⭐</div>
+                <span>Thành công</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-delivery-details">
+            <div class="detail-row">
+              <span class="detail-label">Người nhận:</span>
+              <span class="detail-val">{{ order.customerInfo.name }} - {{ order.customerInfo.phone }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Địa chỉ:</span>
+              <span class="detail-val">{{ order.customerInfo.address }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Thời gian nhận:</span>
+              <span class="detail-val">{{ order.customerInfo.deliveryTime }}</span>
+            </div>
+            @if (order.customerInfo.notes) {
+              <div class="detail-row">
+                <span class="detail-label">Ghi chú:</span>
+                <span class="detail-val">{{ order.customerInfo.notes }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="order-card-footer">
+            <div class="order-total-info">
+              <span class="total-label">Tổng thanh toán</span>
+              <span class="total-amount">{{ formatPrice(order.totalAmount) }}</span>
+            </div>
+            <div class="order-actions">
+              @if (order.status === 'Chờ xác nhận') {
+                <button class="btn-cancel" (click)="cancelOrder(order.orderId)">Hủy đơn</button>
+              }
+              <button class="btn-details">Xem chi tiết</button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-orders">
+          <img src="https://cdn-icons-png.flaticon.com/512/5089/5089733.png" alt="No orders">
+          <p>Bạn chưa có đơn hàng nào trong mục này.</p>
+          <a routerLink="/menu" class="btn-primary">Đặt bánh ngay</a>
+        </div>
+      }
+    </div>
+  </div>
+</main>

@@ -1,0 +1,384 @@
+<main class="main-content">
+  <!-- Hero Section -->
+  <section class="hero-banner">
+    <img src="bìa.jpg" alt="LIMDonut Hero Banner 1" class="hero-image slide-1" />
+    <img src="bìa 2.png" alt="LIMDonut Hero Banner 2" class="hero-image slide-2" />
+    <img src="bìa 3.png" alt="LIMDonut Hero Banner 3" class="hero-image slide-3" />
+    <div class="slider-dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <h2 class="section-title">CÁC LOẠI DONUT CỦA CHÚNG TÔI</h2>
+    <div class="categories-grid">
+      <div class="category-item" (click)="onCategoryClick('Nguyên Bản')">
+        <div class="category-image-wrapper">
+          <img src="product_cho-vi-be.jpg" alt="Nguyên Bản" />
+        </div>
+        <h3>Nguyên Bản</h3>
+        <p>Hương vị truyền thống</p>
+      </div>
+      <div class="category-item" (click)="onCategoryClick('Trà & Quả')">
+        <div class="category-image-wrapper">
+          <img src="product_cốm-hương-mộc.jpg" alt="Trà & Quả" />
+        </div>
+        <h3>Trà & Quả</h3>
+        <p>Thanh mát, tự nhiên</p>
+      </div>
+      <div class="category-item" (click)="onCategoryClick('Cà phê & Cacao')">
+        <div class="category-image-wrapper">
+          <img src="product_toasted-mocha.jpg" alt="Cà phê & Cacao" />
+        </div>
+        <h3>Cà phê & Cacao</h3>
+        <p>Đậm đà khó quên</p>
+      </div>
+      <div class="category-item" (click)="onCategoryClick('Bất ngờ Lịm')">
+        <div class="category-image-wrapper">
+          <img src="product_hot-gochujang.jpg" alt="Bất ngờ Lịm" />
+        </div>
+        <h3>Bất ngờ Lịm</h3>
+        <p>Độc đáo, phá cách</p>
+      </div>
+      <div class="category-item" (click)="onCategoryClick('Món mới')">
+        <div class="category-image-wrapper">
+          <img src="new_product_carabana.jpg" alt="Món mới" />
+        </div>
+        <h3>Món mới</h3>
+        <p>Hương vị mới lạ</p>
+      </div>
+      <div class="category-item" (click)="onCategoryClick('Donut hot')">
+        <div class="category-image-wrapper">
+          <img src="product_trứng-muối-chà-bông.jpg" alt="Donut hot" />
+        </div>
+        <h3>Donut hot</h3>
+        <p>Được yêu thích nhất</p>
+      </div>
+    </div>
+    <p class="section-desc">Các dòng donut đặc biệt kết hợp giữa nguyên liệu chất lượng cùng công thức sáng tạo mang đến điểm nhấn tuyệt vời cho một món bánh quen thuộc.</p>
+  </section>
+
+  <!-- New Items Section -->
+  <section class="new-items-section">
+    <div class="section-bg">
+      <h2 class="section-title">THỬ NGAY MÓN MỚI TẠI ĐÂY</h2>
+      <div class="new-items-grid">
+        <div class="product-card" routerLink="/product/1">
+          <div class="product-img">
+            <img src="new_product_carabana.jpg" alt="Carabana" />
+          </div>
+          <h4>Carabana</h4>
+          <p>Donut kem chuối caramel</p>
+          <div class="price-row">
+            <span class="price">32.000</span>
+          </div>
+          <div class="card-actions">
+              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Carabana', '32.000', 'new_product_carabana.jpg', 1)">🛒 Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+        <div class="product-card" routerLink="/product/2">
+          <div class="product-img">
+            <img src="new_product_cheefy hotdog.jpg" alt="Cheefy Hotdog" />
+          </div>
+          <h4>Cheefy Hotdog</h4>
+          <p>Xúc xích phô mai</p>
+          <div class="price-row">
+            <span class="price">35.000</span>
+          </div>
+          <div class="card-actions">
+              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Cheefy Hotdog', '35.000', 'new_product_cheefy hotdog.jpg', 2)">🛒 Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+        <div class="product-card" routerLink="/product/3">
+          <div class="product-img">
+            <img src="new_product_trufle-bacon.jpg" alt="Truffle Bacon" />
+          </div>
+          <h4>Truffle Bacon</h4>
+          <p>Donut mặn Truffle</p>
+          <div class="price-row">
+            <span class="price">40.000</span>
+          </div>
+          <div class="card-actions">
+              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Truffle Bacon', '40.000', 'new_product_trufle-bacon.jpg', 3)">🛒 Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+        <div class="product-card" routerLink="/product/4">
+          <div class="product-img">
+            <img src="new_product_vietnamese-coffee.jpg" alt="Vietnamese Coffee" />
+          </div>
+          <h4>Vietnamese Coffee</h4>
+          <p>Cà phê Việt Nam</p>
+          <div class="price-row">
+            <span class="price">28.000</span>
+          </div>
+          <div class="card-actions">
+              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Vietnamese Coffee', '28.000', 'new_product_vietnamese-coffee.jpg', 4)">🛒 Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+      </div>
+      <div class="action-btn-wrapper">
+        <button class="btn-outline" [routerLink]="['/menu']" [queryParams]="{ category: 'Món mới' }">Xem thêm</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promo Banner -->
+  <section class="promo-banner">
+    <img src="promo_banner.png" alt="Promo Banner" />
+    <div class="promo-content">
+    </div>
+  </section>
+
+  <!-- Combo Box Section -->
+  <section class="combo-box-section">
+    <h2 class="section-title">COMBO BOX TIẾT KIỆM 10%</h2>
+    <p class="section-desc">Lựa chọn các vị bánh yêu thích của bạn để đóng hộp 4 hoặc hộp 6 với mức chiết khấu 10% trên tổng giá trị hộp.</p>
+    <div class="combo-box-grid">
+      <div class="combo-card" routerLink="/product/99">
+        <div class="combo-img">
+          <img src="box4.jpg" alt="Combo Box 4" />
+        </div>
+        <div class="combo-info">
+          <h3>Combo Box 4</h3>
+          <p>Hộp 4 bánh tự chọn vị tùy thích</p>
+          <span class="combo-discount">Giảm giá 10%</span>
+          <button class="combo-btn">Tự cấu hình ngay</button>
+        </div>
+      </div>
+      
+      <div class="combo-card" routerLink="/product/100">
+        <div class="combo-img">
+          <img src="box6.jpg" alt="Combo Box 6" />
+        </div>
+        <div class="combo-info">
+          <h3>Combo Box 6</h3>
+          <p>Hộp 6 bánh tự chọn vị tùy thích</p>
+          <span class="combo-discount">Giảm giá 10%</span>
+          <button class="combo-btn">Tự cấu hình ngay</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Sellers -->
+  <section class="best-sellers-section">
+    <h2 class="section-title">TOP 9 BÁN CHẠY NHẤT</h2>
+    <div class="best-sellers-grid">
+      <!-- Item 1 -->
+      <div class="seller-card" routerLink="/product/36">
+        <div class="seller-img">
+          <img src="product_trứng-muối-chà-bông.jpg" alt="Trứng muối chà bông" />
+        </div>
+        <div class="seller-info">
+          <h4>Trứng muối chà bông</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">1k đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">30.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Trứng muối chà bông', '30.000', 'product_trứng-muối-chà-bông.jpg', 36)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 2 -->
+      <div class="seller-card" routerLink="/product/34">
+        <div class="seller-img">
+          <img src="product_thu-tra-mochi.jpg" alt="Thu Trà Mochi" />
+        </div>
+        <div class="seller-info">
+          <h4>Thu Trà Mochi</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">800 đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">35.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Thu Trà Mochi', '35.000', 'product_thu-tra-mochi.jpg', 34)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 3 -->
+      <div class="seller-card" routerLink="/product/27">
+        <div class="seller-img">
+          <img src="product_honey-lemon-medovik.jpg" alt="Honey Lemon Medovik" />
+        </div>
+        <div class="seller-info">
+          <h4>Honey Lemon Medovik</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">950 đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">35.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Honey Lemon Medovik', '35.000', 'product_honey-lemon-medovik.jpg', 27)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 4 -->
+      <div class="seller-card" routerLink="/product/7">
+        <div class="seller-img">
+          <img src="product_cacao-passion.jpg" alt="Cacao Passion" />
+        </div>
+        <div class="seller-info">
+          <h4>Cacao Passion</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">1.2k đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">32.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Cacao Passion', '32.000', 'product_cacao-passion.jpg', 7)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 5 -->
+      <div class="seller-card" routerLink="/product/4">
+        <div class="seller-img">
+          <img src="new_product_vietnamese-coffee.jpg" alt="Vietnamese Coffee" />
+        </div>
+        <div class="seller-info">
+          <h4>Vietnamese Coffee</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">2k đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">28.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Vietnamese Coffee', '28.000', 'new_product_vietnamese-coffee.jpg', 4)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 6 -->
+      <div class="seller-card" routerLink="/product/6">
+        <div class="seller-img">
+          <img src="product_burnt-mentaiko.jpg" alt="Burnt Mentaiko" />
+        </div>
+        <div class="seller-info">
+          <h4>Burnt Mentaiko</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐</span>
+            <span class="reviews">650 đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">38.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Burnt Mentaiko', '38.000', 'product_burnt-mentaiko.jpg', 6)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 7 -->
+      <div class="seller-card" routerLink="/product/3">
+        <div class="seller-img">
+          <img src="new_product_trufle-bacon.jpg" alt="Truffle Bacon" />
+        </div>
+        <div class="seller-info">
+          <h4>Truffle Bacon</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">1.5k đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">40.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Truffle Bacon', '40.000', 'new_product_trufle-bacon.jpg', 3)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 8 -->
+      <div class="seller-card" routerLink="/product/2">
+        <div class="seller-img">
+          <img src="new_product_cheefy hotdog.jpg" alt="Cheefy Hotdog" />
+        </div>
+        <div class="seller-info">
+          <h4>Cheefy Hotdog</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐</span>
+            <span class="reviews">500 đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">35.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Cheefy Hotdog', '35.000', 'new_product_cheefy hotdog.jpg', 2)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+      <!-- Item 9 -->
+      <div class="seller-card" routerLink="/product/12">
+        <div class="seller-img">
+          <img src="product_cho-vi-be.jpg" alt="Cho-Vi-Be" />
+        </div>
+        <div class="seller-info">
+          <h4>Cho-Vi-Be</h4>
+          <div class="rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="reviews">3k đánh giá</span>
+          </div>
+          <div class="price-row">
+            <span class="price">25.000</span>
+          </div>
+          <div class="card-actions">
+            <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+            <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); addToCart('Cho-Vi-Be', '25.000', 'product_cho-vi-be.jpg', 12)">🛒 Thêm vào giỏ hàng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter & Zalo Section -->
+  <section class="subscription-section">
+    <div class="zalo-box">
+      <div class="zalo-text">
+        <h2>Liên kết Zalo<br>để nhận <span class="highlight">ưu đãi<br>khách hàng VIP</span></h2>
+        <p>Chỉ cần nhập thông tin, bạn sẽ trở thành khách hàng VIP với ưu đãi giảm 3.000đ mỗi donut tại LIMDonut!</p>
+      </div>
+      <div class="zalo-qr">
+        <div class="qr-placeholder">
+          <div class="qr-inner">Zalo QR</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="email-box">
+      <div class="email-img">
+        <img src="new_product_vietnamese-coffee.jpg" alt="Donut float" />
+      </div>
+      <div class="email-content">
+        <p>Đăng ký bản tin của chúng tôi để được nhận những thông báo mới nhất về các ưu đãi và khuyến mãi cực hot</p>
+        <div class="email-input-group">
+          <input type="email" placeholder="Nhập email của bạn tại đây" />
+          <button>Đăng ký</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

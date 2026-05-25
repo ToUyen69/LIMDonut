@@ -1,0 +1,356 @@
+@if (product) {
+<main class="product-detail-page">
+  <div class="breadcrumb">
+    <a routerLink="/">Trang chủ</a> / <a routerLink="/menu">Menu Donut</a> / <span>{{ product?.categories?.[0] }}</span>
+  </div>
+
+  <section class="product-main-info">
+    <!-- Left Column: Images -->
+    <div class="product-gallery">
+      <div class="main-image">
+        <img [src]="mainImage" [alt]="product?.name" />
+        <div class="slider-arrows">
+          <button class="arrow prev-arrow" (click)="prevImage()">‹</button>
+          <button class="arrow next-arrow" (click)="nextImage()">›</button>
+        </div>
+      </div>
+      <div class="thumbnail-list">
+        @for (img of productImages; track $index) {
+          <img [src]="img" [class.active]="currentImageIndex === $index" (click)="setMainImageIndex($index)" alt="Thumb" />
+        }
+      </div>
+    </div>
+
+    <!-- Right Column: Details & Options -->
+    <div class="product-details">
+      <span class="category-label">{{ product?.categories?.[0] }}</span>
+      <h1 class="product-title">{{ product?.name }}</h1>
+      <div class="rating-reviews">
+        <span class="stars">
+          @for (star of [].constructor(product?.rating); track $index) { ⭐ }
+        </span>
+        <span class="score">{{ product?.rating }}.0</span>
+        <span class="reviews">({{ product?.reviews }} lượt đánh giá)</span>
+      </div>
+
+      <div class="price-container">
+        <div class="price-size">
+          <span class="price-val">{{ currentPrice }}</span>
+        </div>
+        <div class="vip-price">
+          <span class="vip-label">VIP</span>
+          <span class="price-val">{{ vipPrice }}</span>
+        </div>
+      </div>
+
+      <div class="product-desc">
+        <p>{{ product?.description }}. Sự kết hợp hoàn hảo giữa cốt bánh mềm mịn và lớp phủ thượng hạng tạo nên chiếc Donut tuyệt vời. Thưởng thức ngay để cảm nhận hương vị đặc trưng và hậu vị lôi cuốn.</p>
+        <button class="view-note-btn">Chú thích sản phẩm tại đây <span>v</span></button>
+      </div>
+
+      <div class="options-container">
+        <!-- Heating (Only for regular products) -->
+        @if (product.id !== 99 && product.id !== 100) {
+          <div class="option-group">
+            <h4 class="option-title">Làm nóng</h4>
+            <div class="option-buttons">
+              <button class="opt-btn small-btn" [class.selected]="selectedHeating === 'Không'" (click)="selectHeating('Không')">Không</button>
+              <button class="opt-btn small-btn" [class.selected]="selectedHeating === 'Có'" (click)="selectHeating('Có')">Có</button>
+            </div>
+          </div>
+        }
+
+        <!-- Toppings (Only for regular products) -->
+        @if (product.id !== 99 && product.id !== 100) {
+          <div class="option-group topping-group">
+            <h4 class="option-title">Topping thêm</h4>
+            <div class="topping-list">
+            @for (t of product?.toppings; track t.name) {
+              <div class="topping-item" [class.has-topping]="getToppingQuantity(t.name) > 0">
+                <div class="topping-info">
+                  <span class="topping-name">{{ t.name }}</span>
+                  <span class="topping-price">+{{ t.price }}đ</span>
+                </div>
+                <div class="topping-actions">
+                  @if (getToppingQuantity(t.name) > 0) {
+                    <div class="topping-qty-control">
+                      <button class="t-qty-btn" (click)="removeTopping(t.name)">-</button>
+                      <span class="t-qty-val">{{ getToppingQuantity(t.name) }}</span>
+                      <button class="t-qty-btn" (click)="addTopping(t.name, t.price)">+</button>
+                    </div>
+                  } @else {
+                    <button class="t-add-btn" (click)="addTopping(t.name, t.price)">+</button>
+                  }
+                </div>
+              </div>
+            }
+            </div>
+          </div>
+        }
+
+        <!-- Box Donuts Selection (Only for Box products) -->
+        @if (product.id === 99 || product.id === 100) {
+          <div class="option-group box-selection-group">
+            <h4 class="option-title">Chọn vị bánh trong Hộp <span class="box-capacity-status">({{ totalBoxDonutsCount }}/{{ maxBoxDonutsCapacity }})</span></h4>
+            
+            @if (totalBoxDonutsCount < maxBoxDonutsCapacity) {
+              <div class="box-alert warning">
+                ⚠️ Vui lòng chọn thêm <strong>{{ maxBoxDonutsCapacity - totalBoxDonutsCount }}</strong> chiếc bánh nữa.
+              </div>
+            } @else {
+              <div class="box-alert success">
+                ✅ Hộp đã đầy! Bạn có thể thêm vào giỏ hàng.
+              </div>
+            }
+
+            <!-- Selected Slots Configuration -->
+            <div class="box-slots-container">
+              <h5 class="slots-section-title">Các bánh trong hộp của bạn:</h5>
+              <div class="box-slots-list">
+                @for (slot of selectedBoxDonuts; track $index; let slotIndex = $index) {
+                  <div class="box-slot-card" [class.filled]="slot.productId !== undefined">
+                    <div class="slot-header">
+                      <span class="slot-number">Ngăn {{ slotIndex + 1 }}</span>
+                      @if (slot.productId !== undefined) {
+                        <button type="button" class="clear-slot-btn" (click)="clearSlot(slotIndex)">Xóa bánh ×</button>
+                      }
+                    </div>
+
+                    @if (slot.productId !== undefined) {
+                      <div class="slot-content">
+                        <div class="slot-donut-main">
+                          <img [src]="slot.image" [alt]="slot.name" class="slot-donut-img">
+                          <div class="slot-donut-info">
+                            <span class="slot-donut-name">{{ slot.name }}</span>
+                            <span class="slot-donut-price">{{ slot.price }}đ</span>
+                          </div>
+                        </div>
+
+                        <!-- Slot Heating -->
+                        <div class="slot-heating-row">
+                          <span class="slot-sub-title">Làm nóng:</span>
+                          <div class="slot-heating-btns">
+                            <button type="button" class="slot-opt-btn" [class.selected]="slot.heating === 'Không'" (click)="selectSlotHeating(slotIndex, 'Không')">Không</button>
+                            <button type="button" class="slot-opt-btn" [class.selected]="slot.heating === 'Có'" (click)="selectSlotHeating(slotIndex, 'Có')">Có</button>
+                          </div>
+                        </div>
+
+                        <!-- Slot Toppings -->
+                        @if (slot.selectableToppings && slot.selectableToppings.length > 0) {
+                          <div class="slot-toppings-section">
+                            <span class="slot-sub-title">Toppings thêm:</span>
+                            <div class="slot-toppings-list">
+                              @for (top of slot.selectableToppings; track top.name) {
+                                <div class="slot-topping-item" [class.active]="getSlotToppingQuantity(slotIndex, top.name) > 0">
+                                  <div class="slot-topping-info">
+                                    <span class="s-top-name">{{ top.name }}</span>
+                                    <span class="s-top-price">+{{ top.price }}đ</span>
+                                  </div>
+                                  <div class="slot-topping-actions">
+                                    @if (getSlotToppingQuantity(slotIndex, top.name) > 0) {
+                                      <button type="button" class="s-top-btn" (click)="removeSlotTopping(slotIndex, top.name)">-</button>
+                                      <span class="s-top-qty">{{ getSlotToppingQuantity(slotIndex, top.name) }}</span>
+                                    }
+                                    <button type="button" class="s-top-btn add" (click)="addSlotTopping(slotIndex, top.name, top.price)">+</button>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <div class="slot-placeholder">
+                        <span class="placeholder-icon">🍩</span>
+                        <span class="placeholder-text">Ngăn trống - Hãy chọn vị bánh phía dưới</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Selectable Grid below -->
+            <h5 class="slots-section-title list-title">Danh sách vị bánh Donut tự chọn:</h5>
+            <div class="box-donuts-grid">
+              @for (donut of selectableDonuts; track donut.id) {
+                <div class="box-donut-card" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
+                  <div class="box-donut-img">
+                    <img [src]="donut.image" [alt]="donut.name">
+                  </div>
+                  <div class="box-donut-info">
+                    <span class="box-donut-name">{{ donut.name }}</span>
+                    <span class="box-donut-price">{{ donut.price }}đ</span>
+                  </div>
+                  <div class="box-donut-qty">
+                    @if (getBoxDonutQuantity(donut.id) > 0) {
+                      <button type="button" class="box-qty-btn" (click)="removeBoxDonut(donut.id)">-</button>
+                      <span class="box-qty-val">{{ getBoxDonutQuantity(donut.id) }}</span>
+                    }
+                    <button type="button" class="box-qty-btn add" [disabled]="totalBoxDonutsCount >= maxBoxDonutsCapacity" (click)="addBoxDonut(donut)">+</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <div class="quantity-selector">
+            <button class="qty-btn" (click)="decreaseQuantity()">-</button>
+            <span class="qty-val">{{ quantity }}</span>
+            <button class="qty-btn" (click)="increaseQuantity()">+</button>
+          </div>
+          <button class="add-to-cart-btn" [disabled]="(product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity" (click)="addToCart()">
+            <span class="cart-icon">🛒</span> Thêm vào giỏ
+          </button>
+          <button class="buy-now-btn" [disabled]="(product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity">Mua ngay</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Info Tabs -->
+  <section class="product-info-tabs">
+    <div class="tab-headers">
+      <button class="info-tab" [class.active]="activeTab === 'description'" (click)="setTab('description')">Mô tả sản phẩm</button>
+      <button class="info-tab" [class.active]="activeTab === 'reviews'" (click)="setTab('reviews')">Đánh giá</button>
+      <button class="info-tab" [class.active]="activeTab === 'commit'" (click)="setTab('commit')">Cam kết</button>
+    </div>
+    
+    <div class="tab-content">
+      <!-- Description Tab -->
+      @if (activeTab === 'description') {
+        <div class="info-details-box">
+          <h4><i class="icon-info"></i> Thông tin chi tiết</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Tên sản phẩm:</span> <span class="val">{{ product?.name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Bảo quản:</span> <span class="val">1-2 ngày ở ngăn mát tủ lạnh</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Trọng lượng:</span> <span class="val">180g (tiêu chuẩn)</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Xuất xứ:</span> <span class="val">Việt Nam</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="label">Topping nên dùng kèm:</span> <span class="val">Sốt Chocolate, Vụn Oreo, Hạnh nhân nướng</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Reviews Tab -->
+      @if (activeTab === 'reviews') {
+        <div class="reviews-container">
+          <div class="rating-summary">
+            <div class="summary-left">
+              <div class="big-score">{{ product?.rating }}.0 <span class="small-text">out of 5</span></div>
+              <div class="stars-row">⭐⭐⭐⭐⭐</div>
+              <div class="total-reviews">({{ product?.reviews }} lượt đánh giá)</div>
+            </div>
+            <div class="summary-right">
+              @for (star of [5, 4, 3, 2, 1]; track star) {
+                <div class="rating-bar-row">
+                  <span class="star-label">{{ star }} sao</span>
+                  <div class="bar-bg">
+                    <div class="bar-fill" [style.width.%]="star === 5 ? 80 : (star === 4 ? 15 : 5)"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="review-form-section">
+            <h3 class="form-title">Đánh giá sản phẩm</h3>
+            <div class="form-container">
+              <div class="rating-input-row">
+                <span>Chất lượng sản phẩm:</span>
+                <span class="stars-input">⭐⭐⭐⭐⭐</span>
+              </div>
+              
+              <div class="suggestions-row">
+                @for (s of suggestedReviews; track s) {
+                  <button class="suggestion-tag" (click)="addSuggestion(s)">+ {{ s }}</button>
+                }
+              </div>
+
+              <div class="input-group">
+                <input type="text" placeholder="Để lại đánh giá chi tiết tại đây" class="review-input">
+              </div>
+              <div class="input-group">
+                <textarea placeholder="Hãy để lại nhận xét cho sản phẩm này bạn nhé! LIMDonut xin chân thành cảm ơn." 
+                  class="review-textarea" [(ngModel)]="reviewComment"></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="submit-review-btn">Đánh giá</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Commit Tab -->
+      @if (activeTab === 'commit') {
+        <div class="commit-container">
+          <h3 class="commit-title">Cam kết chất lượng</h3>
+          <ul class="commit-list">
+            <li class="commit-item">
+              <span class="commit-icon"></span>
+              <p>Nguyên liệu được chọn lọc kỹ lưỡng, <strong>không phẩm màu - không hương liệu tổng hợp</strong>, giữ trọn vị bánh nguyên bản.</p>
+            </li>
+            <li class="commit-item">
+              <span class="commit-icon"></span>
+              <p>Mỗi mẻ bánh đều được nhào nặn và nướng mới theo <strong>bí quyết độc quyền</strong>, đảm bảo hương vị thơm ngon, cốt bánh mềm mịn.</p>
+            </li>
+            <li class="commit-item">
+              <span class="commit-icon"></span>
+              <p>Mọi sản phẩm được <strong>đóng gói kín, bảo quản đúng chuẩn</strong>, đảm bảo hương vị luôn tươi mới khi đến tay khách hàng.</p>
+            </li>
+            <li class="commit-item">
+              <span class="commit-icon"></span>
+              <p>LIMDonut luôn lắng nghe phản hồi và <strong>đổi trả nếu sản phẩm không đạt chất lượng cam kết</strong>, mang đến trải nghiệm đáng tin cậy.</p>
+            </li>
+          </ul>
+        </div>
+      }
+    </div>
+  </section>
+  <!-- Related Products -->
+  <section class="related-products">
+    <h2 class="section-title">Có thể bạn sẽ thích</h2>
+    <div class="related-grid">
+      <!-- Show 4 random related products from same category -->
+      @for (p of relatedProducts; track p.id) {
+        <div class="seller-card" [routerLink]="['/product', p.id]">
+          <div class="seller-img">
+            <img [src]="p.image" [alt]="p.name" />
+          </div>
+          <div class="seller-info">
+            <h4>{{ p.name }}</h4>
+            <div class="rating">
+              <span class="stars">⭐⭐⭐⭐⭐</span>
+              <span class="reviews">{{ p.reviews }} đánh giá</span>
+            </div>
+            <div class="price-row">
+              <span class="price">{{ p.price }}</span>
+            </div>
+            <div class="card-actions">
+              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
+              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); cartService.addToCart(p)">🛒 Thêm vào giỏ hàng</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+</main>
+}
+@else {
+  <div class="loading">Đang tải...</div>
+}

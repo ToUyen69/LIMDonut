@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+:root {
+  --color-blue: #71acd0;
+  --color-cream: #fbfbea;
+  --color-yellow: #ddd170;
+  --color-teal: #a5c2cb;
+  --color-red: #c85b4d;
+  --color-light-blue: #afdeee;
+  --color-light-yellow: #fefce9;
+  --color-light-green: #f5fdf3;
+  --color-pale-cyan: #daefee;
+  --color-steel-blue: #b9dbe2;
+
+  --font-primary: 'Montserrat', sans-serif;
+  --font-heading: 'Playfair Display', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-light-green); /* Or another light color */
+  color: #333;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  font-family: var(--font-primary);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
