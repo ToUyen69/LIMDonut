@@ -1,6 +1,76 @@
-.product-thumb {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 8px;
+.cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-pale-cyan, #daefee);
+  color: #2d3436;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
 }
+.cat-tag button {
+  background: none;
+  border: none;
+  color: var(--color-danger, #e17055);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.65rem;
+}
+
+.chip-btn {
+  border: 1.5px solid #dce6ed;
+  background: #fff;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #555;
+}
+.chip-btn.active {
+  background: var(--color-cta, #4a90e2);
+  color: #fff;
+  border-color: var(--color-cta, #4a90e2);
+}
+.chip-btn.chip-info.active { background: #0984e3; border-color: #0984e3; }
+.chip-btn.chip-green.active { background: #00b894; border-color: #00b894; }
+.chip-btn.chip-warn.active { background: #f39c12; border-color: #f39c12; }
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  color: var(--color-cta, #4a90e2);
+  transition: opacity 0.2s;
+}
+.icon-btn:hover { opacity: 0.7; }
+
+.btn-cancel {
+  background: none;
+  border: 1.5px solid var(--color-danger, #e17055);
+  color: var(--color-danger, #e17055);
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel:hover { background: var(--color-danger, #e17055); color: #fff; }
+
+.upload-zone-sm { padding: 0.8rem; }
+.upload-zone-sm i { font-size: 1.3rem; margin-bottom: 0; }
+
+.img-preview img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.out-of-stock { opacity: 0.5; }

@@ -1,69 +1,279 @@
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2 class="fw-bold mb-0"><i class="bi bi-box-seam-fill"></i> Quản lý sản phẩm</h2>
-  <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="logout()"><i class="bi bi-box-arrow-right me-1"></i>Đăng xuất</button>
-</div>
+<h2 class="page-title">Sản phẩm</h2>
 
 <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
-  <input type="text" class="form-control" style="max-width:300px;" placeholder="Tìm theo tên món..." [ngModel]="search()" (ngModelChange)="search.set($event)">
-  <button class="btn btn-primary btn-sm rounded-pill px-3 ms-auto" (click)="showAddForm.set(!showAddForm())">
-    <i class="bi" [ngClass]="showAddForm() ? 'bi-x-lg' : 'bi-plus-lg'"></i> {{ showAddForm() ? 'Đóng' : 'Thêm món mới' }}
+  <button class="btn-add" (click)="showAddForm.set(!showAddForm())">
+    <i class="bi" [ngClass]="showAddForm() ? 'bi-x-lg' : 'bi-plus-lg'"></i> {{ showAddForm() ? 'Đóng' : '+ Thêm sản phẩm' }}
   </button>
+  <button class="btn-add" style="background:var(--color-teal);" (click)="showCatManager.set(!showCatManager())">
+    <i class="bi bi-tags"></i> Danh mục
+  </button>
+  <div style="flex:1;"></div>
+  <div class="admin-search">
+    <i class="bi bi-search"></i>
+    <input placeholder="Tìm kiếm..." [ngModel]="search()" (ngModelChange)="search.set($event)">
+  </div>
 </div>
 
-@if (showAddForm()) {
-  <div class="card mb-3">
-    <div class="card-body p-3">
-      <h6 class="fw-bold mb-3">Thêm món mới</h6>
-      <div class="row g-2">
-        <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Tên món *" [(ngModel)]="newProduct.name"></div>
-        <div class="col-md-2"><input class="form-control form-control-sm" placeholder="Giá (VD: 32.000) *" [(ngModel)]="newProduct.price"></div>
-        <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Tên file ảnh" [(ngModel)]="newProduct.image"></div>
-        <div class="col-md-1"><input type="number" class="form-control form-control-sm" placeholder="Kho" [(ngModel)]="newProduct.stock"></div>
-        <div class="col-md-3"><input class="form-control form-control-sm" placeholder="Mô tả" [(ngModel)]="newProduct.description"></div>
-      </div>
-      <button class="btn btn-success btn-sm rounded-pill px-4 mt-2" (click)="addProduct()"><i class="bi bi-check-lg"></i> Lưu món mới</button>
+<!-- Category Manager -->
+@if (showCatManager()) {
+  <div class="admin-card">
+    <div class="admin-card-title"><i class="bi bi-tags me-1"></i>Quản lý danh mục</div>
+    <div class="d-flex gap-2 mb-3">
+      <input class="admin-form-control" style="max-width:250px;" placeholder="Tên danh mục mới" [(ngModel)]="newCatName" (keyup.enter)="addCategory()">
+      <button class="btn-add" (click)="addCategory()"><i class="bi bi-plus-lg"></i> Thêm</button>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      @for (cat of service.categories(); track cat._id) {
+        <span class="cat-tag">
+          {{ cat.name }}
+          <button (click)="deleteCategory(cat)"><i class="bi bi-x-lg"></i></button>
+        </span>
+      }
     </div>
   </div>
 }
 
-<div class="table-responsive">
-  <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden">
-    <thead class="table-light">
+<!-- Add New Product -->
+@if (showAddForm()) {
+  <div class="admin-card">
+    <div class="admin-card-title">Thêm món mới</div>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="admin-form-label">Tên món *</label>
+        <input class="admin-form-control" placeholder="Nhập tên sản phẩm" [(ngModel)]="newProduct.name">
+      </div>
+      <div class="col-md-2">
+        <label class="admin-form-label">Giá *</label>
+        <input class="admin-form-control" placeholder="VD: 32.000" [(ngModel)]="newProduct.price">
+      </div>
+      <div class="col-md-2">
+        <label class="admin-form-label">Giá gốc</label>
+        <input class="admin-form-control" placeholder="Giá gốc" [(ngModel)]="newProduct.basePrice">
+      </div>
+      <div class="col-md-2">
+        <label class="admin-form-label">Tồn kho</label>
+        <input type="number" class="admin-form-control" [(ngModel)]="newProduct.stock">
+      </div>
+      <div class="col-md-2">
+        <label class="admin-form-label">Hình ảnh</label>
+        <div class="upload-zone upload-zone-sm">
+          <i class="bi bi-cloud-arrow-up"></i>
+          <div class="small">Tải ảnh lên</div>
+          <input type="file" accept="image/*" (change)="onFileSelected($event, newProduct, 'image')">
+        </div>
+        @if (newProduct.image) { <small class="text-success mt-1 d-block"><i class="bi bi-check-circle"></i> Đã tải</small> }
+      </div>
+      <div class="col-12">
+        <label class="admin-form-label">Mô tả</label>
+        <textarea class="admin-form-control" rows="2" placeholder="Nhập mô tả sản phẩm..." [(ngModel)]="newProduct.description"></textarea>
+      </div>
+      <div class="col-12">
+        <label class="admin-form-label">Danh mục</label>
+        <div class="d-flex flex-wrap gap-1 mt-1">
+          @for (cat of service.categories(); track cat._id) {
+            <button class="chip-btn" [class.active]="newProduct.categories?.includes(cat.name)" (click)="toggleArrayItem(newProduct.categories!, cat.name)">{{ cat.name }}</button>
+          }
+        </div>
+      </div>
+    </div>
+    @if (uploading()) { <div class="text-muted small mt-2"><span class="spinner-border spinner-border-sm"></span> Đang tải ảnh...</div> }
+    <div class="d-flex gap-2 mt-3 justify-content-center">
+      <button class="btn-cancel" (click)="showAddForm.set(false)"><i class="bi bi-trash me-1"></i>Hủy bỏ</button>
+      <button class="btn-add" (click)="addProduct()"><i class="bi bi-plus-lg me-1"></i>+ Thêm</button>
+    </div>
+  </div>
+}
+
+<!-- Product Table -->
+<div class="admin-card" style="padding:0; overflow:hidden;">
+  <table class="admin-table">
+    <thead>
       <tr>
         <th>ID</th>
-        <th>Món</th>
-        <th style="width:130px;">Giá</th>
-        <th style="width:100px;">Tồn kho</th>
-        <th>Đã bán</th>
-        <th>Rating</th>
-        <th style="width:180px;"></th>
+        <th>Loại</th>
+        <th>Hình ảnh</th>
+        <th>Sản phẩm</th>
+        <th>Giá</th>
+        <th>Tồn kho</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      @for (p of filtered; track p.id) {
-        <tr [class.table-warning]="p.stock === 0">
-          <td class="text-muted">{{ p.id }}</td>
+      @for (p of pagedProducts; track p.id) {
+        <tr [class.out-of-stock]="p.stock === 0">
+          <td class="fw-semibold" style="color:var(--color-cta);">{{ p.id }}</td>
+          <td><small class="text-muted">{{ p.categories?.[0] || '—' }}</small></td>
           <td>
-            <div class="d-flex align-items-center gap-2">
-              <img [src]="'http://localhost:4321/' + p.image" alt="" class="product-thumb" onerror="this.style.display='none'">
-              <span class="fw-semibold">{{ p.name }}</span>
-              @if (p.stock === 0) { <span class="badge bg-secondary">Hết hàng</span> }
-            </div>
+            <img [src]="imageBase + p.image" alt="" class="product-thumb" onerror="this.style.display='none'">
           </td>
-          <td><input class="form-control form-control-sm" [(ngModel)]="p.price"></td>
-          <td><input type="number" class="form-control form-control-sm" [(ngModel)]="p.stock" min="0"></td>
-          <td class="text-muted">{{ p.sold }}</td>
-          <td class="text-muted small"><i class="bi bi-star-fill text-warning"></i> {{ p.rating }} ({{ p.reviews }})</td>
+          <td>
+            <span class="fw-semibold">{{ p.name }}</span>
+            @if (p.flashSale) { <span class="badge bg-danger ms-1" style="font-size:0.65rem;"><i class="bi bi-lightning-fill"></i></span> }
+          </td>
+          <td>{{ p.price }}</td>
+          <td [class.text-danger]="p.stock < 5" [class.fw-bold]="p.stock < 5">{{ p.stock }}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-success rounded-pill px-3 me-1" [disabled]="savingId() === p.id" (click)="save(p)">
-              {{ savingId() === p.id ? '...' : 'Lưu' }}
-            </button>
-            <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="remove(p)"><i class="bi bi-trash"></i></button>
+            <button class="icon-btn" (click)="openDetail(p)" title="Sửa"><i class="bi bi-pencil-square"></i></button>
+            <button class="icon-btn text-danger" (click)="remove(p)" title="Xóa"><i class="bi bi-x-circle"></i></button>
           </td>
         </tr>
       } @empty {
-        <tr><td colspan="7" class="text-center text-muted py-4">Chưa có sản phẩm nào — chạy <code>node scripts/seedProducts.js</code> trong thư mục backend.</td></tr>
+        <tr><td colspan="7" class="text-center text-muted py-4">Chưa có sản phẩm nào.</td></tr>
       }
     </tbody>
   </table>
+  @if (totalPages > 1) {
+    <div class="admin-pagination">
+      @for (pg of pagesArray; track pg) {
+        <button [class.active]="pg === currentPage" (click)="goToPage(pg)">{{ pg }}</button>
+      }
+      @if (currentPage < totalPages) {
+        <button (click)="goToPage(currentPage + 1)"><i class="bi bi-arrow-right"></i></button>
+      }
+    </div>
+  }
 </div>
+
+<!-- Product Detail Modal -->
+@if (editing(); as ep) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" (click)="closeDetail()">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-family:var(--font-heading);font-style:italic;color:var(--color-cta);">Chỉnh sửa sản phẩm</h5>
+          <button type="button" class="btn-close" (click)="closeDetail()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="admin-form-label">Tên sản phẩm</label>
+              <input class="admin-form-control" [(ngModel)]="ep.name">
+            </div>
+            <div class="col-md-3">
+              <label class="admin-form-label">Giá hiện tại</label>
+              <input class="admin-form-control" [(ngModel)]="ep.price">
+            </div>
+            <div class="col-md-3">
+              <label class="admin-form-label">Giá gốc</label>
+              <input class="admin-form-control" [(ngModel)]="ep.basePrice">
+            </div>
+            <div class="col-md-4">
+              <label class="admin-form-label">Tồn kho</label>
+              <input type="number" class="admin-form-control" [(ngModel)]="ep.stock" min="0">
+            </div>
+            <div class="col-md-8">
+              <label class="admin-form-label">Danh mục</label>
+              <div class="d-flex flex-wrap gap-1">
+                @for (cat of service.categories(); track cat._id) {
+                  <button class="chip-btn" [class.active]="ep.categories?.includes(cat.name)" (click)="toggleArrayItem(ep.categories!, cat.name)">{{ cat.name }}</button>
+                }
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="admin-form-label">Thông tin sản phẩm</label>
+              <textarea class="admin-form-control" rows="3" [(ngModel)]="ep.description"></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="admin-form-label">Nhãn mô tả nhanh</label>
+              <div class="d-flex flex-wrap gap-1">
+                @for (l of labelsOptions; track l) {
+                  <button class="chip-btn chip-info" [class.active]="ep.labels?.includes(l)" (click)="toggleArrayItem(ep.labels!, l)">{{ l }}</button>
+                }
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Nhu cầu ăn uống</label>
+              <div class="d-flex flex-wrap gap-1">
+                @for (d of dietaryOptions; track d) {
+                  <button class="chip-btn chip-green" [class.active]="ep.dietary?.includes(d)" (click)="toggleArrayItem(ep.dietary!, d)">{{ d }}</button>
+                }
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Dị ứng</label>
+              <div class="d-flex flex-wrap gap-1">
+                @for (a of allergensOptions; track a) {
+                  <button class="chip-btn chip-warn" [class.active]="ep.allergens?.includes(a)" (click)="toggleArrayItem(ep.allergens!, a)">{{ a }}</button>
+                }
+              </div>
+            </div>
+
+            <!-- Nutrition -->
+            <div class="col-md-6">
+              <label class="admin-form-label">Dinh dưỡng</label>
+              <div class="row g-2">
+                <div class="col-6"><label class="form-label small text-muted">Calories</label><input type="number" class="admin-form-control" [(ngModel)]="ep.nutrition!.calories"></div>
+                <div class="col-6"><label class="form-label small text-muted">Đường (g)</label><input type="number" class="admin-form-control" [(ngModel)]="ep.nutrition!.sugar"></div>
+                <div class="col-6"><label class="form-label small text-muted">Béo (g)</label><input type="number" class="admin-form-control" [(ngModel)]="ep.nutrition!.fat"></div>
+                <div class="col-6"><label class="form-label small text-muted">Protein (g)</label><input type="number" class="admin-form-control" [(ngModel)]="ep.nutrition!.protein"></div>
+              </div>
+            </div>
+
+            <!-- Toppings -->
+            <div class="col-md-6">
+              <label class="admin-form-label">Topping</label>
+              @for (t of ep.toppings; track $index) {
+                <div class="d-flex gap-2 mb-1">
+                  <input class="admin-form-control" placeholder="Tên" [(ngModel)]="t.name" style="flex:1;">
+                  <input class="admin-form-control" placeholder="Giá" [(ngModel)]="t.price" style="width:100px;">
+                  <button class="icon-btn text-danger" (click)="removeTopping(ep, $index)"><i class="bi bi-x-circle"></i></button>
+                </div>
+              }
+              <button class="btn-add" style="font-size:0.8rem;padding:0.3rem 0.8rem;" (click)="addTopping(ep)"><i class="bi bi-plus"></i> Thêm topping</button>
+            </div>
+
+            <!-- Flash Sale -->
+            <div class="col-12">
+              <label class="admin-form-label">Giờ vàng (Flash Sale)</label>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" [checked]="!!ep.flashSale" (change)="toggleFlashSale(ep)">
+                <label class="form-check-label small">{{ ep.flashSale ? 'Đang bật' : 'Tắt' }}</label>
+              </div>
+              @if (ep.flashSale) {
+                <div class="row g-2">
+                  <div class="col-3"><label class="form-label small text-muted">Giảm %</label><input type="number" class="admin-form-control" [(ngModel)]="ep.flashSale.discountPercent" min="1" max="90"></div>
+                  <div class="col-3">
+                    <label class="form-label small text-muted">Ngày</label>
+                    <select class="admin-form-control" [(ngModel)]="ep.flashSale.dayOfWeek">
+                      @for (day of daysOfWeek; track $index) {
+                        <option [ngValue]="$index">{{ day }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-3"><label class="form-label small text-muted">Bắt đầu</label><input type="number" class="admin-form-control" [(ngModel)]="ep.flashSale.startHour" min="0" max="23"></div>
+                  <div class="col-3"><label class="form-label small text-muted">Kết thúc</label><input type="number" class="admin-form-control" [(ngModel)]="ep.flashSale.endHour" min="0" max="23"></div>
+                </div>
+              }
+            </div>
+
+            <!-- Image -->
+            <div class="col-12">
+              <label class="admin-form-label">Hình ảnh sản phẩm</label>
+              <div class="d-flex gap-3 align-items-start">
+                @if (ep.image) {
+                  <div class="img-preview">
+                    <img [src]="imageBase + ep.image" alt="" onerror="this.style.display='none'">
+                    <small class="text-muted d-block mt-1">{{ ep.image }}</small>
+                  </div>
+                }
+                <div class="upload-zone" style="flex:1;max-width:180px;">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <div class="small">Tải ảnh lên</div>
+                  <input type="file" accept="image/*" (change)="onFileSelected($event, ep, 'image')">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-center gap-2">
+          <button class="btn-cancel" (click)="closeDetail()"><i class="bi bi-trash me-1"></i>Hủy bỏ</button>
+          <button class="btn-add" [disabled]="savingId() === ep.id" (click)="saveDetail()">
+            <i class="bi bi-check-lg me-1"></i>{{ savingId() === ep.id ? 'Đang lưu...' : 'Lưu' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -110,6 +110,22 @@ export class OrderBoardComponent implements OnInit {
     return price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
   }
 
+  exportCSV() {
+    const orders = this.orderService.orders();
+    if (!orders.length) { alert('Không có đơn hàng.'); return; }
+    const header = ['Mã đơn', 'Khách hàng', 'SĐT', 'Trạng thái', 'Phương thức', 'Tổng tiền', 'Ngày tạo'];
+    const rows = orders.map((o: Order) => [
+      o.orderId, o.customerInfo.name, o.customerInfo.phone, o.status,
+      o.deliveryMethod, o.totalAmount, new Date(o.createdAt).toLocaleString('vi-VN')
+    ]);
+    const csv = '﻿' + [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `donhang_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
   columnIcon(status: string): string {
     const map: Record<string, string> = {
       'Đã đặt': 'bi-inbox-fill',

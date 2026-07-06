@@ -1,0 +1,31 @@
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  color: var(--color-cta, #4a90e2);
+  transition: opacity 0.2s;
+}
+.icon-btn:hover { opacity: 0.7; }
+
+.btn-cancel {
+  background: none;
+  border: 1.5px solid var(--color-danger, #e17055);
+  color: var(--color-danger, #e17055);
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel:hover { background: var(--color-danger, #e17055); color: #fff; }
+
+.img-preview img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}

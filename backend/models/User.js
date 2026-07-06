@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   birthdayUpdateCount: { type: Number, default: 0 },
   referralCode: { type: String, unique: true, sparse: true },
   referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  active: { type: Boolean, default: true },
   resetOtp: { type: String, default: null },
   resetOtpExpiry: { type: Date, default: null },
   starsHistory: [{

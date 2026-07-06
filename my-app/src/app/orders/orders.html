@@ -91,7 +91,7 @@
             <div class="order-items mb-4">
               @for (item of order.items; track item.name) {
                 <div class="d-flex gap-3 align-items-center py-3">
-                  <img [src]="item.image" [alt]="item.name" class="item-thumb rounded-3">
+                  <img [src]="item.image | imgUrl" [alt]="item.name" class="item-thumb rounded-3">
                   <div class="flex-grow-1">
                     <h4 class="mb-1 fs-6 fw-semibold">{{ item.name }}</h4>
                     <div class="item-meta d-flex gap-2 flex-wrap text-muted small">
@@ -238,7 +238,7 @@
             <h6 class="fw-bold mb-2"><i class="bi bi-bag me-1"></i> Sản phẩm</h6>
             @for (item of o.items; track item.name) {
               <div class="d-flex gap-3 align-items-center py-2 border-bottom">
-                <img [src]="item.image" [alt]="item.name" class="rounded-3" style="width:48px;height:48px;object-fit:cover;">
+                <img [src]="item.image | imgUrl" [alt]="item.name" class="rounded-3" style="width:48px;height:48px;object-fit:cover;">
                 <div class="flex-grow-1">
                   <span class="fw-semibold small">{{ item.name }}</span>
                   <span class="text-muted small ms-1">x{{ item.quantity }}</span>

@@ -1,0 +1,147 @@
+<h2 class="page-title">Diễn đàn</h2>
+
+<!-- KPI -->
+<div class="kpi-row">
+  <div class="kpi-card kpi-bg-blue">
+    <div class="kpi-icon"><i class="bi bi-journal-text"></i></div>
+    <div class="kpi-label">Tổng bài viết</div>
+    <div class="kpi-value">{{ service.posts().length }} <small style="font-size:0.5em;">Bài</small></div>
+  </div>
+  <div class="kpi-card kpi-bg-cyan">
+    <div class="kpi-icon"><i class="bi bi-check2-circle"></i></div>
+    <div class="kpi-label">Đã xuất bản</div>
+    <div class="kpi-value">{{ service.posts().length }} <small style="font-size:0.5em;">Bài</small></div>
+    <div class="kpi-sub">Đang hoạt động</div>
+  </div>
+</div>
+
+<div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
+  <button class="btn-add" (click)="openNew()"><i class="bi bi-plus-lg me-1"></i>+ Thêm bài viết</button>
+  <div style="flex:1;"></div>
+  <div class="admin-search">
+    <i class="bi bi-search"></i>
+    <input placeholder="Tìm kiếm..." [ngModel]="searchTerm" (ngModelChange)="searchTerm = $event">
+  </div>
+</div>
+
+<!-- Blog Table -->
+<div class="admin-card" style="padding:0; overflow:hidden;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Ngày đăng</th>
+        <th>Hình ảnh</th>
+        <th>Tiêu đề</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (post of pagedPosts; track post.id) {
+        <tr>
+          <td class="fw-semibold" style="color:var(--color-cta);">{{ post.id }}</td>
+          <td class="text-muted small">{{ post.date }}</td>
+          <td>
+            @if (post.mainImage) {
+              <img [src]="imageBase + post.mainImage" alt="" class="product-thumb" onerror="this.style.display='none'">
+            }
+          </td>
+          <td class="fw-semibold">{{ post.title }}</td>
+          <td class="text-end">
+            <button class="icon-btn" (click)="openEdit(post)" title="Sửa"><i class="bi bi-pencil-square"></i></button>
+            <button class="icon-btn text-danger" (click)="remove(post)" title="Xóa"><i class="bi bi-x-circle"></i></button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="5" class="text-center text-muted py-4">Chưa có bài viết. Chạy <code>node scripts/seedBlogPosts.js</code></td></tr>
+      }
+    </tbody>
+  </table>
+  @if (totalPages > 1) {
+    <div class="admin-pagination">
+      @for (pg of pagesArray; track pg) {
+        <button [class.active]="pg === currentPage" (click)="currentPage = pg">{{ pg }}</button>
+      }
+      @if (currentPage < totalPages) {
+        <button (click)="currentPage = currentPage + 1"><i class="bi bi-arrow-right"></i></button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Blog Form Modal -->
+@if (showForm()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" (click)="close()">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" style="font-family:var(--font-heading);font-style:italic;color:var(--color-cta);">
+            {{ editing() ? 'Chỉnh sửa bài viết' : 'Thêm bài viết mới' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="close()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="admin-form-label">Tiêu đề *</label>
+              <input class="admin-form-control" [(ngModel)]="form.title">
+            </div>
+            <div class="col-md-4">
+              <label class="admin-form-label">Ngày (VD: 26.08.2025)</label>
+              <input class="admin-form-control" [(ngModel)]="form.date">
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Slug ID</label>
+              <input class="admin-form-control" [(ngModel)]="form.id" [disabled]="!!editing()">
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Tags (phẩy phân cách)</label>
+              <input class="admin-form-control" [(ngModel)]="tagsString">
+            </div>
+            <div class="col-12">
+              <label class="admin-form-label">Tóm tắt</label>
+              <textarea class="admin-form-control" rows="2" [(ngModel)]="form.excerpt"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="admin-form-label">Nội dung</label>
+              <textarea class="admin-form-control" rows="8" [(ngModel)]="form.content"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Ảnh chính</label>
+              <div class="d-flex align-items-start gap-2">
+                @if (form.mainImage) {
+                  <div class="img-preview"><img [src]="imageBase + form.mainImage" alt="" onerror="this.style.display='none'"></div>
+                }
+                <div class="upload-zone" style="flex:1;">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <div class="small">Tải ảnh lên</div>
+                  <input type="file" accept="image/*" (change)="onMainImage($event)">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="admin-form-label">Ảnh chi tiết</label>
+              <div class="upload-zone" style="margin-bottom:0.5rem;">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <div class="small">Tải thêm ảnh</div>
+                <input type="file" accept="image/*" (change)="onDetailImage($event)">
+              </div>
+              @for (img of form.detailImages; track $index) {
+                <div class="d-flex align-items-center gap-1 mt-1">
+                  <small class="text-muted">{{ img }}</small>
+                  <button class="icon-btn text-danger" style="font-size:0.8rem;" (click)="removeDetailImage($index)"><i class="bi bi-x-circle"></i></button>
+                </div>
+              }
+            </div>
+          </div>
+          @if (uploading()) { <div class="text-muted small mt-2"><span class="spinner-border spinner-border-sm"></span> Đang tải ảnh...</div> }
+        </div>
+        <div class="modal-footer justify-content-center gap-2">
+          <button class="btn-cancel" (click)="close()"><i class="bi bi-trash me-1"></i>Hủy bỏ</button>
+          <button class="btn-add" (click)="save()"><i class="bi bi-check-lg me-1"></i>{{ editing() ? 'Lưu' : 'Đăng bài' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

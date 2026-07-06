@@ -9,11 +9,12 @@ import { classifyOrder, calculateShipping, applyDiscountCap } from '../pricing.u
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ImgUrlPipe],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css'
 })

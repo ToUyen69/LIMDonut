@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ComplaintsService, Complaint } from './complaints.service';
 import { AdminAuthService } from '../admin-auth.service';
+import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 
 @Component({
   selector: 'app-complaints',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgeComponent],
   templateUrl: './complaints.component.html',
   styleUrl: './complaints.component.css'
 })

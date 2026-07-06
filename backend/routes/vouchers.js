@@ -67,5 +67,16 @@ router.post('/', requireAdmin, async (req, res) => {
   }
 });
 
+// Toggle active / cập nhật voucher (admin)
+router.patch('/:id', requireAdmin, async (req, res) => {
+  try {
+    const voucher = await Voucher.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!voucher) return res.status(404).json({ message: 'Không tìm thấy voucher.' });
+    res.json(voucher);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server!', error: err.message });
+  }
+});
+
 module.exports = router;
 module.exports.validateVoucher = validateVoucher;

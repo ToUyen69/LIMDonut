@@ -1,0 +1,7 @@
+.admin-table thead th {
+  background: #f8f9fa; color: #666;
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.admin-table tbody tr:hover { background: #f8fafe; }

@@ -9,7 +9,7 @@
     <div class="col-lg-5">
       <div class="product-gallery">
         <div class="main-image" [style.opacity]="productService.isOutOfStock(product) ? 0.4 : 1" style="position:relative;">
-          <img [src]="mainImage" [alt]="product?.name" />
+          <img [src]="mainImage | imgUrl" [alt]="product?.name" />
           @if (productService.isOutOfStock(product)) {
             <span class="badge bg-secondary position-absolute top-0 start-0 m-2" style="font-size:0.85rem;z-index:2;"><i class="bi bi-x-circle-fill"></i> Hết hàng hôm nay</span>
           } @else if (productService.isLowStock(product)) {
@@ -159,7 +159,7 @@
                       @if (slot.productId !== undefined) {
                         <div class="slot-content">
                           <div class="d-flex align-items-center gap-3 mb-3">
-                            <img [src]="slot.image" [alt]="slot.name" class="slot-donut-img rounded-2" style="width:44px;height:44px;object-fit:cover;">
+                            <img [src]="slot.image | imgUrl" [alt]="slot.name" class="slot-donut-img rounded-2" style="width:44px;height:44px;object-fit:cover;">
                             <div class="d-flex flex-column">
                               <span class="fw-semibold small">{{ slot.name }}</span>
                               <span class="text-muted small">{{ slot.price }}d</span>
@@ -227,7 +227,7 @@
                 <div class="col-md-6">
                   <div class="box-donut-card d-flex align-items-center gap-3 p-2 rounded-3 border" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
                     <div class="box-donut-img rounded-2 overflow-hidden flex-shrink-0" style="width:50px;height:50px;">
-                      <img [src]="donut.image" [alt]="donut.name" class="w-100 h-100" style="object-fit:cover;">
+                      <img [src]="donut.image | imgUrl" [alt]="donut.name" class="w-100 h-100" style="object-fit:cover;">
                     </div>
                     <div class="flex-grow-1 d-flex flex-column">
                       <span class="box-donut-name small fw-semibold text-start">{{ donut.name }}</span>
@@ -512,7 +512,7 @@
         <div class="col-lg-3 col-md-6">
           <div class="card h-100 shadow-sm border-0 seller-card" [routerLink]="['/product', p.id]">
             <div class="card-img-top">
-              <img [src]="p.image" [alt]="p.name" class="w-100" style="height:200px;object-fit:cover;border-radius:12px 12px 0 0;" />
+              <img [src]="p.image | imgUrl" [alt]="p.name" class="w-100" style="height:200px;object-fit:cover;border-radius:12px 12px 0 0;" />
             </div>
             <div class="card-body text-center">
               <h4 class="fs-6 fw-bold mb-2">{{ p.name }}</h4>

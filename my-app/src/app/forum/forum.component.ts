@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BlogService, BlogPost } from './blog.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-forum',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ImgUrlPipe],
   templateUrl: './forum.component.html',
   styleUrls: ['./forum.component.css']
 })
@@ -18,13 +19,20 @@ export class ForumComponent implements OnInit {
   totalPages = 1;
   pages: number[] = [];
 
-  constructor(private blogService: BlogService) {}
+  private blogService = inject(BlogService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.allPosts = this.blogService.getPosts();
-    this.totalPages = Math.ceil(this.allPosts.length / this.pageSize);
-    this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    this.setPage(1);
+    this.blogService.fetchPosts().subscribe({
+      next: posts => {
+        this.allPosts = posts;
+        this.totalPages = Math.ceil(this.allPosts.length / this.pageSize);
+        this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        this.setPage(1);
+        this.cdr.detectChanges();
+      },
+      error: () => { this.allPosts = []; }
+    });
   }
 
   setPage(page: number): void {
@@ -33,8 +41,6 @@ export class ForumComponent implements OnInit {
     const startIndex = (page - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.pagedPosts = this.allPosts.slice(startIndex, endIndex);
-    
-    // Scroll to top of content area when changing page
     window.scrollTo({ top: 400, behavior: 'smooth' });
   }
 }

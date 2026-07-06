@@ -6,11 +6,12 @@ import { CartService } from '../cart.service';
 import { ProductService, Product } from '../product.service';
 import { ReviewService, Review } from '../review.service';
 import { AuthService } from '../auth.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ImgUrlPipe],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css'
 })

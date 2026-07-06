@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContactMessagesService, ContactMessage } from './contact-messages.service';
 import { AdminAuthService } from '../admin-auth.service';
+import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 
 @Component({
   selector: 'app-contact-messages',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgeComponent],
   templateUrl: './contact-messages.component.html',
   styleUrl: './contact-messages.component.css'
 })

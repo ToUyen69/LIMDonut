@@ -15,7 +15,7 @@
         <div class="col-lg-3 col-md-4 col-sm-6" *ngFor="let post of pagedPosts">
           <div class="card blog-card h-100 border-0" [routerLink]="['/forum', post.id]">
             <div class="card-img-top-wrapper">
-              <img [src]="post.mainImage" [alt]="post.title" class="card-img-top">
+              <img [src]="post.mainImage | imgUrl" [alt]="post.title" class="card-img-top">
             </div>
             <div class="card-body">
               <span class="text-muted small d-block mb-2">{{ post.date }}</span>

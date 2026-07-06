@@ -5,11 +5,12 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { CartService } from '../cart.service';
 import { ProductService, Product } from '../product.service';
 import { AuthService } from '../auth.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ImgUrlPipe],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })

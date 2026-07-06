@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService, BlogPost } from '../forum/blog.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-forum-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ImgUrlPipe],
   templateUrl: './forum-detail.component.html',
   styleUrls: ['./forum-detail.component.css']
 })
@@ -21,7 +22,10 @@ export class ForumDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.post = this.blogService.getPostById(id);
+      this.blogService.fetchPostById(id).subscribe({
+        next: post => this.post = post,
+        error: () => this.post = undefined
+      });
     }
   }
 }

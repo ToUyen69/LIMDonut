@@ -1,0 +1,76 @@
+<h2 class="page-title">Khách hàng</h2>
+
+<div class="d-flex gap-2 mb-3">
+  <div class="admin-search">
+    <i class="bi bi-search"></i>
+    <input placeholder="Tìm theo tên hoặc email..." [ngModel]="search()" (ngModelChange)="search.set($event)">
+  </div>
+</div>
+
+<div class="admin-card" style="padding:0; overflow:hidden;">
+  <table class="admin-table">
+    <thead class="table-light">
+      <tr>
+        <th>Tên</th>
+        <th>Email</th>
+        <th>SĐT</th>
+        <th>Lịm Star</th>
+        <th>Ngày tạo</th>
+        <th>Trạng thái</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of filtered; track c._id) {
+        <tr [class.table-danger]="c.active === false">
+          <td class="fw-semibold">{{ c.username }}</td>
+          <td class="text-muted small">{{ c.email }}</td>
+          <td class="text-muted small">{{ c.phone || '—' }}</td>
+          <td><span class="badge bg-warning text-dark"><i class="bi bi-star-fill"></i> {{ c.stars }}</span></td>
+          <td class="text-muted small">{{ formatDate(c.createdAt) }}</td>
+          <td>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" [checked]="c.active !== false" (change)="toggleActive(c)">
+              <label class="form-check-label small">{{ c.active !== false ? 'Hoạt động' : 'Đã khoá' }}</label>
+            </div>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-warning rounded-pill px-3" (click)="openStarModal(c)"><i class="bi bi-star me-1"></i>Sao</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr><td colspan="7" class="text-center text-muted py-4">Chưa có khách hàng nào.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Star Adjust Modal -->
+@if (starModal(); as c) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" (click)="starModal.set(null)">
+    <div class="modal-dialog modal-dialog-centered modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Điều chỉnh Lịm Star — {{ c.username }}</h6>
+          <button type="button" class="btn-close" (click)="starModal.set(null)"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted mb-2">Hiện có: <strong>{{ c.stars }}</strong> sao</p>
+          <div class="mb-2">
+            <label class="form-label small fw-bold">Số sao (+ cộng, - trừ)</label>
+            <input type="number" class="form-control" [(ngModel)]="starAmount">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small fw-bold">Lý do *</label>
+            <input class="form-control" [(ngModel)]="starReason" placeholder="VD: Bù lỗi hệ thống">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm rounded-pill" (click)="starModal.set(null)">Hủy</button>
+          <button class="btn btn-warning btn-sm rounded-pill px-3" (click)="submitStars()">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

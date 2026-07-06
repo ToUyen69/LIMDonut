@@ -24,7 +24,7 @@
 
           <!-- Main Image -->
           <div class="main-image-wrapper rounded-3 overflow-hidden mb-5">
-            <img [src]="post.mainImage" [alt]="post.title" class="w-100 d-block">
+            <img [src]="post.mainImage | imgUrl" [alt]="post.title" class="w-100 d-block">
           </div>
 
           <!-- Content Text -->
@@ -35,7 +35,7 @@
           <!-- Detail Images -->
           <div class="row g-3 mb-5" *ngIf="post.detailImages && post.detailImages.length > 0">
             <div [ngClass]="{'col-md-6': post.detailImages.length === 2, 'col-md-4': post.detailImages.length >= 3}" *ngFor="let img of post.detailImages">
-              <img [src]="img" alt="Detail image" class="img-fluid rounded-3 shadow-sm w-100">
+              <img [src]="img | imgUrl" alt="Detail image" class="img-fluid rounded-3 shadow-sm w-100">
             </div>
           </div>
 

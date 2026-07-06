@@ -238,6 +238,56 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
   }
 });
 
+const Complaint = require('../models/Complaint');
+const ContactMessage = require('../models/ContactMessage');
+
+router.get('/stats', requireAdmin, async (req, res) => {
+  try {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [ordersByStatus, revenueToday, revenueThisWeek, revenueThisMonth, topProducts, pendingComplaints, unreadContacts, lowStockProducts, outOfStockCount, recentOrders, dailyRevenue] = await Promise.all([
+      Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfDay } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfWeek } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Product.find().sort({ sold: -1 }).limit(5).select('id name image sold price'),
+      Complaint.countDocuments({ status: 'Chờ xử lý' }),
+      ContactMessage.countDocuments({ status: 'Chưa xử lý' }),
+      Product.find({ stock: { $gt: 0, $lt: 5 } }).select('id name stock image'),
+      Product.countDocuments({ stock: 0 }),
+      Order.find().sort({ createdAt: -1 }).limit(5).select('orderId customerInfo totalAmount status createdAt'),
+      Order.aggregate([
+        { $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000) } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$totalAmount' }, count: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ])
+    ]);
+
+    const statusMap = {};
+    ordersByStatus.forEach(s => statusMap[s._id] = s.count);
+
+    res.json({
+      ordersByStatus: statusMap,
+      revenueToday: revenueToday[0]?.total || 0,
+      revenueThisWeek: revenueThisWeek[0]?.total || 0,
+      revenueThisMonth: revenueThisMonth[0]?.total || 0,
+      topProducts,
+      pendingComplaints,
+      unreadContacts,
+      lowStockProducts,
+      outOfStockCount,
+      recentOrders,
+      dailyRevenue
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server!', error: err.message });
+  }
+});
+
 router.patch('/:id/cancel', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { ProductService, Product } from '../product.service';
 import { CartService } from '../cart.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ImgUrlPipe],
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.css'
 })

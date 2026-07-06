@@ -49,6 +49,10 @@ app.use('/api/complaints', require('./routes/complaints'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/vouchers', require('./routes/vouchers'));
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/blog', require('./routes/blog'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/branches', require('./routes/branches'));
 
 // Serve ảnh đã upload
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));

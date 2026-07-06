@@ -7,11 +7,12 @@ import { AuthService } from '../auth.service';
 import { CartService } from '../cart.service';
 import { ComplaintService } from '../complaint.service';
 import { environment } from '../../environments/environment';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ImgUrlPipe],
   templateUrl: './orders.html',
   styleUrl: './orders.css',
 })

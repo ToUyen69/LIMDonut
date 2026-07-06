@@ -1,24 +1,5 @@
-:root {
-  --color-blue: #71acd0;
-  --color-cream: #fbfbea;
-  --color-teal: #a5c2cb;
-  --color-light-blue: #afdeee;
-  --color-pale-cyan: #daefee;
-  --color-steel-blue: #b9dbe2;
-  --color-light-green: #f5fdf3;
-  --font-primary: 'Montserrat', sans-serif;
-  --font-heading: 'Playfair Display', serif;
-}
-
-body {
-  font-family: var(--font-primary) !important;
-  background-color: #f5f7fa;
-  color: #333;
-  margin: 0;
-}
-
 .admin-navbar {
-  background-color: var(--color-light-blue);
+  background-color: #afdeee;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 0.6rem 1.5rem;
   display: flex;
@@ -46,7 +27,7 @@ body {
   font-size: 0.72rem;
   font-weight: 600;
   color: #fff;
-  background: var(--color-blue);
+  background: #4a90e2;
   padding: 0.15rem 0.6rem;
   border-radius: 10px;
   letter-spacing: 0.5px;
@@ -55,6 +36,22 @@ body {
 .admin-nav {
   display: flex;
   gap: 0.25rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.admin-nav::-webkit-scrollbar { display: none; }
+
+@media (max-width: 768px) {
+  .admin-navbar {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+  .admin-nav { width: 100%; }
+  .admin-nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+  .admin-content { padding: 1rem; }
 }
 
 .admin-nav a {
@@ -73,8 +70,26 @@ body {
 
 .admin-nav a.active {
   background: #fff;
-  color: var(--color-blue);
+  color: #4a90e2;
   font-weight: 600;
+}
+
+.admin-logout-btn {
+  background: none;
+  border: 1.5px solid #e17055;
+  color: #e17055;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  margin-left: 0.5rem;
+}
+.admin-logout-btn:hover {
+  background: #e17055;
+  color: #fff;
 }
 
 .admin-content {

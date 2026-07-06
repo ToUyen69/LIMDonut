@@ -119,7 +119,7 @@
               @for (item of cartService.items(); track item.id) {
                 <div class="cart-item">
                   <div class="item-img" [routerLink]="['/product', item.productId]">
-                    <img [src]="item.image" [alt]="item.name">
+                    <img [src]="item.image | imgUrl" [alt]="item.name">
                   </div>
                   <div class="item-details">
                     <h4 class="item-name" [routerLink]="['/product', item.productId]">{{ item.name }}</h4>

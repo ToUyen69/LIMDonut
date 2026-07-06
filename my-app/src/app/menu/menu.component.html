@@ -121,7 +121,7 @@
             <div class="col-lg-3 col-md-6">
               <div class="hot-card" [routerLink]="['/product', product.id]">
                 <span class="hot-rank-badge"><i class="bi bi-fire"></i> Bán chạy</span>
-                <img [src]="product.image" [alt]="product.name" />
+                <img [src]="product.image | imgUrl" [alt]="product.name" />
                 <div class="hot-card-info">
                   <h4>{{ product.name }}</h4>
                   <span class="hot-desc">{{ product.description }}</span>
@@ -155,7 +155,7 @@
             <div class="col-lg-4 col-md-6">
               <div class="card seller-card" [class.out-of-stock-card]="isOutOfStock(product)" [routerLink]="['/product', product.id]">
                 <div class="seller-img" [style.opacity]="isOutOfStock(product) ? 0.4 : 1">
-                  <img [src]="product.image" [alt]="product.name" />
+                  <img [src]="product.image | imgUrl" [alt]="product.name" />
                   <button class="fav-btn" [class.favorited]="isFavorite(product)" (click)="$event.stopPropagation(); toggleFavorite(product)" title="Yêu thích">
                     <i class="bi" [ngClass]="isFavorite(product) ? 'bi-heart-fill' : 'bi-heart'"></i>
                   </button>

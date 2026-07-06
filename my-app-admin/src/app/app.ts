@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AdminAuthService } from './admin-auth.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  private auth = inject(AdminAuthService);
+  logout() { this.auth.logout(); }
+}
