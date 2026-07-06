@@ -11,7 +11,6 @@ import { Orders } from './orders/orders';
 import { Login } from './login/login';
 import { Profile } from './profile/profile';
 import { ForgotPassword } from './forgot-password/forgot-password';
-import { CustomPartyComponent } from './custom-party/custom-party.component';
 import { OrderLookupComponent } from './order-lookup/order-lookup.component';
 import { AboutComponent } from './about/about.component';
 import { FavoritesComponent } from './favorites/favorites.component';
@@ -20,7 +19,6 @@ export const routes: Routes = [
   { path: '', component: HomepageComponent },
   { path: 'homepage', component: HomepageComponent },
   { path: 'menu', component: MenuComponent },
-  { path: 'custom-party', component: CustomPartyComponent },
   { path: 'product/:id', component: ProductDetailComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'forum', component: ForumComponent },
