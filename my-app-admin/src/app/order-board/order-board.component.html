@@ -1,0 +1,100 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="fw-bold mb-0"><i class="bi bi-kanban"></i> Bảng đơn hàng</h2>
+  <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="logout()"><i class="bi bi-box-arrow-right me-1"></i>Đăng xuất</button>
+</div>
+
+<div class="board-scroll">
+  <div class="kanban-board d-flex gap-3">
+    @for (col of columns; track col) {
+      <div class="kanban-column">
+        <div class="column-header">
+          <i class="bi" [ngClass]="columnIcon(col)"></i>
+          <span>{{ col }}</span>
+          <span class="badge bg-secondary ms-auto">{{ ordersByStatus(col).length }}</span>
+        </div>
+        <div class="column-body">
+          @for (order of ordersByStatus(col); track order._id) {
+            <div class="order-card card mb-2">
+              <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <span class="fw-bold text-primary small">{{ order.orderId }}</span>
+                  <span class="badge" [ngClass]="order.deliveryMethod === 'pickup' ? 'bg-info' : 'bg-warning text-dark'">
+                    {{ order.deliveryMethod === 'pickup' ? 'Lấy' : 'Giao' }}
+                  </span>
+                </div>
+                @if (order.customerInfo.isGift) {
+                  <div class="gift-note small mb-1">
+                    <span class="badge" style="background:#fce4ec;color:#c2185b;"><i class="bi bi-gift-fill"></i> Quà tặng</span>
+                    @if (order.customerInfo.hideGiftPrice) { <span class="badge bg-secondary ms-1">Ẩn giá với khách</span> }
+                    @if (order.customerInfo.giftMessage) {
+                      <div class="mt-1 p-1 rounded" style="background:#fff3f7;color:#ad1457;font-size:0.75rem;">
+                        <i class="bi bi-card-text"></i> Thiệp: "{{ order.customerInfo.giftMessage }}"
+                      </div>
+                    }
+                  </div>
+                }
+                <div class="small mb-1">
+                  <i class="bi bi-person-fill"></i> {{ order.customerInfo.name }}
+                </div>
+                <div class="small text-muted mb-1">
+                  <i class="bi bi-telephone-fill"></i> {{ order.customerInfo.phone }}
+                </div>
+                <div class="small text-muted mb-1">
+                  <i class="bi bi-clock"></i> {{ order.customerInfo.deliveryTime }}
+                </div>
+                <div class="fw-bold text-end text-primary mb-2">{{ formatPrice(order.totalAmount) }}</div>
+
+                <!-- Next status buttons -->
+                @for (ns of nextStatuses(order); track ns) {
+                  <button class="btn btn-sm btn-success w-100 mb-1" (click)="transition(order, ns)">
+                    <i class="bi bi-arrow-right-circle"></i> Chuyển sang "{{ ns }}"
+                  </button>
+                }
+                <!-- Exception buttons -->
+                @for (es of exceptionStatuses(order); track es) {
+                  <button class="btn btn-sm btn-outline-danger w-100 mb-1" (click)="transition(order, es)">
+                    {{ es }}
+                  </button>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="text-center text-muted small py-3">Trống</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Evidence Photo Modal -->
+@if (showPhotoModal()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" (click)="showPhotoModal.set(false)">
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ảnh bằng chứng đóng gói</h5>
+          <button type="button" class="btn-close" (click)="showPhotoModal.set(false)"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small">Chọn ảnh chụp sản phẩm đã đóng gói trước khi chuyển trạng thái.</p>
+          <input type="file" class="form-control" accept="image/jpeg,image/png,image/webp" (change)="onPhotoFileSelected($event)">
+          @if (uploading()) {
+            <div class="text-muted small mt-2"><span class="spinner-border spinner-border-sm"></span> Đang tải ảnh lên...</div>
+          }
+          @if (uploadError()) {
+            <div class="alert alert-danger small py-2 mt-2 mb-0">{{ uploadError() }}</div>
+          }
+          @if (photoUrl()) {
+            <img [src]="photoUrl()" class="img-fluid rounded mt-2" alt="Preview" style="max-height:200px;">
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="showPhotoModal.set(false)">Hủy</button>
+          <button class="btn btn-primary" [disabled]="!photoUrl()" (click)="confirmPhoto()">Xác nhận & chuyển</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

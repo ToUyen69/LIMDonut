@@ -1,75 +1,114 @@
 @if (product) {
-<main class="product-detail-page">
-  <div class="breadcrumb">
-    <a routerLink="/">Trang chủ</a> / <a routerLink="/menu">Menu Donut</a> / <span>{{ product?.categories?.[0] }}</span>
+<main class="product-detail-page container py-4">
+  <div class="breadcrumb-custom rounded p-3 text-center mb-4">
+    <a routerLink="/">Trang chủ</a> / <a routerLink="/menu">Menu Donut</a> / <span class="fw-bold">{{ product?.categories?.[0] }}</span>
   </div>
 
-  <section class="product-main-info">
+  <section class="row g-4 bg-white rounded-3 shadow-sm p-4 mb-4">
     <!-- Left Column: Images -->
-    <div class="product-gallery">
-      <div class="main-image">
-        <img [src]="mainImage" [alt]="product?.name" />
-        <div class="slider-arrows">
-          <button class="arrow prev-arrow" (click)="prevImage()">‹</button>
-          <button class="arrow next-arrow" (click)="nextImage()">›</button>
+    <div class="col-lg-5">
+      <div class="product-gallery">
+        <div class="main-image" [style.opacity]="productService.isOutOfStock(product) ? 0.4 : 1" style="position:relative;">
+          <img [src]="mainImage" [alt]="product?.name" />
+          @if (productService.isOutOfStock(product)) {
+            <span class="badge bg-secondary position-absolute top-0 start-0 m-2" style="font-size:0.85rem;z-index:2;"><i class="bi bi-x-circle-fill"></i> Hết hàng hôm nay</span>
+          } @else if (productService.isLowStock(product)) {
+            <span class="badge position-absolute top-0 start-0 m-2" style="background:#fd7e14;font-size:0.85rem;z-index:2;"><i class="bi bi-clock-fill"></i> Sắp hết – còn {{product.stock}}</span>
+          }
+          <div class="slider-arrows">
+            <button class="arrow prev-arrow" (click)="prevImage()"><i class="bi bi-chevron-left"></i></button>
+            <button class="arrow next-arrow" (click)="nextImage()"><i class="bi bi-chevron-right"></i></button>
+          </div>
         </div>
-      </div>
-      <div class="thumbnail-list">
-        @for (img of productImages; track $index) {
-          <img [src]="img" [class.active]="currentImageIndex === $index" (click)="setMainImageIndex($index)" alt="Thumb" />
-        }
+        <div class="thumbnail-list mt-3">
+          @for (img of productImages; track $index) {
+            <img [src]="img" [class.active]="currentImageIndex === $index" (click)="setMainImageIndex($index)" alt="Thumb" />
+          }
+        </div>
       </div>
     </div>
 
     <!-- Right Column: Details & Options -->
-    <div class="product-details">
-      <span class="category-label">{{ product?.categories?.[0] }}</span>
-      <h1 class="product-title">{{ product?.name }}</h1>
-      <div class="rating-reviews">
-        <span class="stars">
-          @for (star of [].constructor(product?.rating); track $index) { ⭐ }
+    <div class="col-lg-7">
+      <span class="text-muted small">{{ product?.categories?.[0] }}</span>
+      <h1 class="product-title fs-2 fw-bold mt-1 mb-2">{{ product?.name }}</h1>
+      <div class="d-flex align-items-center gap-2 mb-3 small">
+        <span class="stars text-warning">
+          @for (star of [].constructor(product?.rating); track $index) { <i class="bi bi-star-fill"></i> }
         </span>
-        <span class="score">{{ product?.rating }}.0</span>
-        <span class="reviews">({{ product?.reviews }} lượt đánh giá)</span>
+        <span class="fw-bold">{{ product?.rating }}.0</span>
+        <span class="text-muted">({{ product?.reviews }} lượt đánh giá)</span>
+        <span class="sold-proof"><i class="bi bi-bag-check-fill"></i> đã bán {{ soldLabel }}</span>
+        @if (productService.isOutOfStock(product)) {
+          <span class="text-secondary fw-bold"><i class="bi bi-x-circle-fill"></i> Hết hàng</span>
+        } @else if (productService.isLowStock(product)) {
+          <span style="color:#fd7e14;" class="fw-bold"><i class="bi bi-clock-fill"></i> Sắp hết – còn {{product.stock}}</span>
+        } @else {
+          <span class="text-success"><i class="bi bi-check-circle-fill"></i> Còn hàng</span>
+        }
       </div>
 
-      <div class="price-container">
-        <div class="price-size">
-          <span class="price-val">{{ currentPrice }}</span>
+      <!-- Nhãn mô tả nhanh & nhu cầu -->
+      @if (product.labels.length || product.dietary.length || product.allergens.length) {
+        <div class="detail-tags d-flex flex-wrap gap-2 mb-3">
+          @for (label of product.labels; track label) {
+            <span class="d-tag flavor">{{ label }}</span>
+          }
+          @for (diet of product.dietary; track diet) {
+            <span class="d-tag diet"><i class="bi bi-check-lg"></i> {{ diet }}</span>
+          }
+          @if (product.nutrition.calories > 0) {
+            <span class="d-tag calo"><i class="bi bi-fire"></i> {{ product.nutrition.calories }} kcal</span>
+          }
         </div>
-        <div class="vip-price">
-          <span class="vip-label">VIP</span>
-          <span class="price-val">{{ vipPrice }}</span>
+      }
+
+      @if (isFlashSale()) {
+        <div class="flash-detail-banner mb-2">
+          <i class="bi bi-lightning-charge-fill"></i>
+          <strong>Giờ vàng -{{ product.flashSale!.discountPercent }}%</strong> · kết thúc sau <strong>{{ flashCountdown() }}</strong>
+        </div>
+      }
+      <div class="price-container d-flex gap-4 mb-3 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+          <span class="price-val fw-bold fs-5" [class.flash-price]="isFlashSale()">{{ currentPrice }}</span>
+          @if (isFlashSale()) {
+            <span class="old-price">{{ product.price }}</span>
+          }
+        </div>
+        <div class="vip-price d-flex align-items-center gap-2 ms-4">
+          <span class="badge bg-danger">VIP</span>
+          <span class="price-val fw-bold fs-5">{{ vipPrice }}</span>
         </div>
       </div>
 
-      <div class="product-desc">
+      <div class="product-desc text-muted mb-3">
         <p>{{ product?.description }}. Sự kết hợp hoàn hảo giữa cốt bánh mềm mịn và lớp phủ thượng hạng tạo nên chiếc Donut tuyệt vời. Thưởng thức ngay để cảm nhận hương vị đặc trưng và hậu vị lôi cuốn.</p>
-        <button class="view-note-btn">Chú thích sản phẩm tại đây <span>v</span></button>
+        <button class="btn btn-link text-dark fw-bold p-0 text-decoration-underline">Chú thích sản phẩm tại đây <span>v</span></button>
       </div>
 
-      <div class="options-container">
+      <div class="options-container bg-light rounded-3 p-3">
         <!-- Heating (Only for regular products) -->
         @if (product.id !== 99 && product.id !== 100) {
-          <div class="option-group">
-            <h4 class="option-title">Làm nóng</h4>
-            <div class="option-buttons">
-              <button class="opt-btn small-btn" [class.selected]="selectedHeating === 'Không'" (click)="selectHeating('Không')">Không</button>
-              <button class="opt-btn small-btn" [class.selected]="selectedHeating === 'Có'" (click)="selectHeating('Có')">Có</button>
+          <div class="mb-3">
+            <h4 class="option-title text-primary mb-2 fs-6">Làm nóng</h4>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" [class.active]="selectedHeating === 'Khong'" (click)="selectHeating('Khong')">Không</button>
+              <button class="btn btn-outline-primary btn-sm" [class.active]="selectedHeating === 'Co'" (click)="selectHeating('Co')">Có</button>
             </div>
           </div>
         }
 
         <!-- Toppings (Only for regular products) -->
         @if (product.id !== 99 && product.id !== 100) {
-          <div class="option-group topping-group">
-            <h4 class="option-title">Topping thêm</h4>
+          <div class="mb-4">
+            <h4 class="option-title text-primary mb-2 fs-6">Topping thêm</h4>
             <div class="topping-list">
             @for (t of product?.toppings; track t.name) {
               <div class="topping-item" [class.has-topping]="getToppingQuantity(t.name) > 0">
                 <div class="topping-info">
-                  <span class="topping-name">{{ t.name }}</span>
-                  <span class="topping-price">+{{ t.price }}đ</span>
+                  <span class="topping-name fw-semibold">{{ t.name }}</span>
+                  <span class="topping-price small text-primary fw-bold">+{{ t.price }}d</span>
                 </div>
                 <div class="topping-actions">
                   @if (getToppingQuantity(t.name) > 0) {
@@ -90,104 +129,117 @@
 
         <!-- Box Donuts Selection (Only for Box products) -->
         @if (product.id === 99 || product.id === 100) {
-          <div class="option-group box-selection-group">
-            <h4 class="option-title">Chọn vị bánh trong Hộp <span class="box-capacity-status">({{ totalBoxDonutsCount }}/{{ maxBoxDonutsCapacity }})</span></h4>
-            
+          <div class="box-selection-group mt-4 pt-3 border-top">
+            <h4 class="option-title text-primary mb-2 fs-6">Chọn vị bánh trong Hộp <span class="box-capacity-status">({{ totalBoxDonutsCount }}/{{ maxBoxDonutsCapacity }})</span></h4>
+
             @if (totalBoxDonutsCount < maxBoxDonutsCapacity) {
-              <div class="box-alert warning">
-                ⚠️ Vui lòng chọn thêm <strong>{{ maxBoxDonutsCapacity - totalBoxDonutsCount }}</strong> chiếc bánh nữa.
+              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 small fw-semibold">
+                <i class="bi bi-exclamation-triangle-fill"></i> Vui lòng chọn thêm <strong>{{ maxBoxDonutsCapacity - totalBoxDonutsCount }}</strong> chiếc bánh nữa.
               </div>
             } @else {
-              <div class="box-alert success">
-                ✅ Hộp đã đầy! Bạn có thể thêm vào giỏ hàng.
+              <div class="alert alert-success d-flex align-items-center gap-2 py-2 px-3 small fw-semibold">
+                <i class="bi bi-check-circle-fill"></i> Hộp đã đầy! Bạn có thể thêm vào giỏ hàng.
               </div>
             }
 
             <!-- Selected Slots Configuration -->
-            <div class="box-slots-container">
-              <h5 class="slots-section-title">Các bánh trong hộp của bạn:</h5>
-              <div class="box-slots-list">
+            <div class="mb-3">
+              <h5 class="slots-section-title small fw-semibold text-muted mb-2">Các bánh trong hộp của bạn:</h5>
+              <div class="d-flex flex-column gap-3">
                 @for (slot of selectedBoxDonuts; track $index; let slotIndex = $index) {
-                  <div class="box-slot-card" [class.filled]="slot.productId !== undefined">
-                    <div class="slot-header">
-                      <span class="slot-number">Ngăn {{ slotIndex + 1 }}</span>
-                      @if (slot.productId !== undefined) {
-                        <button type="button" class="clear-slot-btn" (click)="clearSlot(slotIndex)">Xóa bánh ×</button>
-                      }
-                    </div>
-
-                    @if (slot.productId !== undefined) {
-                      <div class="slot-content">
-                        <div class="slot-donut-main">
-                          <img [src]="slot.image" [alt]="slot.name" class="slot-donut-img">
-                          <div class="slot-donut-info">
-                            <span class="slot-donut-name">{{ slot.name }}</span>
-                            <span class="slot-donut-price">{{ slot.price }}đ</span>
-                          </div>
-                        </div>
-
-                        <!-- Slot Heating -->
-                        <div class="slot-heating-row">
-                          <span class="slot-sub-title">Làm nóng:</span>
-                          <div class="slot-heating-btns">
-                            <button type="button" class="slot-opt-btn" [class.selected]="slot.heating === 'Không'" (click)="selectSlotHeating(slotIndex, 'Không')">Không</button>
-                            <button type="button" class="slot-opt-btn" [class.selected]="slot.heating === 'Có'" (click)="selectSlotHeating(slotIndex, 'Có')">Có</button>
-                          </div>
-                        </div>
-
-                        <!-- Slot Toppings -->
-                        @if (slot.selectableToppings && slot.selectableToppings.length > 0) {
-                          <div class="slot-toppings-section">
-                            <span class="slot-sub-title">Toppings thêm:</span>
-                            <div class="slot-toppings-list">
-                              @for (top of slot.selectableToppings; track top.name) {
-                                <div class="slot-topping-item" [class.active]="getSlotToppingQuantity(slotIndex, top.name) > 0">
-                                  <div class="slot-topping-info">
-                                    <span class="s-top-name">{{ top.name }}</span>
-                                    <span class="s-top-price">+{{ top.price }}đ</span>
-                                  </div>
-                                  <div class="slot-topping-actions">
-                                    @if (getSlotToppingQuantity(slotIndex, top.name) > 0) {
-                                      <button type="button" class="s-top-btn" (click)="removeSlotTopping(slotIndex, top.name)">-</button>
-                                      <span class="s-top-qty">{{ getSlotToppingQuantity(slotIndex, top.name) }}</span>
-                                    }
-                                    <button type="button" class="s-top-btn add" (click)="addSlotTopping(slotIndex, top.name, top.price)">+</button>
-                                  </div>
-                                </div>
-                              }
-                            </div>
-                          </div>
+                  <div class="card" [class.border-secondary]="slot.productId !== undefined" [class.border-dashed]="slot.productId === undefined">
+                    <div class="card-body p-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                        <span class="slot-number text-uppercase small text-muted fw-bold">Ngăn {{ slotIndex + 1 }}</span>
+                        @if (slot.productId !== undefined) {
+                          <button type="button" class="btn btn-link btn-sm text-danger p-0" (click)="clearSlot(slotIndex)">Xóa bánh x</button>
                         }
                       </div>
-                    } @else {
-                      <div class="slot-placeholder">
-                        <span class="placeholder-icon">🍩</span>
-                        <span class="placeholder-text">Ngăn trống - Hãy chọn vị bánh phía dưới</span>
-                      </div>
-                    }
+
+                      @if (slot.productId !== undefined) {
+                        <div class="slot-content">
+                          <div class="d-flex align-items-center gap-3 mb-3">
+                            <img [src]="slot.image" [alt]="slot.name" class="slot-donut-img rounded-2" style="width:44px;height:44px;object-fit:cover;">
+                            <div class="d-flex flex-column">
+                              <span class="fw-semibold small">{{ slot.name }}</span>
+                              <span class="text-muted small">{{ slot.price }}d</span>
+                            </div>
+                          </div>
+
+                          <!-- Slot Heating -->
+                          <div class="d-flex align-items-center gap-3 mb-2 pt-2 border-top">
+                            <span class="slot-sub-title small text-muted fw-semibold" style="min-width:80px;">Làm nóng:</span>
+                            <div class="d-flex gap-2">
+                              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Khong'" (click)="selectSlotHeating(slotIndex, 'Khong')">Không</button>
+                              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Co'" (click)="selectSlotHeating(slotIndex, 'Co')">Có</button>
+                            </div>
+                          </div>
+
+                          <!-- Slot Toppings -->
+                          @if (slot.selectableToppings && slot.selectableToppings.length > 0) {
+                            <div class="border-top pt-2 mt-2">
+                              <span class="slot-sub-title small text-muted fw-semibold d-block mb-2">Toppings thêm:</span>
+                              <div class="row g-2">
+                                @for (top of slot.selectableToppings; track top.name) {
+                                  <div class="col-6">
+                                    <div class="slot-topping-item d-flex justify-content-between align-items-center p-2 rounded-2 border" [class.active]="getSlotToppingQuantity(slotIndex, top.name) > 0">
+                                      <div class="d-flex flex-column">
+                                        <span class="s-top-name" style="font-size:0.75rem;">{{ top.name }}</span>
+                                        <span class="s-top-price text-muted" style="font-size:0.65rem;">+{{ top.price }}d</span>
+                                      </div>
+                                      <div class="d-flex align-items-center gap-1">
+                                        @if (getSlotToppingQuantity(slotIndex, top.name) > 0) {
+                                          <button type="button" class="s-top-btn" (click)="removeSlotTopping(slotIndex, top.name)">-</button>
+                                          <span class="s-top-qty">{{ getSlotToppingQuantity(slotIndex, top.name) }}</span>
+                                        }
+                                        <button type="button" class="s-top-btn add" (click)="addSlotTopping(slotIndex, top.name, top.price)">+</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                          @if (canApplyToAll(slotIndex)) {
+                            <div class="text-end mt-2">
+                              <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" style="font-size:0.75rem;" (click)="applyToAllSlots(slotIndex)">
+                                <i class="bi bi-arrow-repeat me-1"></i>Áp dụng cho tất cả
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <div class="d-flex align-items-center gap-2 text-muted py-2">
+                          <i class="bi bi-circle fs-5"></i>
+                          <span class="small fst-italic">Ngăn trống - Hãy chọn vị bánh phía dưới</span>
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
               </div>
             </div>
 
             <!-- Selectable Grid below -->
-            <h5 class="slots-section-title list-title">Danh sách vị bánh Donut tự chọn:</h5>
-            <div class="box-donuts-grid">
+            <h5 class="slots-section-title list-title small fw-semibold text-muted mt-4 pt-3 border-top border-dashed">Danh sách vị bánh Donut tự chọn:</h5>
+            <div class="row g-2 box-donuts-grid-scroll mt-2">
               @for (donut of selectableDonuts; track donut.id) {
-                <div class="box-donut-card" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
-                  <div class="box-donut-img">
-                    <img [src]="donut.image" [alt]="donut.name">
-                  </div>
-                  <div class="box-donut-info">
-                    <span class="box-donut-name">{{ donut.name }}</span>
-                    <span class="box-donut-price">{{ donut.price }}đ</span>
-                  </div>
-                  <div class="box-donut-qty">
-                    @if (getBoxDonutQuantity(donut.id) > 0) {
-                      <button type="button" class="box-qty-btn" (click)="removeBoxDonut(donut.id)">-</button>
-                      <span class="box-qty-val">{{ getBoxDonutQuantity(donut.id) }}</span>
-                    }
-                    <button type="button" class="box-qty-btn add" [disabled]="totalBoxDonutsCount >= maxBoxDonutsCapacity" (click)="addBoxDonut(donut)">+</button>
+                <div class="col-md-6">
+                  <div class="box-donut-card d-flex align-items-center gap-3 p-2 rounded-3 border" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
+                    <div class="box-donut-img rounded-2 overflow-hidden flex-shrink-0" style="width:50px;height:50px;">
+                      <img [src]="donut.image" [alt]="donut.name" class="w-100 h-100" style="object-fit:cover;">
+                    </div>
+                    <div class="flex-grow-1 d-flex flex-column">
+                      <span class="box-donut-name small fw-semibold text-start">{{ donut.name }}</span>
+                      <span class="box-donut-price text-muted text-start" style="font-size:0.75rem;">{{ donut.price }}d</span>
+                    </div>
+                    <div class="box-donut-qty d-flex align-items-center gap-1">
+                      @if (getBoxDonutQuantity(donut.id) > 0) {
+                        <button type="button" class="box-qty-btn" (click)="removeBoxDonut(donut.id)">-</button>
+                        <span class="box-qty-val small fw-bold">{{ getBoxDonutQuantity(donut.id) }}</span>
+                      }
+                      <button type="button" class="box-qty-btn add" [disabled]="totalBoxDonutsCount >= maxBoxDonutsCapacity" (click)="addBoxDonut(donut)">+</button>
+                    </div>
                   </div>
                 </div>
               }
@@ -195,69 +247,164 @@
           </div>
         }
 
-        <!-- Action Bar -->
-        <div class="action-bar">
-          <div class="quantity-selector">
-            <button class="qty-btn" (click)="decreaseQuantity()">-</button>
-            <span class="qty-val">{{ quantity }}</span>
-            <button class="qty-btn" (click)="increaseQuantity()">+</button>
+        <!-- Cảnh báo dị ứng ngay cạnh nút đặt -->
+        @if (product.allergens.length) {
+          <div class="allergen-warning d-flex align-items-start gap-2 mt-3 p-3 rounded-3 small">
+            <i class="bi bi-exclamation-circle"></i>
+            <span>Chứa: {{ product.allergens.join(', ') }}. Vui lòng kiểm tra nếu bạn có cơ địa dị ứng.</span>
           </div>
-          <button class="add-to-cart-btn" [disabled]="(product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity" (click)="addToCart()">
-            <span class="cart-icon">🛒</span> Thêm vào giỏ
-          </button>
-          <button class="buy-now-btn" [disabled]="(product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity">Mua ngay</button>
+        }
+
+        <!-- Action Bar -->
+        <div class="action-bar mt-4 pt-4 border-top">
+          <div class="total-summary d-flex align-items-baseline gap-2 flex-wrap mb-3">
+            <span class="total-label text-muted">Thành tiền</span>
+            <span class="total-value fs-4 fw-bold text-primary">{{ totalPrice }}d</span>
+            <span class="total-breakdown text-muted small">{{ currentPrice }}d x {{ quantity }}</span>
+          </div>
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="quantity-selector">
+              <button class="qty-btn" (click)="decreaseQuantity()">-</button>
+              <span class="qty-val fw-bold">{{ quantity }}</span>
+              <button class="qty-btn" (click)="increaseQuantity()">+</button>
+            </div>
+            <button class="btn btn-outline-primary rounded-pill fw-bold px-4 py-2 flex-shrink-0" [disabled]="productService.isOutOfStock(product) || ((product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity)" (click)="addToCart()">
+              <i class="bi bi-cart"></i> Thêm vào giỏ
+            </button>
+            <button class="btn btn-primary rounded-pill fw-bold px-4 py-2 flex-shrink-0" [disabled]="productService.isOutOfStock(product) || ((product.id === 99 || product.id === 100) && totalBoxDonutsCount !== maxBoxDonutsCapacity)" (click)="buyNow()">Mua ngay</button>
+            <button class="btn rounded-pill px-3 py-2 detail-fav-btn" [class.favorited]="isFavorite()" (click)="toggleFavorite()" title="Yêu thích">
+              <i class="bi" [ngClass]="isFavorite() ? 'bi-heart-fill' : 'bi-heart'"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Bottom Info Tabs -->
-  <section class="product-info-tabs">
-    <div class="tab-headers">
-      <button class="info-tab" [class.active]="activeTab === 'description'" (click)="setTab('description')">Mô tả sản phẩm</button>
-      <button class="info-tab" [class.active]="activeTab === 'reviews'" (click)="setTab('reviews')">Đánh giá</button>
-      <button class="info-tab" [class.active]="activeTab === 'commit'" (click)="setTab('commit')">Cam kết</button>
+  <section class="card shadow-sm mb-4">
+    <div class="card-header p-0 bg-white border-bottom">
+      <div class="d-flex">
+        <button class="info-tab flex-fill" [class.active]="activeTab === 'description'" (click)="setTab('description')">Mô tả sản phẩm</button>
+        <button class="info-tab flex-fill" [class.active]="activeTab === 'nutrition'" (click)="setTab('nutrition')">Dinh dưỡng & Dị ứng</button>
+        <button class="info-tab flex-fill" [class.active]="activeTab === 'reviews'" (click)="setTab('reviews')">Đánh giá</button>
+        <button class="info-tab flex-fill" [class.active]="activeTab === 'commit'" (click)="setTab('commit')">Cam kết</button>
+      </div>
     </div>
-    
-    <div class="tab-content">
+
+    <div class="card-body p-4">
       <!-- Description Tab -->
       @if (activeTab === 'description') {
-        <div class="info-details-box">
-          <h4><i class="icon-info"></i> Thông tin chi tiết</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Tên sản phẩm:</span> <span class="val">{{ product?.name }}</span>
+        <div class="bg-light rounded-3 p-4 border">
+          <h4 class="d-flex align-items-center gap-2 mb-3"><i class="bi bi-info-circle"></i> Thông tin chi tiết</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="d-flex flex-column">
+                <span class="text-muted small mb-1">Tên sản phẩm:</span> <span class="fw-medium">{{ product?.name }}</span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="label">Bảo quản:</span> <span class="val">1-2 ngày ở ngăn mát tủ lạnh</span>
+            <div class="col-md-6">
+              <div class="d-flex flex-column">
+                <span class="text-muted small mb-1">Bảo quản:</span> <span class="fw-medium">1-2 ngày ở ngăn mát tủ lạnh</span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="label">Trọng lượng:</span> <span class="val">180g (tiêu chuẩn)</span>
+            <div class="col-md-6">
+              <div class="d-flex flex-column">
+                <span class="text-muted small mb-1">Trọng lượng:</span> <span class="fw-medium">180g (tiêu chuẩn)</span>
+              </div>
             </div>
-            <div class="info-item">
-              <span class="label">Xuất xứ:</span> <span class="val">Việt Nam</span>
+            <div class="col-md-6">
+              <div class="d-flex flex-column">
+                <span class="text-muted small mb-1">Xuất xứ:</span> <span class="fw-medium">Việt Nam</span>
+              </div>
             </div>
-            <div class="info-item full-width">
-              <span class="label">Topping nên dùng kèm:</span> <span class="val">Sốt Chocolate, Vụn Oreo, Hạnh nhân nướng</span>
+            <div class="col-12">
+              <div class="d-flex flex-column">
+                <span class="text-muted small mb-1">Topping nên dùng kèm:</span> <span class="fw-medium">Sốt Chocolate, Vụn Oreo, Hạnh nhân nướng</span>
+              </div>
             </div>
           </div>
+        </div>
+      }
+
+      <!-- Nutrition & Allergy Tab -->
+      @if (activeTab === 'nutrition') {
+        <div class="nutrition-box">
+          @if (product.nutrition.calories > 0) {
+            <h4 class="mb-3">Thông tin dinh dưỡng <span class="serving-note small text-muted fw-normal">(ước tính cho 1 chiếc, chưa tính topping)</span></h4>
+            <div class="row g-3 mb-4">
+              <div class="col-md-3 col-6">
+                <div class="nutri-item text-center p-3 rounded-3 border bg-light">
+                  <span class="nutri-value d-block fs-4 fw-bold">{{ product.nutrition.calories }}</span>
+                  <span class="nutri-label d-block small text-muted mt-1">kcal . Năng lượng</span>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="nutri-item text-center p-3 rounded-3 border bg-light">
+                  <span class="nutri-value d-block fs-4 fw-bold">{{ product.nutrition.sugar }}g</span>
+                  <span class="nutri-label d-block small text-muted mt-1">Đường</span>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="nutri-item text-center p-3 rounded-3 border bg-light">
+                  <span class="nutri-value d-block fs-4 fw-bold">{{ product.nutrition.fat }}g</span>
+                  <span class="nutri-label d-block small text-muted mt-1">Chất béo</span>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="nutri-item text-center p-3 rounded-3 border bg-light">
+                  <span class="nutri-value d-block fs-4 fw-bold">{{ product.nutrition.protein }}g</span>
+                  <span class="nutri-label d-block small text-muted mt-1">Đạm</span>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <h4>Thông tin dinh dưỡng</h4>
+            <p class="text-muted">Đây là hộp combo nhiều bánh - giá trị dinh dưỡng phụ thuộc vào các vị bạn chọn. Vui lòng xem chi tiết ở từng vị bánh.</p>
+          }
+
+          <div class="mb-4">
+            <h4><i class="bi bi-exclamation-triangle-fill"></i> Thông tin dị ứng</h4>
+            @if (product.allergens.length) {
+              <p class="text-muted mb-2">Sản phẩm có chứa hoặc có thể chứa các thành phần sau:</p>
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                @for (a of product.allergens; track a) {
+                  <span class="allergen-chip">{{ a }}</span>
+                }
+              </div>
+            } @else {
+              <p class="text-muted">Không có thành phần dị ứng phổ biến được ghi nhận.</p>
+            }
+            <p class="allergy-disclaimer small text-muted fst-italic p-3 rounded-3 bg-light">Lưu ý: Sản phẩm được chế biến trong bếp chung có sử dụng lúa mì, sữa, trứng và các loại hạt. Nếu bạn có cơ địa dị ứng nặng, vui lòng liên hệ cửa hàng trước khi đặt.</p>
+          </div>
+
+          @if (product.dietary.length) {
+            <div>
+              <h4 class="mb-2">Phù hợp với</h4>
+              <div class="d-flex flex-wrap gap-2">
+                @for (d of product.dietary; track d) {
+                  <span class="diet-chip-detail"><i class="bi bi-check-lg"></i> {{ d }}</span>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
 
       <!-- Reviews Tab -->
       @if (activeTab === 'reviews') {
         <div class="reviews-container">
-          <div class="rating-summary">
-            <div class="summary-left">
-              <div class="big-score">{{ product?.rating }}.0 <span class="small-text">out of 5</span></div>
-              <div class="stars-row">⭐⭐⭐⭐⭐</div>
-              <div class="total-reviews">({{ product?.reviews }} lượt đánh giá)</div>
+          <div class="rating-summary d-flex bg-light rounded-3 border p-4 gap-4 align-items-center mb-4">
+            <div class="text-center pe-4 border-end">
+              <div class="big-score fs-1 fw-bold">{{ product?.rating }}.0 <span class="small-text fs-6 text-muted fw-normal">out of 5</span></div>
+              <div class="stars-row text-warning fs-4 my-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+              <div class="text-muted small">({{ product?.reviews }} lượt đánh giá)</div>
             </div>
-            <div class="summary-right">
+            <div class="flex-grow-1 d-flex flex-column gap-2">
               @for (star of [5, 4, 3, 2, 1]; track star) {
-                <div class="rating-bar-row">
-                  <span class="star-label">{{ star }} sao</span>
-                  <div class="bar-bg">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="small text-muted" style="min-width:50px;">{{ star }} sao</span>
+                  <div class="bar-bg flex-grow-1">
                     <div class="bar-fill" [style.width.%]="star === 5 ? 80 : (star === 4 ? 15 : 5)"></div>
                   </div>
                 </div>
@@ -266,82 +413,118 @@
           </div>
 
           <div class="review-form-section">
-            <h3 class="form-title">Đánh giá sản phẩm</h3>
-            <div class="form-container">
-              <div class="rating-input-row">
-                <span>Chất lượng sản phẩm:</span>
-                <span class="stars-input">⭐⭐⭐⭐⭐</span>
-              </div>
-              
-              <div class="suggestions-row">
-                @for (s of suggestedReviews; track s) {
-                  <button class="suggestion-tag" (click)="addSuggestion(s)">+ {{ s }}</button>
-                }
-              </div>
+            <h3 class="fs-5 mb-3">Đánh giá sản phẩm</h3>
+            <div class="card">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-2 fw-semibold text-muted">
+                  <span>Chất lượng sản phẩm:</span>
+                  <span class="stars-input">
+                    @for (i of [1,2,3,4,5]; track i) {
+                      <i class="bi" [class.bi-star-fill]="selectedRating() >= i" [class.bi-star]="selectedRating() < i" style="cursor:pointer;color:#ffc107;font-size:1.3rem;" (click)="setRating(i)"></i>
+                    }
+                  </span>
+                </div>
 
-              <div class="input-group">
-                <input type="text" placeholder="Để lại đánh giá chi tiết tại đây" class="review-input">
-              </div>
-              <div class="input-group">
-                <textarea placeholder="Hãy để lại nhận xét cho sản phẩm này bạn nhé! LIMDonut xin chân thành cảm ơn." 
-                  class="review-textarea" [(ngModel)]="reviewComment"></textarea>
-              </div>
-              <div class="form-actions">
-                <button class="submit-review-btn">Đánh giá</button>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  @for (s of suggestedReviews; track s) {
+                    <button class="suggestion-tag" (click)="addSuggestion(s)">+ {{ s }}</button>
+                  }
+                </div>
+
+                <div class="mb-3">
+                  <input type="text" placeholder="Để lại đánh giá chi tiết tại đây" class="form-control">
+                </div>
+                <div class="mb-3">
+                  <textarea placeholder="Hãy để lại nhận xét cho sản phẩm này bạn nhé! LIMDonut xin chân thành cảm ơn."
+                    class="form-control" rows="4" [(ngModel)]="reviewComment"></textarea>
+                </div>
+                @if (reviewSuccessMessage()) {
+                  <div class="alert alert-success py-2 rounded-3 small"><i class="bi bi-check-circle-fill"></i> {{ reviewSuccessMessage() }}</div>
+                }
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-primary rounded-pill fw-bold px-4" [disabled]="!reviewComment.trim() || isSubmittingReview()" (click)="submitReview()">
+                    {{ isSubmittingReview() ? 'Đang gửi...' : 'Đánh giá' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Danh sách review -->
+          @if (reviews().length > 0) {
+            <div class="mt-4">
+              <h3 class="fs-5 mb-3">Nhận xét từ khách hàng ({{ reviews().length }})</h3>
+              @for (r of reviews(); track r._id) {
+                <div class="card mb-2">
+                  <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <strong class="small">{{ r.userName }}</strong>
+                        <span class="text-warning small">
+                          @for (s of [1,2,3,4,5]; track s) {
+                            <i class="bi" [class.bi-star-fill]="r.rating >= s" [class.bi-star]="r.rating < s"></i>
+                          }
+                        </span>
+                      </div>
+                      <span class="text-muted small">{{ r.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <p class="mb-0 small">{{ r.comment }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
 
       <!-- Commit Tab -->
       @if (activeTab === 'commit') {
-        <div class="commit-container">
-          <h3 class="commit-title">Cam kết chất lượng</h3>
-          <ul class="commit-list">
-            <li class="commit-item">
+        <div class="p-2">
+          <h3 class="fs-5 fw-bold mb-3">Cam kết chất lượng</h3>
+          <ul class="list-unstyled d-flex flex-column gap-3">
+            <li class="d-flex align-items-start gap-3">
               <span class="commit-icon"></span>
-              <p>Nguyên liệu được chọn lọc kỹ lưỡng, <strong>không phẩm màu - không hương liệu tổng hợp</strong>, giữ trọn vị bánh nguyên bản.</p>
+              <p class="mb-0 small text-muted lh-lg">Nguyên liệu được chọn lọc kỹ lưỡng, <strong class="text-dark">không phẩm màu - không hương liệu tổng hợp</strong>, giữ trọn vị bánh nguyên bản.</p>
             </li>
-            <li class="commit-item">
+            <li class="d-flex align-items-start gap-3">
               <span class="commit-icon"></span>
-              <p>Mỗi mẻ bánh đều được nhào nặn và nướng mới theo <strong>bí quyết độc quyền</strong>, đảm bảo hương vị thơm ngon, cốt bánh mềm mịn.</p>
+              <p class="mb-0 small text-muted lh-lg">Mỗi mẻ bánh đều được nhào nặn và nướng mới theo <strong class="text-dark">bí quyết độc quyền</strong>, đảm bảo hương vị thơm ngon, cốt bánh mềm mịn.</p>
             </li>
-            <li class="commit-item">
+            <li class="d-flex align-items-start gap-3">
               <span class="commit-icon"></span>
-              <p>Mọi sản phẩm được <strong>đóng gói kín, bảo quản đúng chuẩn</strong>, đảm bảo hương vị luôn tươi mới khi đến tay khách hàng.</p>
+              <p class="mb-0 small text-muted lh-lg">Mỗi sản phẩm được <strong class="text-dark">đóng gói kín, bảo quản đúng chuẩn</strong>, đảm bảo hương vị luôn tươi mới khi đến tay khách hàng.</p>
             </li>
-            <li class="commit-item">
+            <li class="d-flex align-items-start gap-3">
               <span class="commit-icon"></span>
-              <p>LIMDonut luôn lắng nghe phản hồi và <strong>đổi trả nếu sản phẩm không đạt chất lượng cam kết</strong>, mang đến trải nghiệm đáng tin cậy.</p>
+              <p class="mb-0 small text-muted lh-lg">LIMDonut luôn lắng nghe phản hồi và <strong class="text-dark">đổi trả nếu sản phẩm không đạt chất lượng cam kết</strong>, mang đến trải nghiệm đáng tin cậy.</p>
             </li>
           </ul>
         </div>
       }
     </div>
   </section>
+
   <!-- Related Products -->
-  <section class="related-products">
-    <h2 class="section-title">Có thể bạn sẽ thích</h2>
-    <div class="related-grid">
-      <!-- Show 4 random related products from same category -->
+  <section class="text-center mt-5">
+    <h2 class="text-primary mb-4">Có thể bạn sẽ thích</h2>
+    <div class="row g-4">
       @for (p of relatedProducts; track p.id) {
-        <div class="seller-card" [routerLink]="['/product', p.id]">
-          <div class="seller-img">
-            <img [src]="p.image" [alt]="p.name" />
-          </div>
-          <div class="seller-info">
-            <h4>{{ p.name }}</h4>
-            <div class="rating">
-              <span class="stars">⭐⭐⭐⭐⭐</span>
-              <span class="reviews">{{ p.reviews }} đánh giá</span>
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 shadow-sm border-0 seller-card" [routerLink]="['/product', p.id]">
+            <div class="card-img-top">
+              <img [src]="p.image" [alt]="p.name" class="w-100" style="height:200px;object-fit:cover;border-radius:12px 12px 0 0;" />
             </div>
-            <div class="price-row">
-              <span class="price">{{ p.price }}</span>
-            </div>
-            <div class="card-actions">
-              <button class="buy-now-btn-card" (click)="$event.stopPropagation()">Mua ngay</button>
-              <button class="add-to-cart-btn-card" (click)="$event.stopPropagation(); cartService.addToCart(p)">🛒 Thêm vào giỏ hàng</button>
+            <div class="card-body text-center">
+              <h4 class="fs-6 fw-bold mb-2">{{ p.name }}</h4>
+              <div class="small mb-2">
+                <span class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></span>
+                <span class="text-muted ms-1">{{ p.reviews }} đánh giá</span>
+              </div>
+              <div class="fw-bold mb-3">{{ p.price }}</div>
+              <div class="d-flex flex-column gap-2">
+                <button class="btn btn-primary btn-sm rounded-pill" (click)="$event.stopPropagation(); buyNowProduct(p)">Mua ngay</button>
+                <button class="btn btn-outline-primary btn-sm rounded-pill" (click)="$event.stopPropagation(); cartService.addToCart(p)"><i class="bi bi-cart"></i> Thêm vào giỏ hàng</button>
+              </div>
             </div>
           </div>
         </div>
@@ -352,5 +535,5 @@
 </main>
 }
 @else {
-  <div class="loading">Đang tải...</div>
+  <div class="text-center py-5 fs-5">Đang tải...</div>
 }

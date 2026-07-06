@@ -15,38 +15,44 @@ export class ForgotPassword {
   authService = inject(AuthService);
   router = inject(Router);
 
-  username = signal('');
-  oldPassword = signal('');
+  step = signal<1 | 2>(1);
+  email = signal('');
+  otp = signal('');
   newPassword = signal('');
   confirmPassword = signal('');
+  loading = signal(false);
 
-  onSubmit() {
-    const usernameVal = this.username().trim();
-    const oldPasswordVal = this.oldPassword().trim();
-    const newPasswordVal = this.newPassword().trim();
-    const confirmPasswordVal = this.confirmPassword().trim();
+  requestOtp() {
+    const emailVal = this.email().trim();
+    if (!emailVal) { alert('Vui lòng nhập email!'); return; }
+    this.loading.set(true);
+    this.authService.requestReset(emailVal).subscribe({
+      next: () => {
+        this.step.set(2);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        alert(err.error?.message || 'Không tìm thấy email!');
+        this.loading.set(false);
+      }
+    });
+  }
 
-    if (!usernameVal || !oldPasswordVal || !newPasswordVal || !confirmPasswordVal) {
-      alert('Vui lòng nhập đầy đủ tất cả thông tin!');
-      return;
-    }
-
-    if (newPasswordVal !== confirmPasswordVal) {
-      alert('Mật khẩu mới và xác nhận mật khẩu mới không khớp!');
-      return;
-    }
-
-    this.authService.forgotPassword({
-      username: usernameVal,
-      oldPassword: oldPasswordVal,
-      newPassword: newPasswordVal
-    }).subscribe({
+  resetPassword() {
+    const otpVal = this.otp().trim();
+    const newPwd = this.newPassword().trim();
+    const confirmPwd = this.confirmPassword().trim();
+    if (!otpVal || !newPwd || !confirmPwd) { alert('Vui lòng điền đầy đủ thông tin!'); return; }
+    if (newPwd !== confirmPwd) { alert('Mật khẩu mới và xác nhận không khớp!'); return; }
+    this.loading.set(true);
+    this.authService.resetPassword({ email: this.email(), otp: otpVal, newPassword: newPwd }).subscribe({
       next: (res) => {
-        alert(res.message || 'Thay đổi mật khẩu thành công!');
+        alert(res.message || 'Đặt lại mật khẩu thành công!');
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        alert(err.error?.message || 'Đổi mật khẩu thất bại!');
+        alert(err.error?.message || 'Đặt lại mật khẩu thất bại!');
+        this.loading.set(false);
       }
     });
   }

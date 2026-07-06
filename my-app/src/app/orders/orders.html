@@ -1,137 +1,342 @@
 <main class="orders-page">
-  <div class="orders-header">
-    <h1>Đơn hàng của tôi</h1>
-    <div class="breadcrumb">
-      <a routerLink="/">Trang chủ</a> / <span>Lịch sử đơn hàng</span>
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1>Đơn hàng của tôi</h1>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb justify-content-center mb-0">
+          <li class="breadcrumb-item"><a routerLink="/">Trang chủ</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Lịch sử đơn hàng</li>
+        </ol>
+      </nav>
     </div>
-  </div>
 
-  <div class="orders-container">
+    <!-- Guest: login prompt + lookup -->
+    @if (!authService.isLoggedIn() && !lookupDone()) {
+      <div class="text-center py-5">
+        <i class="bi bi-lock-fill" style="font-size:3rem;color:#adb5bd;"></i>
+        <h3 class="mt-3 fw-bold">Xem đơn hàng</h3>
+        <p class="text-muted mb-4">Đăng nhập để xem đơn hàng của bạn, hoặc tra cứu bằng thông tin đặt hàng.</p>
+        <a routerLink="/login" class="btn btn-primary rounded-pill px-4 me-2"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a>
+        <div class="card mx-auto mt-4 p-4 rounded-4 shadow-sm" style="max-width:420px;">
+          <h5 class="fw-bold mb-3"><i class="bi bi-search"></i> Tra cứu đơn khách vãng lai</h5>
+          <div class="mb-2">
+            <input type="text" class="form-control rounded-3" placeholder="Tên người nhận" [ngModel]="lookupName()" (ngModelChange)="lookupName.set($event)">
+          </div>
+          <div class="mb-3">
+            <input type="tel" class="form-control rounded-3" placeholder="Số điện thoại" [ngModel]="lookupPhone()" (ngModelChange)="lookupPhone.set($event)">
+          </div>
+          <button class="btn btn-outline-primary w-100 rounded-3" [disabled]="!lookupPhone() || !lookupName()" (click)="searchByPhone()">Tra cứu</button>
+        </div>
+      </div>
+    }
+
+    <!-- Success Banner -->
+    @if (showSuccessBanner()) {
+      <div class="alert alert-success d-flex align-items-center gap-2 rounded-4 shadow-sm mb-4 success-banner" (click)="showSuccessBanner.set(false)">
+        <span style="font-size:1.5rem;">🎉</span>
+        <div>
+          <strong>Đặt hàng thành công!</strong> Mã đơn <span class="fw-bold text-primary">{{ justPlacedOrderId() }}</span>
+        </div>
+        <button class="btn-close ms-auto" (click)="showSuccessBanner.set(false)"></button>
+      </div>
+    }
+
     <!-- Status Tabs -->
-    <div class="status-tabs">
-      <button [class.active]="selectedStatus() === 'all'" (click)="selectedStatus.set('all')">
-        📦 Tất cả <span class="badge">{{ statusCounts().all }}</span>
-      </button>
-      <button [class.active]="selectedStatus() === 'Chờ xác nhận'" (click)="selectedStatus.set('Chờ xác nhận')">
-        🕒 Xác nhận đơn hàng <span class="badge">{{ statusCounts().pending }}</span>
-      </button>
-      <button [class.active]="selectedStatus() === 'Chuẩn bị'" (click)="selectedStatus.set('Chuẩn bị')">
-        🍩 Chuẩn bị đơn hàng <span class="badge">{{ statusCounts().preparing }}</span>
-      </button>
-      <button [class.active]="selectedStatus() === 'Đang giao'" (click)="selectedStatus.set('Đang giao')">
-        🚚 Đang giao hàng <span class="badge">{{ statusCounts().shipping }}</span>
-      </button>
-      <button [class.active]="selectedStatus() === 'Hoàn thành'" (click)="selectedStatus.set('Hoàn thành')">
-        ⭐ Giao thành công <span class="badge">{{ statusCounts().completed }}</span>
-      </button>
+    @if (authService.isLoggedIn() || lookupDone()) {
+    <div class="status-tabs card p-2 mb-4">
+      <div class="d-flex flex-nowrap overflow-auto gap-2">
+        <button class="btn flex-fill status-tab-btn" [class.active]="selectedStatus() === 'all'" (click)="selectedStatus.set('all')">
+          <i class="bi bi-box-seam"></i> Tất cả <span class="badge">{{ statusCounts().all }}</span>
+        </button>
+        <button class="btn flex-fill status-tab-btn" [class.active]="selectedStatus() === 'processing'" (click)="selectedStatus.set('processing')">
+          <i class="bi bi-clock-fill"></i> Đang xử lý <span class="badge">{{ statusCounts().processing }}</span>
+        </button>
+        <button class="btn flex-fill status-tab-btn" [class.active]="selectedStatus() === 'shipping'" (click)="selectedStatus.set('shipping')">
+          <i class="bi bi-truck"></i> Đang giao/lấy <span class="badge">{{ statusCounts().shipping }}</span>
+        </button>
+        <button class="btn flex-fill status-tab-btn" [class.active]="selectedStatus() === 'Hoàn thành'" (click)="selectedStatus.set('Hoàn thành')">
+          <i class="bi bi-star-fill"></i> Hoàn thành <span class="badge">{{ statusCounts().completed }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Order List -->
     <div class="orders-list">
       @for (order of filteredOrders(); track order.orderId) {
-        <div class="order-card">
-          <div class="order-card-header">
+        <div class="card order-card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <div class="order-id-info">
-              Mã đơn hàng <span class="order-id">{{ order.orderId }}</span>
-              <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              Mã đơn hàng <span class="order-id fw-bold text-primary">{{ order.orderId }}</span>
+              <span class="order-date text-muted ms-3">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
-            <div class="order-status-tag" [attr.data-status]="order.status">
-              ● {{ order.status }}
-            </div>
-          </div>
-
-          <div class="order-items">
-            @for (item of order.items; track item.name) {
-              <div class="order-item">
-                <img [src]="item.image" [alt]="item.name" class="item-thumb">
-                <div class="item-info">
-                  <h4>{{ item.name }}</h4>
-                  <div class="item-meta">
-                    @if (item.options?.heating && item.options.heating !== 'Không') {
-                      <span>Làm nóng: {{ item.options.heating }}</span>
-                    }
-                    @for (topping of item.options?.toppings; track topping.name) {
-                      <span>{{ topping.name }} (x{{ topping.quantity }})</span>
-                    }
-                    <span>x{{ item.quantity }}</span>
-                  </div>
-                </div>
-                <div class="item-price">{{ formatPrice(item.price * item.quantity) }}</div>
-              </div>
-            }
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="order-progress">
-            <div class="progress-line">
-              <div class="line-fill" [style.width.%]="
-                order.status === 'Chờ xác nhận' ? 10 :
-                order.status === 'Chuẩn bị' ? 40 :
-                order.status === 'Đang giao' ? 70 :
-                order.status === 'Hoàn thành' ? 100 : 0
-              "></div>
-            </div>
-            <div class="progress-steps">
-              <div class="step" [class.active]="order.status === 'Chờ xác nhận' || order.status === 'Chuẩn bị' || order.status === 'Đang giao' || order.status === 'Hoàn thành'">
-                <div class="step-icon">🕒</div>
-                <span>Xác nhận</span>
-              </div>
-              <div class="step" [class.active]="order.status === 'Chuẩn bị' || order.status === 'Đang giao' || order.status === 'Hoàn thành'">
-                <div class="step-icon">🍩</div>
-                <span>Chuẩn bị</span>
-              </div>
-              <div class="step" [class.active]="order.status === 'Đang giao' || order.status === 'Hoàn thành'">
-                <div class="step-icon">🚚</div>
-                <span>Đang giao</span>
-              </div>
-              <div class="step" [class.active]="order.status === 'Hoàn thành'">
-                <div class="step-icon">⭐</div>
-                <span>Thành công</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-delivery-details">
-            <div class="detail-row">
-              <span class="detail-label">Người nhận:</span>
-              <span class="detail-val">{{ order.customerInfo.name }} - {{ order.customerInfo.phone }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Địa chỉ:</span>
-              <span class="detail-val">{{ order.customerInfo.address }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Thời gian nhận:</span>
-              <span class="detail-val">{{ order.customerInfo.deliveryTime }}</span>
-            </div>
-            @if (order.customerInfo.notes) {
-              <div class="detail-row">
-                <span class="detail-label">Ghi chú:</span>
-                <span class="detail-val">{{ order.customerInfo.notes }}</span>
-              </div>
-            }
-          </div>
-
-          <div class="order-card-footer">
-            <div class="order-total-info">
-              <span class="total-label">Tổng thanh toán</span>
-              <span class="total-amount">{{ formatPrice(order.totalAmount) }}</span>
-            </div>
-            <div class="order-actions">
-              @if (order.status === 'Chờ xác nhận') {
-                <button class="btn-cancel" (click)="cancelOrder(order.orderId)">Hủy đơn</button>
+            <div class="d-flex align-items-center gap-2">
+              @if (order.customerInfo.isGift) {
+                <span class="badge rounded-pill" style="background:#fce4ec;color:#c2185b;"><i class="bi bi-gift-fill"></i> Quà tặng</span>
               }
-              <button class="btn-details">Xem chi tiết</button>
+              @if (order.paymentMethod && order.paymentMethod !== 'cash') {
+                <span class="badge rounded-pill" [class.bg-success]="order.paymentStatus === 'paid'" [class.bg-warning]="order.paymentStatus !== 'paid'" [class.text-dark]="order.paymentStatus !== 'paid'">
+                  {{ order.paymentMethod === 'momo' ? 'MoMo' : order.paymentMethod === 'zalopay' ? 'ZaloPay' : 'Ví điện tử' }}
+                  · {{ order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chờ thanh toán' }}
+                </span>
+              } @else {
+                <span class="badge bg-light text-muted rounded-pill">Tiền mặt</span>
+              }
+              <div class="order-status-tag" [attr.data-status]="order.status">
+                <i class="bi bi-circle-fill"></i> {{ order.status }}
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="order-items mb-4">
+              @for (item of order.items; track item.name) {
+                <div class="d-flex gap-3 align-items-center py-3">
+                  <img [src]="item.image" [alt]="item.name" class="item-thumb rounded-3">
+                  <div class="flex-grow-1">
+                    <h4 class="mb-1 fs-6 fw-semibold">{{ item.name }}</h4>
+                    <div class="item-meta d-flex gap-2 flex-wrap text-muted small">
+                      @if (item.options?.heating && item.options.heating !== 'Không') {
+                        <span>Làm nóng: {{ item.options.heating }}</span>
+                      }
+                      @for (topping of item.options?.toppings; track topping.name) {
+                        <span>{{ topping.name }} (x{{ topping.quantity }})</span>
+                      }
+                      <span>x{{ item.quantity }}</span>
+                    </div>
+                  </div>
+                  <div class="item-price fw-bold text-primary">{{ formatPrice(item.price * item.quantity) }}</div>
+                </div>
+              }
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="order-progress">
+              <div class="progress-line">
+                <div class="line-fill" [style.width.%]="getProgressPercent(order.status)"></div>
+              </div>
+              <div class="progress-steps d-flex justify-content-between">
+                <div class="step text-center" [class.active]="getProgressPercent(order.status) >= 10">
+                  <div class="step-icon"><i class="bi bi-check-circle-fill"></i></div>
+                  <span>Đã đặt</span>
+                </div>
+                <div class="step text-center" [class.active]="getProgressPercent(order.status) >= 30">
+                  <div class="step-icon"><i class="bi bi-clock-fill"></i></div>
+                  <span>Xác nhận</span>
+                </div>
+                <div class="step text-center" [class.active]="getProgressPercent(order.status) >= 50">
+                  <div class="step-icon"><i class="bi bi-box-seam-fill"></i></div>
+                  <span>Chuẩn bị</span>
+                </div>
+                <div class="step text-center" [class.active]="getProgressPercent(order.status) >= 70">
+                  <div class="step-icon"><i class="bi bi-truck"></i></div>
+                  <span>Giao/Lấy</span>
+                </div>
+                <div class="step text-center" [class.active]="getProgressPercent(order.status) >= 100">
+                  <div class="step-icon"><i class="bi bi-star-fill"></i></div>
+                  <span>Thành công</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-delivery-details rounded-3 p-3 mb-4">
+              <div class="row mb-2">
+                <span class="col-4 col-md-3 text-muted">Người nhận:</span>
+                <span class="col-8 col-md-9 fw-semibold">{{ order.customerInfo.name }} - {{ order.customerInfo.phone }}</span>
+              </div>
+              <div class="row mb-2">
+                <span class="col-4 col-md-3 text-muted">Địa chỉ:</span>
+                <span class="col-8 col-md-9 fw-semibold">{{ order.customerInfo.address }}</span>
+              </div>
+              <div class="row mb-2">
+                <span class="col-4 col-md-3 text-muted">Thời gian nhận:</span>
+                <span class="col-8 col-md-9 fw-semibold">{{ order.customerInfo.deliveryTime }}</span>
+              </div>
+              @if (order.customerInfo.notes) {
+                <div class="row">
+                  <span class="col-4 col-md-3 text-muted">Ghi chú:</span>
+                  <span class="col-8 col-md-9 fw-semibold">{{ order.customerInfo.notes }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="card-footer d-flex justify-content-between align-items-end flex-wrap gap-3">
+            <div class="order-total-info">
+              @if (order.customerInfo.hideGiftPrice) {
+                <span class="d-block text-muted small">Tổng thanh toán</span>
+                <span class="total-amount fs-5 fw-bold text-success"><i class="bi bi-gift-fill"></i> Đã thanh toán</span>
+              } @else {
+                @if (order.orderType !== 'small' && order.depositAmount) {
+                  <span class="d-block text-muted small">Đã đặt cọc: <span class="fw-semibold text-success">{{ formatPrice(order.depositAmount) }}</span></span>
+                  <span class="d-block text-muted small">Còn lại khi nhận: <span class="fw-semibold">{{ formatPrice(order.remainingAmount || 0) }}</span></span>
+                }
+                <span class="d-block text-muted small">Tổng thanh toán</span>
+                <span class="total-amount fs-4 fw-bold text-primary">{{ formatPrice(order.totalAmount) }}</span>
+              }
+            </div>
+            <div class="d-flex gap-2">
+              @if (canCancel(order)) {
+                <button class="btn btn-outline-danger" (click)="cancelOrder(order._id!)">Hủy đơn</button>
+              }
+              <button class="btn btn-outline-primary" (click)="openDetail(order)">Xem chi tiết</button>
+              @if (order.status === 'Hoàn thành') {
+                <button class="btn btn-outline-success" (click)="reorder(order)"><i class="bi bi-arrow-repeat"></i> Đặt lại</button>
+              }
+              @if (canComplain(order)) {
+                <div class="d-flex flex-column align-items-center">
+                  <button class="btn btn-outline-warning" (click)="openComplaint(order)"><i class="bi bi-exclamation-diamond"></i> Báo lỗi đơn</button>
+                  <small class="text-muted" style="font-size:0.7rem;">còn {{ complaintMinutesLeft(order) }} phút để khiếu nại</small>
+                </div>
+              }
             </div>
           </div>
         </div>
       } @empty {
-        <div class="empty-orders">
-          <img src="https://cdn-icons-png.flaticon.com/512/5089/5089733.png" alt="No orders">
-          <p>Bạn chưa có đơn hàng nào trong mục này.</p>
-          <a routerLink="/menu" class="btn-primary">Đặt bánh ngay</a>
+        <div class="text-center py-5">
+          <img src="https://cdn-icons-png.flaticon.com/512/5089/5089733.png" alt="No orders" class="mb-3" style="width: 150px; opacity: 0.5;">
+          <p class="text-muted mb-4">Bạn chưa có đơn hàng nào trong mục này.</p>
+          <a routerLink="/menu" class="btn btn-primary btn-lg rounded-pill px-4">Đặt bánh ngay</a>
         </div>
       }
     </div>
+    }
   </div>
+
+  <!-- Order Detail Modal -->
+  @if (detailOrder(); as o) {
+    <div class="modal d-block" style="background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);" (click)="closeDetail()">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" (click)="$event.stopPropagation()">
+        <div class="modal-content border-0 rounded-4">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold"><i class="bi bi-receipt me-2"></i>Chi tiết đơn {{ o.orderId }}</h5>
+            <button type="button" class="btn-close" (click)="closeDetail()"></button>
+          </div>
+          <div class="modal-body px-4">
+            <!-- Status -->
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="order-status-tag" [attr.data-status]="o.status"><i class="bi bi-circle-fill"></i> {{ o.status }}</div>
+              @if (o.paymentMethod) {
+                <span class="badge rounded-pill" [class.bg-success]="o.paymentStatus === 'paid'" [class.bg-warning]="o.paymentStatus !== 'paid'" [class.text-dark]="o.paymentStatus !== 'paid'">
+                  {{ getPaymentLabel(o.paymentMethod) }} · {{ o.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chờ thanh toán' }}
+                </span>
+              }
+            </div>
+
+            <!-- Customer Info -->
+            <div class="rounded-3 p-3 mb-3" style="background:#f8f9fb;">
+              <h6 class="fw-bold mb-2"><i class="bi bi-person me-1"></i> Thông tin nhận hàng</h6>
+              <div class="row small mb-1"><span class="col-4 text-muted">Người nhận:</span><span class="col-8 fw-semibold">{{ o.customerInfo.name }}</span></div>
+              <div class="row small mb-1"><span class="col-4 text-muted">SĐT:</span><span class="col-8 fw-semibold">{{ o.customerInfo.phone }}</span></div>
+              <div class="row small mb-1"><span class="col-4 text-muted">Địa chỉ:</span><span class="col-8 fw-semibold">{{ o.customerInfo.address }}</span></div>
+              <div class="row small mb-1"><span class="col-4 text-muted">Thời gian:</span><span class="col-8 fw-semibold">{{ o.customerInfo.deliveryTime }}</span></div>
+              @if (o.customerInfo.notes) {
+                <div class="row small"><span class="col-4 text-muted">Ghi chú:</span><span class="col-8 fw-semibold">{{ o.customerInfo.notes }}</span></div>
+              }
+            </div>
+
+            <!-- Items -->
+            <h6 class="fw-bold mb-2"><i class="bi bi-bag me-1"></i> Sản phẩm</h6>
+            @for (item of o.items; track item.name) {
+              <div class="d-flex gap-3 align-items-center py-2 border-bottom">
+                <img [src]="item.image" [alt]="item.name" class="rounded-3" style="width:48px;height:48px;object-fit:cover;">
+                <div class="flex-grow-1">
+                  <span class="fw-semibold small">{{ item.name }}</span>
+                  <span class="text-muted small ms-1">x{{ item.quantity }}</span>
+                </div>
+                <span class="fw-bold small text-primary">{{ formatPrice(item.price * item.quantity) }}</span>
+              </div>
+            }
+
+            <!-- Totals -->
+            <div class="mt-3 pt-2">
+              @if (o.customerInfo.hideGiftPrice) {
+                <div class="d-flex justify-content-between mt-1">
+                  <span class="fw-bold">Tổng thanh toán</span>
+                  <span class="fw-bold text-success"><i class="bi bi-gift-fill"></i> Đã thanh toán</span>
+                </div>
+              } @else {
+              @if (o.orderType !== 'small' && o.depositAmount) {
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-muted">Đã đặt cọc ({{ o.depositPercent }}%)</span>
+                  <span class="fw-semibold text-success">{{ formatPrice(o.depositAmount) }}</span>
+                </div>
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-muted">Còn lại khi nhận</span>
+                  <span class="fw-semibold">{{ formatPrice(o.remainingAmount || 0) }}</span>
+                </div>
+              }
+              <div class="d-flex justify-content-between mt-1">
+                <span class="fw-bold">Tổng thanh toán</span>
+                <span class="fw-bold text-primary fs-5">{{ formatPrice(o.totalAmount) }}</span>
+              </div>
+              }
+            </div>
+
+            <!-- Status History -->
+            @if (o.statusHistory && o.statusHistory.length > 0) {
+              <h6 class="fw-bold mt-4 mb-2"><i class="bi bi-clock-history me-1"></i> Lịch sử trạng thái</h6>
+              <div class="small">
+                @for (h of o.statusHistory; track h.at) {
+                  <div class="d-flex justify-content-between py-1 border-bottom">
+                    <span>{{ h.status }}</span>
+                    <span class="text-muted">{{ h.at | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          <div class="modal-footer border-0 justify-content-center">
+            <button class="btn btn-secondary rounded-pill px-4" (click)="closeDetail()">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Complaint Modal -->
+  @if (complaintOrder(); as co) {
+    <div class="modal-backdrop fade show" (click)="closeComplaint()"></div>
+    <div class="modal d-block" tabindex="-1" (click)="closeComplaint()">
+      <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+        <div class="modal-content rounded-4">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-exclamation-diamond text-warning"></i> Báo lỗi đơn {{ co.orderId }}</h5>
+            <button type="button" class="btn-close" (click)="closeComplaint()"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small">Khiếu nại được tiếp nhận trong vòng <strong>2 giờ</strong> kể từ khi nhận hàng. Còn <strong>{{ complaintMinutesLeft(co) }} phút</strong>.</p>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Lý do <span class="text-danger">*</span></label>
+              <select class="form-select rounded-3" [ngModel]="complaintReason()" (ngModelChange)="complaintReason.set($event)">
+                @for (r of complaintReasons; track r) { <option [value]="r">{{ r }}</option> }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Mô tả chi tiết</label>
+              <textarea class="form-control rounded-3" rows="3" [ngModel]="complaintDesc()" (ngModelChange)="complaintDesc.set($event)" placeholder="Mô tả cụ thể vấn đề bạn gặp phải..."></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label fw-semibold small">Ảnh minh chứng</label>
+              <input type="file" class="form-control rounded-3" accept="image/jpeg,image/png,image/webp" (change)="onComplaintPhotoSelected($event)">
+              @if (complaintUploading()) {
+                <div class="text-muted small mt-1"><span class="spinner-border spinner-border-sm"></span> Đang tải ảnh lên...</div>
+              }
+              @if (complaintPhoto()) {
+                <img [src]="complaintPhoto()" alt="Ảnh minh chứng" class="mt-2 rounded" style="max-width:100%;max-height:150px;object-fit:contain;">
+              }
+            </div>
+            @if (complaintError()) {
+              <div class="alert alert-danger small py-2 mb-0">{{ complaintError() }}</div>
+            }
+          </div>
+          <div class="modal-footer border-0">
+            <button class="btn btn-secondary rounded-pill px-4" (click)="closeComplaint()">Hủy</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold" [disabled]="complaintSending()" (click)="submitComplaint()">
+              {{ complaintSending() ? 'Đang gửi...' : 'Gửi khiếu nại' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </main>

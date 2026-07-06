@@ -1,6 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { environment } from '../environments/environment';
 
 export interface Order {
   _id?: string;
@@ -11,10 +13,21 @@ export interface Order {
     address: string;
     deliveryTime: string;
     notes: string;
+    isGift?: boolean;
+    giftMessage?: string;
+    hideGiftPrice?: boolean;
   };
   items: any[];
   totalAmount: number;
+  orderType?: string;
+  depositPercent?: number;
+  depositAmount?: number;
+  remainingAmount?: number;
+  deliveryMethod?: string;
   status: string;
+  statusHistory?: { status: string; at: string }[];
+  paymentMethod?: string;
+  paymentStatus?: string;
   createdAt?: string;
 }
 
@@ -23,19 +36,29 @@ export interface Order {
 })
 export class OrderService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://127.0.0.1:3000/api/orders';
+  private auth = inject(AuthService);
+  private apiUrl = `${environment.apiBase}/api/orders`;
 
   private ordersSignal = signal<Order[]>([]);
   readonly orders = this.ordersSignal.asReadonly();
 
-  constructor() {
-    this.fetchOrders();
+  fetchOrders() {
+    if (!this.auth.isLoggedIn()) {
+      this.ordersSignal.set([]);
+      return;
+    }
+    this.http.get<Order[]>(`${this.apiUrl}?mine=true`).subscribe({
+      next: orders => this.ordersSignal.set(orders),
+      error: () => this.ordersSignal.set([]),
+    });
   }
 
-  fetchOrders() {
-    this.http.get<Order[]>(this.apiUrl).subscribe(orders => {
-      this.ordersSignal.set(orders);
-    });
+  lookupOrders(phone: string, name: string) {
+    return this.http.get<Order[]>(`${this.apiUrl}/lookup`, { params: { phone, name } });
+  }
+
+  cancelOrder(id: string) {
+    return this.http.patch<Order>(`${this.apiUrl}/${id}/cancel`, {});
   }
 
   addOrder(order: Order) {

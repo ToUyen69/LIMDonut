@@ -6,13 +6,13 @@
 /* Combo Box Section Styles */
 .combo-box-section {
   padding: 80px 5%;
-  background-color: #faf6f0; /* Cream background matching theme */
+  background-color: #faf6f0;
   text-align: center;
 }
 
 .combo-box-section .section-title {
   font-size: 2.2rem;
-  color: #b22222; /* Standard red fallback */
+  color: #b22222;
   margin-bottom: 0.5rem;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
@@ -27,14 +27,6 @@
   line-height: 1.6;
 }
 
-.combo-box-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
 .combo-card {
   background: white;
   border-radius: 20px;
@@ -45,6 +37,7 @@
   display: flex;
   flex-direction: column;
   border: 1px solid #f1ece4;
+  height: 100%;
 }
 
 .combo-card:hover {
@@ -126,11 +119,29 @@
 }
 
 @media (max-width: 768px) {
-  .combo-box-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
   .combo-btn {
     width: 100%;
   }
+}
+
+/* ===== Flash Sale / Giờ vàng ===== */
+.flash-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: linear-gradient(90deg, #fff3e0, #ffebee);
+  border: 1px solid #ffcdd2;
+  border-radius: 14px;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: box-shadow 0.25s;
+}
+.flash-banner:hover { box-shadow: 0 6px 18px rgba(217,83,79,0.18); }
+.flash-banner-icon { color: #f39c12; font-size: 1.4rem; animation: flashBlink 1.2s infinite; }
+.flash-banner-text { color: #b03a2e; font-size: 0.92rem; flex: 1; }
+.flash-banner-text strong { color: #c0392b; margin-right: 0.4rem; }
+.flash-banner-cta { color: #c0392b; font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
+@keyframes flashBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }

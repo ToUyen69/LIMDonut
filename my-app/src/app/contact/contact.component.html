@@ -8,87 +8,114 @@
     </div>
   </section>
 
+  <!-- FAQ Section -->
+  <div class="container mb-5">
+    <div class="faq-section card border-0 shadow-sm rounded-4 p-4">
+      <h2 class="faq-title mb-1"><i class="bi bi-question-circle-fill text-primary"></i> Câu hỏi thường gặp</h2>
+      <p class="text-muted small mb-3">Có thể câu trả lời bạn cần đã ở ngay đây — đỡ phải chờ phản hồi!</p>
+      <div class="faq-list">
+        @for (faq of faqs; track faq.question; let i = $index) {
+          <div class="faq-item" [class.open]="faq.open">
+            <button type="button" class="faq-question" (click)="toggleFaq(i)">
+              <span>{{ faq.question }}</span>
+              <i class="bi" [ngClass]="faq.open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+            @if (faq.open) {
+              <div class="faq-answer">{{ faq.answer }}</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
   <div class="container">
-    <div class="contact-wrapper">
+    <div class="row g-4">
       <!-- Left: Info Card -->
-      <div class="info-card">
-        <div class="info-content">
-          <h2>Thông tin liên hệ:</h2>
-          <p class="info-desc">
-            LIMDonut luôn mong muốn nhận được những phản hồi quý giá của quý khách hàng để có cơ hội hoàn thiện sản phẩm, dịch vụ hơn nữa. 
-            Những đóng góp của quý khách hàng luôn là tài sản vô giá đối với chúng tôi.
-          </p>
-          <div class="info-details">
-            <div class="info-item">
-              <span class="icon">📞</span>
-              <span class="text">0.999.888.777</span>
-            </div>
-            <div class="info-item">
-              <span class="icon">✉️</span>
-              <span class="text">limdonuthotro@gmail.com</span>
+      <div class="col-lg-5">
+        <div class="card info-card border-0 h-100">
+          <div class="card-body info-content p-5">
+            <h2>Thông tin liên hệ:</h2>
+            <p class="info-desc">
+              LIMDonut luôn mong muốn nhận được những phản hồi quý giá của quý khách hàng để có cơ hội hoàn thiện sản phẩm, dịch vụ hơn nữa.
+              Những đóng góp của quý khách hàng luôn là tài sản vô giá đối với chúng tôi.
+            </p>
+            <div class="info-details">
+              <div class="info-item">
+                <span class="icon"><i class="bi bi-telephone-fill"></i></span>
+                <span class="text">0.999.888.777</span>
+              </div>
+              <div class="info-item">
+                <span class="icon"><i class="bi bi-envelope-fill"></i></span>
+                <span class="text">limdonuthotro@gmail.com</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Right: Contact Form -->
-      <div class="contact-form-container">
-        <form (ngSubmit)="submitForm()" #contactForm="ngForm">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Họ và tên*</label>
-              <input type="text" name="fullName" [(ngModel)]="formData.fullName" required placeholder="Nguyễn Văn A">
-            </div>
-            <div class="form-group">
-              <label>Email*</label>
-              <input type="email" name="email" [(ngModel)]="formData.email" required placeholder="example@gmail.com">
-            </div>
-            <div class="form-group">
-              <label>Số điện thoại*</label>
-              <input type="text" name="phone" [(ngModel)]="formData.phone" required placeholder="0123456789">
-            </div>
-            <div class="form-group full-width">
-              <label>Chi nhánh phản hồi*</label>
-              <select name="branch" [(ngModel)]="formData.branch" required>
-                <option value="" disabled selected>Chọn chi nhánh...</option>
-                @for (branch of branches; track branch) {
-                  <option [value]="branch">{{ branch }}</option>
-                }
-              </select>
-            </div>
-          </div>
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <form (ngSubmit)="submitForm()" #contactForm="ngForm">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Họ và tên*</label>
+                  <input type="text" class="form-control" name="fullName" [(ngModel)]="formData.fullName" required placeholder="Nguyễn Văn A">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Email*</label>
+                  <input type="email" class="form-control" name="email" [(ngModel)]="formData.email" required placeholder="example@gmail.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Số điện thoại*</label>
+                  <input type="text" class="form-control" name="phone" [(ngModel)]="formData.phone" required placeholder="0123456789">
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Chi nhánh phản hồi*</label>
+                  <select class="form-select" name="branch" [(ngModel)]="formData.branch" required>
+                    <option value="" disabled selected>Chọn chi nhánh...</option>
+                    @for (branch of branches; track branch) {
+                      <option [value]="branch">{{ branch }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
 
-          <div class="form-group full-width subjects-group">
-            <label>Vấn đề phản hồi*</label>
-            <div class="radio-group">
-              <label class="radio-label">
-                <input type="radio" name="subject" value="Than phiền" [(ngModel)]="formData.subject"> 
-                <span>Than phiền</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="subject" value="Khen ngợi" [(ngModel)]="formData.subject"> 
-                <span>Khen ngợi</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="subject" value="Đề xuất" [(ngModel)]="formData.subject"> 
-                <span>Đề xuất</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" name="subject" value="Vấn đề khác" [(ngModel)]="formData.subject"> 
-                <span>Vấn đề khác</span>
-              </label>
-            </div>
-          </div>
+              <div class="mb-3 subjects-group">
+                <label class="form-label fw-semibold">Vấn đề phản hồi*</label>
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="subject" value="Than phiền" [(ngModel)]="formData.subject" id="subject1">
+                    <label class="form-check-label" for="subject1">Than phiền</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="subject" value="Khen ngợi" [(ngModel)]="formData.subject" id="subject2">
+                    <label class="form-check-label" for="subject2">Khen ngợi</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="subject" value="Đề xuất" [(ngModel)]="formData.subject" id="subject3">
+                    <label class="form-check-label" for="subject3">Đề xuất</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="subject" value="Vấn đề khác" [(ngModel)]="formData.subject" id="subject4">
+                    <label class="form-check-label" for="subject4">Vấn đề khác</label>
+                  </div>
+                </div>
+              </div>
 
-          <div class="form-group full-width">
-            <label>Nội dung phản hồi*</label>
-            <textarea name="message" [(ngModel)]="formData.message" required placeholder="Nhập nội dung phản hồi tại đây..."></textarea>
-          </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nội dung phản hồi*</label>
+                <textarea class="form-control" name="message" [(ngModel)]="formData.message" required placeholder="Nhập nội dung phản hồi tại đây..." rows="6"></textarea>
+              </div>
 
-          <div class="form-actions">
-            <button type="submit" [disabled]="!contactForm.valid" class="submit-btn">GỬI</button>
+              <div class="d-flex justify-content-end mt-4">
+                <button type="submit" [disabled]="!contactForm.valid" class="btn btn-lg submit-btn">GỬI</button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>

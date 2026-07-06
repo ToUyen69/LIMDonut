@@ -1,0 +1,44 @@
+<main class="favorites-page">
+  <section class="favorites-banner">
+    <div class="container text-center">
+      <h1><i class="bi bi-heart-fill"></i> Món yêu thích</h1>
+      <p>Những chiếc donut bạn đã "thả tim"</p>
+    </div>
+  </section>
+
+  <section class="container py-4">
+    @if (favoriteProducts.length === 0) {
+      <div class="empty-favorites text-center py-5">
+        <i class="bi bi-heart" style="font-size: 4rem; color: #ccc;"></i>
+        <h3 class="mt-3" style="color: #888;">Chưa có món yêu thích nào</h3>
+        <p style="color: #aaa;">Hãy khám phá menu và thả tim cho những chiếc donut bạn thích nhé!</p>
+        <a routerLink="/menu" class="btn btn-outline-primary rounded-pill mt-2">Khám phá Menu</a>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (product of favoriteProducts; track product.id) {
+          <div class="col-lg-4 col-md-6">
+            <div class="fav-card">
+              <div class="fav-card-img" [routerLink]="['/product', product.id]">
+                <img [src]="product.image" [alt]="product.name" />
+                <button class="remove-fav-btn" (click)="$event.stopPropagation(); removeFavorite(product)" title="Bỏ yêu thích">
+                  <i class="bi bi-heart-fill"></i>
+                </button>
+              </div>
+              <div class="fav-card-info">
+                <h4 [routerLink]="['/product', product.id]">{{ product.name }}</h4>
+                <p class="fav-desc">{{ product.description }}</p>
+                <div class="fav-bottom">
+                  <span class="fav-price">{{ product.price }}</span>
+                  <button class="btn btn-sm btn-outline-primary rounded-pill" [disabled]="productService.isOutOfStock(product)" (click)="addToCart(product)">
+                    <i class="bi bi-cart"></i> Thêm vào giỏ
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</main>

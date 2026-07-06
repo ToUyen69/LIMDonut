@@ -1,0 +1,82 @@
+:root {
+  --color-blue: #71acd0;
+  --color-cream: #fbfbea;
+  --color-teal: #a5c2cb;
+  --color-light-blue: #afdeee;
+  --color-pale-cyan: #daefee;
+  --color-steel-blue: #b9dbe2;
+  --color-light-green: #f5fdf3;
+  --font-primary: 'Montserrat', sans-serif;
+  --font-heading: 'Playfair Display', serif;
+}
+
+body {
+  font-family: var(--font-primary) !important;
+  background-color: #f5f7fa;
+  color: #333;
+  margin: 0;
+}
+
+.admin-navbar {
+  background-color: var(--color-light-blue);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #2d3436;
+}
+
+.admin-brand img {
+  height: 44px;
+  width: auto;
+}
+
+.admin-brand-sub {
+  font-family: var(--font-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-blue);
+  padding: 0.15rem 0.6rem;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.admin-nav a {
+  text-decoration: none;
+  color: #2d3436;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.admin-nav a:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.admin-nav a.active {
+  background: #fff;
+  color: var(--color-blue);
+  font-weight: 600;
+}
+
+.admin-content {
+  padding: 1.5rem;
+}

@@ -1,33 +1,45 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  rating: number;
-  reviews: string;
-  image: string;
-  categories: string[];
-}
-
-import { RouterModule, ActivatedRoute } from '@angular/router';
-import { OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { CartService } from '../cart.service';
+import { ProductService, Product } from '../product.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   selectedCategory: string = 'Tất cả';
+  searchTerm: string = '';
+  sortBy: string = 'featured'; // featured | newest | price-asc | price-desc | rating
+  selectedDiets: string[] = []; // 'Chay', 'Không gluten', 'Ít ngọt', 'Cho trẻ em'
+  priceRange: string = 'all';   // all | lt30 | 30-40 | gt40
+  calorieRange: string = 'all'; // all | lt300 | 300-380 | gt380
+
   private cartService = inject(CartService);
+  private productService = inject(ProductService);
+  private router = inject(Router);
+  authService = inject(AuthService);
+
+  // Bộ lọc nhu cầu hiển thị dưới dạng chip
+  readonly dietOptions = ['Chay', 'Không gluten', 'Ít ngọt', 'Cho trẻ em'];
+
+  // Sản phẩm bán cho menu (loại bỏ combo box, vốn được chọn ở trang chi tiết)
+  // Dùng getter vì danh sách giờ tải async từ API
+  private get products(): Product[] {
+    return this.productService.getProducts().filter(p => p.id < 99);
+  }
 
   constructor(private route: ActivatedRoute) {}
+
+  // Giờ vàng: tick mỗi giây để cập nhật đồng hồ đếm ngược
+  readonly flashTick = signal(0);
+  private flashTimer: any = null;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -35,59 +47,150 @@ export class MenuComponent implements OnInit {
         this.selectedCategory = params['category'];
       }
     });
+    this.flashTimer = setInterval(() => this.flashTick.update(v => v + 1), 1000);
   }
 
-  products: Product[] = [
-    { id: 1, name: 'Carabana', description: 'Caramel Chuối', price: '32.000', rating: 5, reviews: '1.1k', image: 'new_product_carabana.jpg', categories: ['Món mới'] },
-    { id: 2, name: 'Cheefy Hotdog', description: 'Xúc xích phô mai (bản mới)', price: '35.000', rating: 4, reviews: '500', image: 'new_product_cheefy hotdog.jpg', categories: ['Món mới', 'Bất ngờ Lịm'] },
-    { id: 3, name: 'Truffle Bacon', description: 'Bacon Nấm Truffle', price: '40.000', rating: 5, reviews: '1.5k', image: 'new_product_trufle-bacon.jpg', categories: ['Món mới', 'Bất ngờ Lịm'] },
-    { id: 4, name: 'Vietnamese Coffee', description: 'Cà phê sữa đá Việt Nam', price: '28.000', rating: 5, reviews: '2k', image: 'new_product_vietnamese-coffee.jpg', categories: ['Món mới', 'Cà phê & Cacao', 'Donut hot'] },
-    { id: 5, name: 'Thai Tea Creme Brulee', description: 'Trà Thái Creme Brulee', price: '35.000', rating: 5, reviews: '850', image: 'product_Thai-tea-creme-brulee.jpg', categories: ['Trà & Quả'] },
-    { id: 6, name: 'Burnt Mentaiko', description: 'Trứng cá tuyết khò lửa', price: '38.000', rating: 4, reviews: '650', image: 'product_burnt-mentaiko.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 7, name: 'Cacao Passion', description: 'Cacao chanh dây', price: '32.000', rating: 5, reviews: '1.2k', image: 'product_cacao-passion.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 8, name: 'Caramel Butter Cream', description: 'Kem bơ Caramel', price: '34.000', rating: 5, reviews: '900', image: 'product_caramel-butter-cream.jpg', categories: ['Nguyên Bản'] },
-    { id: 9, name: 'Caramel Crack', description: 'Caramel giòn', price: '30.000', rating: 4, reviews: '750', image: 'product_caramel-crack.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 10, name: 'Castella Bom', description: 'Bánh bông lan Castella', price: '35.000', rating: 5, reviews: '1k', image: 'product_castella-bom.jpg', categories: ['Nguyên Bản'] },
-    { id: 11, name: 'Cheezy Hotdog', description: 'Xúc xích phô mai', price: '35.000', rating: 4, reviews: '400', image: 'product_cheezy-hotdog.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 12, name: 'Cho-Vi-Be', description: 'Chocolate Vị Bé', price: '25.000', rating: 5, reviews: '3k', image: 'product_cho-vi-be.jpg', categories: ['Nguyên Bản'] },
-    { id: 13, name: 'Chocoyogo', description: 'Chocolate Yogurt', price: '32.000', rating: 5, reviews: '1.1k', image: 'product_chocoyogo.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 14, name: 'Coco Pandan', description: 'Dừa lá dứa', price: '30.000', rating: 5, reviews: '800', image: 'product_coco-pandan.jpg', categories: ['Trà & Quả'] },
-    { id: 15, name: 'Coconut Drift', description: 'Dừa nướng', price: '33.000', rating: 4, reviews: '950', image: 'product_coconut-drirt.jpg', categories: ['Trà & Quả'] },
-    { id: 16, name: 'Corn Flirt', description: 'Bắp phô mai', price: '28.000', rating: 4, reviews: '600', image: 'product_corn-flirt.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 17, name: 'Creamy Mushroom', description: 'Sốt nấm kem ngậy', price: '38.000', rating: 5, reviews: '700', image: 'product_creamy-mushroom.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 18, name: 'Crucolate', description: 'Cruller phủ socola', price: '36.000', rating: 5, reviews: '1.3k', image: 'product_crucolate.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 19, name: 'Cruller', description: 'Bánh vòng Cruller trơn', price: '30.000', rating: 4, reviews: '500', image: 'product_cruller.jpg', categories: ['Nguyên Bản'] },
-    { id: 20, name: 'Crumel', description: 'Cruller Caramel', price: '34.000', rating: 5, reviews: '800', image: 'product_crumel.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 21, name: 'Crumon', description: 'Cruller vị chanh thơm', price: '34.000', rating: 4, reviews: '650', image: 'product_crumon.jpg', categories: ['Trà & Quả'] },
-    { id: 22, name: 'Crunnemon', description: 'Cruller Quế', price: '34.000', rating: 5, reviews: '900', image: 'product_crunnemon.jpg', categories: ['Nguyên Bản'] },
-    { id: 23, name: 'Cruramel', description: 'Cruller Caramel mặn', price: '36.000', rating: 5, reviews: '1k', image: 'product_cruramel.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 24, name: 'Cốm Hương Mộc', description: 'Cốm mùa thu', price: '35.000', rating: 5, reviews: '1.2k', image: 'product_cốm-hương-mộc.jpg', categories: ['Trà & Quả', 'Donut hot'] },
-    { id: 25, name: 'Dubai Chocolate', description: 'Socola Dubai - đang rất trend', price: '45.000', rating: 5, reviews: '2.5k', image: 'product_dubai-chocolate.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 26, name: 'Dứa Ngọc Dừa Ngà', description: 'Dứa dừa', price: '36.000', rating: 5, reviews: '1.1k', image: 'product_dứa-ngọc-dừa-ngà.jpg', categories: ['Trà & Quả'] },
-    { id: 27, name: 'Honey Lemon Medovik', description: 'Mật ong chanh', price: '35.000', rating: 5, reviews: '950', image: 'product_honey-lemon-medovik.jpg', categories: ['Trà & Quả'] },
-    { id: 28, name: 'Hot Gochujang', description: 'Sốt cay Hàn Quốc Gochujang', price: '32.000', rating: 4, reviews: '550', image: 'product_hot-gochujang.jpg', categories: ['Bất ngờ Lịm', 'Donut hot'] },
-    { id: 29, name: 'Miso Earl Grey', description: 'Miso Bá tước Bá tước', price: '38.000', rating: 5, reviews: '1.4k', image: 'product_miso-earl-grey-milk-cream.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 30, name: 'Nutty Caramel', description: 'Caramel hạt rang', price: '36.000', rating: 5, reviews: '1.2k', image: 'product_nutty-caramel.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 31, name: 'Oreo Milkshake', description: 'Oreo sữa lắc', price: '32.000', rating: 5, reviews: '2k', image: 'product_oreo-milkshake.jpg', categories: ['Cà phê & Cacao'] },
-    { id: 32, name: 'Pina Colada', description: 'Dứa dừa Pina Colada', price: '35.000', rating: 4, reviews: '750', image: 'product_pina-colada.jpg', categories: ['Trà & Quả'] },
-    { id: 33, name: 'Sa Tế Mayo', description: 'Sa tế Mayo độc lạ', price: '32.000', rating: 4, reviews: '600', image: 'product_sa-tế-mayo.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 34, name: 'Thu Trà Mochi', description: 'Trà Mochi', price: '35.000', rating: 5, reviews: '800', image: 'product_thu-tra-mochi.jpg', categories: ['Trà & Quả'] },
-    { id: 35, name: 'Toasted Mocha', description: 'Mocha nướng', price: '32.000', rating: 5, reviews: '1k', image: 'product_toasted-mocha.jpg', categories: ['Cà phê & Cacao', 'Donut hot'] },
-    { id: 36, name: 'Trứng Muối Chà Bông', description: 'Vị mặn ngọt hài hòa', price: '30.000', rating: 5, reviews: '1k', image: 'product_trứng-muối-chà-bông.jpg', categories: ['Donut hot', 'Bất ngờ Lịm'] },
-    { id: 37, name: 'Ube Creme Brulee', description: 'Khoai lang tím Ube', price: '36.000', rating: 5, reviews: '1.2k', image: 'product_ube-creme-brulee.jpg', categories: ['Bất ngờ Lịm'] },
-    { id: 38, name: 'Young Coconut Glazed', description: 'Dừa non phủ men đường', price: '30.000', rating: 4, reviews: '850', image: 'product_young-coconut-glazed.jpg', categories: ['Nguyên Bản'] }
-  ];
+  ngOnDestroy() {
+    if (this.flashTimer) clearInterval(this.flashTimer);
+  }
 
-  get filteredProducts() {
-    if (this.selectedCategory === 'Tất cả') {
-      return this.products;
+  // ---- Giờ vàng ----
+  isFlashSale(p: Product): boolean {
+    this.flashTick();
+    return this.productService.isFlashSaleActive(p);
+  }
+
+  flashPrice(p: Product): string {
+    return this.productService.getFlashSalePrice(p).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  flashCountdown(p: Product): string {
+    this.flashTick();
+    const s = this.productService.flashSaleSecondsLeft(p);
+    const m = Math.floor(s / 60), sec = s % 60;
+    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  get activeFlashProduct(): Product | null {
+    this.flashTick();
+    return this.products.find(p => this.productService.isFlashSaleActive(p)) ?? null;
+  }
+
+  focusFlashProduct() {
+    const p = this.activeFlashProduct;
+    if (!p) return;
+    this.selectedCategory = 'Tất cả';
+    this.searchTerm = p.name;
+  }
+
+  // ---- Gợi ý an toàn cho khách mới: top bán chạy hôm nay ----
+  get hotPicks(): Product[] {
+    return [...this.products]
+      .sort((a, b) => b.sold - a.sold)
+      .slice(0, 4);
+  }
+
+  get filteredProducts(): Product[] {
+    let list = [...this.products];
+
+    // Lọc theo danh mục
+    if (this.selectedCategory !== 'Tất cả') {
+      list = list.filter(p => p.categories.includes(this.selectedCategory));
     }
-    return this.products.filter(p => p.categories.includes(this.selectedCategory));
+
+    // Tìm kiếm theo tên / mô tả
+    const term = this.searchTerm.trim().toLowerCase();
+    if (term) {
+      list = list.filter(p =>
+        p.name.toLowerCase().includes(term) ||
+        p.description.toLowerCase().includes(term)
+      );
+    }
+
+    // Lọc theo nhu cầu (tất cả nhu cầu đã chọn đều phải thỏa)
+    if (this.selectedDiets.length) {
+      list = list.filter(p => this.selectedDiets.every(d => p.dietary.includes(d)));
+    }
+
+    // Lọc theo giá
+    if (this.priceRange !== 'all') {
+      list = list.filter(p => {
+        const price = this.productService.getPriceValue(p);
+        if (this.priceRange === 'lt30') return price < 30000;
+        if (this.priceRange === '30-40') return price >= 30000 && price <= 40000;
+        if (this.priceRange === 'gt40') return price > 40000;
+        return true;
+      });
+    }
+
+    // Lọc theo calo
+    if (this.calorieRange !== 'all') {
+      list = list.filter(p => {
+        const cal = p.nutrition.calories;
+        if (this.calorieRange === 'lt300') return cal < 300;
+        if (this.calorieRange === '300-380') return cal >= 300 && cal <= 380;
+        if (this.calorieRange === 'gt380') return cal > 380;
+        return true;
+      });
+    }
+
+    // Sắp xếp
+    switch (this.sortBy) {
+      case 'newest':
+        list.sort((a, b) => Number(this.isNew(b)) - Number(this.isNew(a)));
+        break;
+      case 'price-asc':
+        list.sort((a, b) => this.productService.getPriceValue(a) - this.productService.getPriceValue(b));
+        break;
+      case 'price-desc':
+        list.sort((a, b) => this.productService.getPriceValue(b) - this.productService.getPriceValue(a));
+        break;
+      case 'rating':
+        list.sort((a, b) => b.rating - a.rating || b.sold - a.sold);
+        break;
+      default: // featured = bán chạy nhất
+        list.sort((a, b) => b.sold - a.sold);
+    }
+
+    return list;
+  }
+
+  get activeFilterCount(): number {
+    let n = this.selectedDiets.length;
+    if (this.priceRange !== 'all') n++;
+    if (this.calorieRange !== 'all') n++;
+    return n;
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
   }
+
+  toggleDiet(diet: string) {
+    if (this.selectedDiets.includes(diet)) {
+      this.selectedDiets = this.selectedDiets.filter(d => d !== diet);
+    } else {
+      this.selectedDiets = [...this.selectedDiets, diet];
+    }
+  }
+
+  isDietActive(diet: string): boolean {
+    return this.selectedDiets.includes(diet);
+  }
+
+  clearFilters() {
+    this.selectedDiets = [];
+    this.priceRange = 'all';
+    this.calorieRange = 'all';
+    this.searchTerm = '';
+  }
+
+  // ---- Helpers nhãn ----
+  isNew(p: Product): boolean { return this.productService.isNew(p); }
+  isHot(p: Product): boolean { return this.productService.isHot(p); }
+  isBestSeller(p: Product): boolean { return this.productService.isBestSeller(p); }
+  isLowStock(p: Product): boolean { return this.productService.isLowStock(p); }
+  isOutOfStock(p: Product): boolean { return this.productService.isOutOfStock(p); }
 
   getCategoryDesc(category: string): string {
     const descs: { [key: string]: string } = {
@@ -102,6 +205,30 @@ export class MenuComponent implements OnInit {
   }
 
   addToCart(product: Product) {
+    if (this.productService.isOutOfStock(product)) {
+      alert(`"${product.name}" đã hết hàng hôm nay!`);
+      return;
+    }
     this.cartService.addToCart(product);
+    this.productService.decreaseStock(product.id, 1);
+  }
+
+  buyNow(product: Product) {
+    if (this.productService.isOutOfStock(product)) {
+      alert(`"${product.name}" đã hết hàng hôm nay!`);
+      return;
+    }
+    this.cartService.addToCart(product);
+    this.productService.decreaseStock(product.id, 1);
+    this.router.navigate(['/checkout']);
+  }
+
+  toggleFavorite(product: Product) {
+    const obs = this.authService.toggleFavorite(product.id);
+    if (obs) obs.subscribe();
+  }
+
+  isFavorite(product: Product): boolean {
+    return this.authService.isFavorite(product.id);
   }
 }

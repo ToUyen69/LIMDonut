@@ -20,6 +20,7 @@ export class Login implements OnInit {
   username = signal('');
   email = signal('');
   password = signal('');
+  referralCode = signal('');
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -58,10 +59,16 @@ export class Login implements OnInit {
         this.authService.register({
           username: this.username(),
           email: this.email(),
-          password: this.password()
+          password: this.password(),
+          referralCode: this.referralCode().trim() || undefined
         }).subscribe({
-          next: () => {
-            alert('Đăng ký thành công! Hãy đăng nhập.');
+          next: (res: any) => {
+            if (res?.referralDiscount) {
+              localStorage.setItem('pendingReferralDiscount', 'true');
+              alert('Đăng ký thành công! Bạn được giảm 15% cho đơn hàng đầu tiên. Hãy đăng nhập.');
+            } else {
+              alert('Đăng ký thành công! Hãy đăng nhập.');
+            }
             this.isLoginMode.set(true);
           },
           error: (err) => {

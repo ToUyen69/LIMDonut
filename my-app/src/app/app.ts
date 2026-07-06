@@ -48,8 +48,10 @@ export class App {
   }
 
   constructor() {
+    if (this.authService.isLoggedIn()) {
+      this.authService.fetchMe().subscribe({ error: () => {} });
+    }
     effect(() => {
-      // Trigger animation when count changes
       if (this.cartCount() > 0) {
         this.cartAnimation.set(true);
         setTimeout(() => this.cartAnimation.set(false), 500);

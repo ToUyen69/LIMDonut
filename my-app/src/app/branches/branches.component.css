@@ -47,36 +47,13 @@
   padding: 20px 0 80px;
 }
 
-.container {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.branches-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 30px;
-  align-items: start;
-}
-
-/* Branches List */
-.branches-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
+/* Branch Item Card */
 .branch-item {
-  background: #fff;
-  border-radius: 15px;
-  padding: 15px;
-  display: flex;
-  gap: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 2px solid transparent !important;
   box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  border-radius: 15px;
 }
 
 .branch-item:hover {
@@ -85,7 +62,7 @@
 }
 
 .branch-item.active {
-  border-color: var(--color-blue);
+  border-color: var(--color-blue) !important;
   background-color: #f8fbff;
 }
 
@@ -118,7 +95,6 @@
 .branch-info p {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 8px;
   line-height: 1.5;
   display: flex;
   gap: 8px;
@@ -130,21 +106,18 @@
 
 /* Map Container */
 .map-container {
-  background: #fff;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
   height: 650px;
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
 }
 
 .map-header {
   padding: 15px 20px;
-  background: #f8fbff;
-  border-bottom: 1px solid #eee;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -160,7 +133,6 @@
 
 .map-footer {
   padding: 15px;
-  background: #fff;
   display: flex;
   justify-content: flex-start;
 }
@@ -188,11 +160,7 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .branches-wrapper {
-    grid-template-columns: 1fr;
-  }
-  
+@media (max-width: 992px) {
   .map-container {
     height: 500px;
     position: static;
@@ -200,10 +168,10 @@
 }
 
 @media (max-width: 600px) {
-  .branch-item {
+  .branch-item .d-flex.gap-3 {
     flex-direction: column;
   }
-  
+
   .branch-image {
     flex: 0 0 200px;
     width: 100%;

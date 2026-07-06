@@ -1,0 +1,11 @@
+.card.unhandled {
+  border-left: 4px solid #ffc107;
+}
+
+.complaint-thumb {
+  max-width: 120px;
+  max-height: 90px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid #eee;
+}

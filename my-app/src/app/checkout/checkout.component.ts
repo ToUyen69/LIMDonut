@@ -1,10 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../cart.service';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../order.service';
 import { Router } from '@angular/router';
+import { classifyOrder, calculateShipping, applyDiscountCap } from '../pricing.util';
+import { AuthService } from '../auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -13,20 +17,72 @@ import { Router } from '@angular/router';
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css'
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
   cartService = inject(CartService);
   orderService = inject(OrderService);
+  authService = inject(AuthService);
   router = inject(Router);
-  
-  shippingFee = 10000;
-  discount = 0;
+
+  // Giảm 15% đơn đầu cho tài khoản đăng ký bằng mã giới thiệu
+  referralActive = signal(localStorage.getItem('pendingReferralDiscount') === 'true');
+  get discount(): number {
+    return this.referralActive() ? Math.floor(this.subtotal * 0.15) : 0;
+  }
+  starsInput = signal(0);
+  starWarning = signal('');
+
+  // Chế độ quà tặng
+  isGift = signal(false);
+  giftMessage = signal('');
+  hideGiftPrice = signal(false);
+
+  // Mã giảm giá (voucher)
+  private http = inject(HttpClient);
+  voucherInput = signal('');
+  appliedVoucherCode = signal('');
+  voucherDiscount = signal(0);
+  voucherMsg = signal('');
+  voucherChecking = signal(false);
+
+  applyVoucher() {
+    const code = this.voucherInput().trim().toUpperCase();
+    if (!code || this.voucherChecking()) return;
+    this.voucherChecking.set(true);
+    this.voucherMsg.set('');
+    this.http.post<{ code: string; discount: number }>(`${environment.apiBase}/api/vouchers/validate`, {
+      code, orderTotal: this.subtotal
+    }).subscribe({
+      next: res => {
+        this.appliedVoucherCode.set(res.code);
+        this.voucherDiscount.set(res.discount);
+        this.voucherMsg.set(`Áp dụng mã ${res.code} thành công!`);
+        this.voucherChecking.set(false);
+      },
+      error: err => {
+        this.appliedVoucherCode.set('');
+        this.voucherDiscount.set(0);
+        this.voucherMsg.set(err.error?.message || 'Mã giảm giá không hợp lệ.');
+        this.voucherChecking.set(false);
+      }
+    });
+  }
+
+  removeVoucher() {
+    this.appliedVoucherCode.set('');
+    this.voucherDiscount.set(0);
+    this.voucherInput.set('');
+    this.voucherMsg.set('');
+  }
+
+  deliveryMethod = signal<'delivery' | 'pickup'>('delivery');
+  distanceKm = signal(3);
   
   // Form data
-  address = signal('107-B9 P. Tô Hiệu, Nghĩa Tân, Cầu Giấy, Hà Nội');
-  recipient = signal('siêu trộm kid');
+  address = signal('');
+  recipient = signal('');
   phoneNumber = signal('');
-  deliveryTime = signal('Nhận hàng ngày 29/10/2025 - Vào lúc 19:30');
-  notes = signal('Không có ghi chú');
+  deliveryTime = signal('');
+  notes = signal('');
   branch = signal('');
   
   // Validation messages
@@ -46,22 +102,83 @@ export class CheckoutComponent {
   
   paymentMethod = signal('cash');
 
+  ngOnInit() {
+    if (this.authService.isLoggedIn()) {
+      const u = this.authService.user();
+      if (u) {
+        this.recipient.set(u.username || '');
+        this.phoneNumber.set(u.phone || '');
+        this.address.set(u.address || '');
+      }
+    } else {
+      try {
+        const saved = JSON.parse(localStorage.getItem('guestCheckoutInfo') || '{}');
+        if (saved.name) this.recipient.set(saved.name);
+        if (saved.phone) this.phoneNumber.set(saved.phone);
+        if (saved.address) this.address.set(saved.address);
+      } catch (_) {}
+    }
+  }
+
+  // QR modal state
+  showQrModal = signal(false);
+  qrCountdown = signal(900); // 15 minutes in seconds
+  qrExpired = signal(false);
+  pendingOrder: any = null;
+  private countdownInterval: any = null;
+
   get subtotal() {
     return this.cartService.totalPrice();
   }
 
-  get total() {
-    return this.subtotal + this.shippingFee - this.discount;
+  readonly shippingResult = computed(() => {
+    if (this.deliveryMethod() === 'pickup') return { fee: 0, estimatedTime: '' };
+    return calculateShipping(this.distanceKm(), this.subtotal);
+  });
+
+  get shippingFee(): number {
+    return this.shippingResult().fee ?? 0;
   }
+
+  get shippingOutOfRange(): boolean {
+    return this.deliveryMethod() === 'delivery' && this.shippingResult().fee === null;
+  }
+
+  readonly starsDiscount = computed(() => {
+    const cap = applyDiscountCap(this.subtotal, this.starsInput(), 0);
+    return cap.stars;
+  });
+
+  get total() {
+    return Math.max(0, this.subtotal + this.shippingFee - this.discount - this.starsDiscount() - this.voucherDiscount());
+  }
+
+  onStarsInputChange(val: number) {
+    const userStars = this.authService.user()?.stars || 0;
+    if (val > userStars) {
+      val = userStars;
+      this.starWarning.set(`Bạn chỉ có ${userStars.toLocaleString()} Star.`);
+    } else {
+      this.starWarning.set('');
+    }
+    this.starsInput.set(val);
+    const capped = applyDiscountCap(this.subtotal, val, 0);
+    if (capped.stars < val) {
+      this.starWarning.set(`Tối đa 30% tạm tính = ${capped.stars.toLocaleString()}đ. Đã tự điều chỉnh.`);
+    }
+  }
+
+  readonly orderClassification = computed(() => classifyOrder(this.total));
 
   get isFormValid(): boolean {
     const phoneValid = /^\d{10}$/.test(this.phoneNumber());
-    const addressValid = this.address().length > 0;
     const recipientValid = this.recipient().length > 0;
     const branchValid = this.branch().length > 0;
     const timeValid = this.deliveryTime().length > 0 && this.timeError() === '';
-    
-    return phoneValid && addressValid && recipientValid && branchValid && timeValid && this.cartService.items().length > 0;
+    const addressValid = this.deliveryMethod() === 'pickup' || this.address().length > 0;
+
+    return phoneValid && addressValid && recipientValid && branchValid && timeValid
+      && this.cartService.items().length > 0 && !this.shippingOutOfRange;
   }
 
   validatePhone() {
@@ -116,20 +233,33 @@ export class CheckoutComponent {
     this.closeTimeModal();
   }
 
-  placeOrder() {
-    if (!this.isFormValid) return;
-
-    const newOrder: any = {
+  private buildOrder(): any {
+    const cls = this.orderClassification();
+    return {
       orderId: 'DH-' + Math.floor(1000000 + Math.random() * 9000000),
       totalAmount: this.total,
-      status: 'Chờ xác nhận',
+      orderType: cls.orderType,
+      depositPercent: cls.depositPercent,
+      depositAmount: cls.depositAmount,
+      remainingAmount: cls.remainingAmount,
+      deliveryMethod: this.deliveryMethod(),
+      paymentMethod: this.paymentMethod(),
+      paymentStatus: this.paymentMethod() === 'cash' ? 'pending' : 'pending',
+      status: 'Đã đặt',
       customerInfo: {
         name: this.recipient(),
         phone: this.phoneNumber(),
-        address: this.address() + (this.branch() ? ` (Chi nhánh: ${this.branch()})` : ''),
+        address: this.deliveryMethod() === 'pickup' ? `Lấy tại quầy (${this.branch()})` : this.address() + (this.branch() ? ` (Chi nhánh: ${this.branch()})` : ''),
         deliveryTime: this.deliveryTime(),
-        notes: this.notes()
+        notes: this.notes(),
+        isGift: this.isGift(),
+        giftMessage: this.isGift() ? this.giftMessage().trim() : '',
+        hideGiftPrice: this.isGift() ? this.hideGiftPrice() : false
       },
+      starsToUse: this.starsDiscount(),
+      shippingFee: this.shippingFee,
+      referralDiscount: this.discount,
+      voucherCode: this.appliedVoucherCode() || undefined,
       items: this.cartService.items().map(item => ({
         id: item.id,
         name: item.name,
@@ -142,15 +272,116 @@ export class CheckoutComponent {
         }
       }))
     };
+  }
 
-    this.orderService.addOrder(newOrder).subscribe({
+  placeOrder() {
+    if (!this.isFormValid) return;
+
+    if (this.paymentMethod() !== 'cash') {
+      this.pendingOrder = this.buildOrder();
+      this.openQrModal();
+      return;
+    }
+
+    const newOrder = this.buildOrder();
+    this.submitOrder(newOrder);
+  }
+
+  private submitOrder(order: any) {
+    this.orderService.addOrder(order).subscribe({
       next: () => {
+        if (this.referralActive()) {
+          localStorage.removeItem('pendingReferralDiscount');
+          this.referralActive.set(false);
+        }
         this.cartService.clearCart();
-        this.router.navigate(['/orders']);
+        if (this.authService.isLoggedIn()) {
+          this.authService.fetchMe().subscribe({ error: () => {} });
+          this.router.navigate(['/orders']);
+        } else {
+          localStorage.setItem('guestCheckoutInfo', JSON.stringify({ name: this.recipient(), phone: this.phoneNumber(), address: this.address() }));
+          this.router.navigate(['/orders'], { queryParams: { phone: this.phoneNumber(), name: this.recipient(), justPlaced: order.orderId } });
+        }
       },
       error: (err) => {
-        alert('Lỗi khi đặt hàng! Vui lòng thử lại.');
+        console.error('Order error:', err);
+        alert('Lỗi khi đặt hàng: ' + (err.error?.message || err.message || JSON.stringify(err.error)));
       }
     });
+  }
+
+  get qrPayAmount(): number {
+    if (!this.pendingOrder) return 0;
+    const cls = this.orderClassification();
+    return cls.orderType === 'small' ? this.total : cls.depositAmount;
+  }
+
+  get qrCodeUrl(): string {
+    const orderId = this.pendingOrder?.orderId || 'DEMO';
+    const amount = this.qrPayAmount;
+    const data = encodeURIComponent(`LIMDonut|${orderId}|${amount}VND`);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${data}`;
+  }
+
+  get qrMinutes(): string {
+    return Math.floor(this.qrCountdown() / 60).toString().padStart(2, '0');
+  }
+
+  get qrSeconds(): string {
+    return (this.qrCountdown() % 60).toString().padStart(2, '0');
+  }
+
+  get paymentMethodLabel(): string {
+    const map: Record<string, string> = { momo: 'MoMo', zalopay: 'ZaloPay', wallet: 'Ví điện tử' };
+    return map[this.paymentMethod()] || this.paymentMethod();
+  }
+
+  openQrModal() {
+    this.qrCountdown.set(900);
+    this.qrExpired.set(false);
+    this.showQrModal.set(true);
+    this.startCountdown();
+  }
+
+  closeQrModal() {
+    this.showQrModal.set(false);
+    this.stopCountdown();
+    this.pendingOrder = null;
+  }
+
+  private startCountdown() {
+    this.stopCountdown();
+    this.countdownInterval = setInterval(() => {
+      const val = this.qrCountdown() - 1;
+      if (val <= 0) {
+        this.qrCountdown.set(0);
+        this.qrExpired.set(true);
+        this.stopCountdown();
+      } else {
+        this.qrCountdown.set(val);
+      }
+    }, 1000);
+  }
+
+  private stopCountdown() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
+    }
+  }
+
+  resetQr() {
+    this.qrCountdown.set(900);
+    this.qrExpired.set(false);
+    this.startCountdown();
+  }
+
+  confirmQrPayment() {
+    if (!this.pendingOrder) return;
+    this.pendingOrder.paymentStatus = 'paid';
+    this.stopCountdown();
+    this.showQrModal.set(false);
+    this.submitOrder(this.pendingOrder);
+    this.pendingOrder = null;
   }
 }

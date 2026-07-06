@@ -1,0 +1,92 @@
+.favorites-page {
+  background-color: #f5f7fa;
+  min-height: 60vh;
+  padding-bottom: 3rem;
+}
+
+.favorites-banner {
+  background-color: #e6f0fa;
+  padding: 2.5rem 0 2rem;
+  border-radius: 0 0 20px 20px;
+}
+.favorites-banner h1 {
+  font-family: 'Playfair Display', serif;
+  color: #333;
+  font-size: 2rem;
+}
+.favorites-banner h1 i { color: #e74c3c; }
+.favorites-banner p { color: #666; }
+
+.fav-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  transition: transform 0.25s, box-shadow 0.25s;
+  height: 100%;
+}
+.fav-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+
+.fav-card-img {
+  position: relative;
+  cursor: pointer;
+}
+.fav-card-img img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.remove-fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e74c3c;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.remove-fav-btn:hover { transform: scale(1.15); }
+
+.fav-card-info {
+  padding: 1rem 1.2rem 1.2rem;
+}
+.fav-card-info h4 {
+  font-size: 1.05rem;
+  color: #333;
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+}
+.fav-card-info h4:hover { color: var(--color-steel-blue); }
+
+.fav-desc {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fav-price {
+  font-weight: 700;
+  color: var(--color-steel-blue);
+  font-size: 1rem;
+}

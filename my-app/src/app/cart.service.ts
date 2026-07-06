@@ -55,7 +55,16 @@ export class CartService {
 
   addToCart(product: any, quantity: number = 1, options?: any) {
     const currentItems = this.cartItems();
-    const basePriceNum = parseInt(product.basePrice?.toString().replace(/\./g, '') || product.price.toString().replace(/\./g, ''));
+    let basePriceNum = parseInt(product.basePrice?.toString().replace(/\./g, '') || product.price.toString().replace(/\./g, ''));
+
+    // Giờ vàng: dùng giá đã giảm làm giá gốc của item
+    if (product.flashSale) {
+      const now = new Date();
+      const fs = product.flashSale;
+      if (now.getDay() === fs.dayOfWeek && now.getHours() >= fs.startHour && now.getHours() < fs.endHour) {
+        basePriceNum = Math.round(basePriceNum * (100 - fs.discountPercent) / 100);
+      }
+    }
     
     const defaultOptions = {
       heating: 'Không',

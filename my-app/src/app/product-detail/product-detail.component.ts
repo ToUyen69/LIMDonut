@@ -1,21 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { CartService } from '../cart.service';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  basePrice?: string;
-  rating: number;
-  reviews: string;
-  image: string;
-  categories: string[];
-  toppings: { name: string, price: string }[];
-}
+import { ProductService, Product } from '../product.service';
+import { ReviewService, Review } from '../review.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -24,14 +14,19 @@ interface Product {
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css'
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   product: Product | undefined;
   productImages: string[] = [];
   currentImageIndex: number = 0;
   relatedProducts: Product[] = [];
   activeTab: string = 'description'; 
   public cartService = inject(CartService);
-  
+  public productService = inject(ProductService);
+  private reviewService = inject(ReviewService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  authService = inject(AuthService);
+
   // Selections
   selectedHeating: string = 'Không';
   selectedToppings: { name: string, price: number, quantity: number }[] = [];
@@ -39,6 +34,10 @@ export class ProductDetailComponent implements OnInit {
   
   reviewComment: string = '';
   suggestedReviews: string[] = ['Donut rất ngon', 'Trang trí đẹp mắt', 'Giao hàng nhanh', 'Đóng gói cẩn thận', 'Sẽ ủng hộ tiếp'];
+  selectedRating = signal(5);
+  reviews = signal<Review[]>([]);
+  reviewSuccessMessage = signal('');
+  isSubmittingReview = signal(false);
   
   extraToppingsList = [
     { name: 'Sốt Socola', price: '5.000' },
@@ -47,48 +46,7 @@ export class ProductDetailComponent implements OnInit {
     { name: 'Vụn bánh quy', price: '5.000' }
   ];
 
-  products: Product[] = [
-    { id: 1, name: 'Carabana', description: 'Caramel Chuối', price: '32.000', rating: 5, reviews: '1.1k', image: 'new_product_carabana.jpg', categories: ['Món mới'], toppings: [{ name: 'Chuối sấy', price: '5.000' }, { name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt điều', price: '7.000' }] },
-    { id: 2, name: 'Cheefy Hotdog', description: 'Xúc xích phô mai (bản mới)', price: '35.000', rating: 4, reviews: '500', image: 'new_product_cheefy hotdog.jpg', categories: ['Món mới', 'Bất ngờ Lịm'], toppings: [{ name: 'Phô mai bột', price: '7.000' }, { name: 'Hành phi', price: '3.000' }, { name: 'Sốt Mayo', price: '3.000' }] },
-    { id: 3, name: 'Truffle Bacon', description: 'Bacon Nấm Truffle', price: '40.000', rating: 5, reviews: '1.5k', image: 'new_product_trufle-bacon.jpg', categories: ['Món mới', 'Bất ngờ Lịm'], toppings: [{ name: 'Vụn Truffle', price: '15.000' }, { name: 'Bacon giòn', price: '10.000' }, { name: 'Phô mai bào', price: '8.000' }] },
-    { id: 4, name: 'Vietnamese Coffee', description: 'Cà phê sữa đá Việt Nam', price: '28.000', rating: 5, reviews: '2k', image: 'new_product_vietnamese-coffee.jpg', categories: ['Món mới', 'Cà phê & Cacao', 'Donut hot'], toppings: [{ name: 'Hạt cafe vụn', price: '5.000' }, { name: 'Sốt sữa đặc', price: '5.000' }, { name: 'Vụn bánh quy', price: '5.000' }] },
-    { id: 5, name: 'Thai Tea Creme Brulee', description: 'Trà Thái Creme Brulee', price: '35.000', rating: 5, reviews: '850', image: 'product_Thai-tea-creme-brulee.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Vụn đường cháy', price: '5.000' }, { name: 'Bột trà Thái', price: '5.000' }, { name: 'Hạnh nhân', price: '7.000' }] },
-    { id: 6, name: 'Burnt Mentaiko', description: 'Trứng cá tuyết khò lửa', price: '38.000', rating: 4, reviews: '650', image: 'product_burnt-mentaiko.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Rong biển', price: '5.000' }, { name: 'Trứng cá tuyết thêm', price: '15.000' }, { name: 'Sốt Mayo', price: '3.000' }] },
-    { id: 7, name: 'Cacao Passion', description: 'Cacao chanh dây', price: '32.000', rating: 5, reviews: '1.2k', image: 'product_cacao-passion.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Socola', price: '5.000' }, { name: 'Vụn Chocolate', price: '5.000' }, { name: 'Bột cacao', price: '5.000' }] },
-    { id: 8, name: 'Caramel Butter Cream', description: 'Kem bơ Caramel', price: '34.000', rating: 5, reviews: '900', image: 'product_caramel-butter-cream.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt hạnh nhân', price: '7.000' }, { name: 'Vụn bánh quy', price: '5.000' }] },
-    { id: 9, name: 'Caramel Crack', description: 'Caramel giòn', price: '30.000', rating: 4, reviews: '750', image: 'product_caramel-crack.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Caramel', price: '5.000' }, { name: 'Muối biển', price: '3.000' }, { name: 'Hạt điều', price: '7.000' }] },
-    { id: 10, name: 'Castella Bom', description: 'Bánh bông lan Castella', price: '35.000', rating: 5, reviews: '1k', image: 'product_castella-bom.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Vụn bánh bông lan', price: '5.000' }, { name: 'Sốt trứng muối', price: '8.000' }, { name: 'Cơm dừa', price: '5.000' }] },
-    { id: 11, name: 'Cheezy Hotdog', description: 'Xúc xích phô mai', price: '35.000', rating: 4, reviews: '400', image: 'product_cheezy-hotdog.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Phô mai bột', price: '7.000' }, { name: 'Xúc xích cắt nhỏ', price: '10.000' }, { name: 'Tương ớt', price: '2.000' }] },
-    { id: 12, name: 'Cho-Vi-Be', description: 'Chocolate Vị Bé', price: '25.000', rating: 5, reviews: '3k', image: 'product_cho-vi-be.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Sốt Socola', price: '5.000' }, { name: 'Vụn bánh quy', price: '5.000' }, { name: 'Bột Cacao', price: '5.000' }] },
-    { id: 13, name: 'Chocoyogo', description: 'Chocolate Yogurt', price: '32.000', rating: 5, reviews: '1.1k', image: 'product_chocoyogo.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Vụn bánh Oreo', price: '5.000' }, { name: 'Sốt Yogurt', price: '5.000' }, { name: 'Trái cây tươi', price: '10.000' }] },
-    { id: 14, name: 'Coco Pandan', description: 'Dừa lá dứa', price: '30.000', rating: 5, reviews: '800', image: 'product_coco-pandan.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Dừa sợi', price: '5.000' }, { name: 'Mứt lá dứa', price: '7.000' }, { name: 'Cốm rắc', price: '3.000' }] },
-    { id: 15, name: 'Coconut Drift', description: 'Dừa nướng', price: '33.000', rating: 4, reviews: '950', image: 'product_coconut-drirt.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Dừa sợi', price: '5.000' }, { name: 'Nước cốt dừa', price: '5.000' }, { name: 'Hạt hạnh nhân', price: '7.000' }] },
-    { id: 16, name: 'Corn Flirt', description: 'Bắp phô mai', price: '28.000', rating: 4, reviews: '600', image: 'product_corn-flirt.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Bắp hạt', price: '5.000' }, { name: 'Phô mai bột', price: '7.000' }, { name: 'Sốt Mayo', price: '3.000' }] },
-    { id: 17, name: 'Creamy Mushroom', description: 'Sốt nấm kem ngậy', price: '38.000', rating: 5, reviews: '700', image: 'product_creamy-mushroom.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Nấm thêm', price: '10.000' }, { name: 'Phô mai parmesan', price: '10.000' }, { name: 'Tiêu đen', price: '2.000' }] },
-    { id: 18, name: 'Crucolate', description: 'Cruller phủ socola', price: '36.000', rating: 5, reviews: '1.3k', image: 'product_crucolate.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Socola', price: '5.000' }, { name: 'Vụn Chocolate', price: '5.000' }, { name: 'Bột cacao', price: '5.000' }] },
-    { id: 19, name: 'Cruller', description: 'Bánh vòng Cruller trơn', price: '30.000', rating: 4, reviews: '500', image: 'product_cruller.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Đường bột', price: '3.000' }, { name: 'Sốt mật ong', price: '5.000' }, { name: 'Hạt hạnh nhân', price: '7.000' }] },
-    { id: 20, name: 'Crumel', description: 'Cruller Caramel', price: '34.000', rating: 5, reviews: '800', image: 'product_crumel.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt điều', price: '7.000' }, { name: 'Vụn bánh quy', price: '5.000' }] },
-    { id: 21, name: 'Crumon', description: 'Cruller vị chanh thơm', price: '34.000', rating: 4, reviews: '650', image: 'product_crumon.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Vụn bánh quy', price: '5.000' }, { name: 'Vỏ chanh bào', price: '3.000' }, { name: 'Sốt bơ', price: '5.000' }] },
-    { id: 22, name: 'Crunnemon', description: 'Cruller Quế', price: '34.000', rating: 5, reviews: '900', image: 'product_crunnemon.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Hạnh nhân lát', price: '7.000' }, { name: 'Vỏ chanh bào', price: '3.000' }, { name: 'Sốt Caramel', price: '5.000' }] },
-    { id: 23, name: 'Cruramel', description: 'Cruller Caramel mặn', price: '36.000', rating: 5, reviews: '1k', image: 'product_cruramel.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt điều rang', price: '7.000' }, { name: 'Đường cháy', price: '5.000' }] },
-    { id: 24, name: 'Cốm Hương Mộc', description: 'Cốm mùa thu', price: '35.000', rating: 5, reviews: '1.2k', image: 'product_cốm-hương-mộc.jpg', categories: ['Trà & Quả', 'Donut hot'], toppings: [{ name: 'Cốm dẹt', price: '5.000' }, { name: 'Dừa sợi', price: '5.000' }, { name: 'Nước cốt dừa', price: '5.000' }] },
-    { id: 25, name: 'Dubai Chocolate', description: 'Socola Dubai - đang rất trend', price: '45.000', rating: 5, reviews: '2.5k', image: 'product_dubai-chocolate.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Sốt Pistachio', price: '15.000' }, { name: 'Vụn Chocolate', price: '10.000' }, { name: 'Hạt dẻ cười', price: '15.000' }] },
-    { id: 26, name: 'Dứa Ngọc Dừa Ngà', description: 'Dứa dừa', price: '36.000', rating: 5, reviews: '1.1k', image: 'product_dứa-ngọc-dừa-ngà.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Mứt dứa', price: '5.000' }, { name: 'Dừa vụn', price: '5.000' }, { name: 'Sốt cốt dừa', price: '5.000' }] },
-    { id: 27, name: 'Honey Lemon Medovik', description: 'Mật ong chanh', price: '35.000', rating: 5, reviews: '950', image: 'product_honey-lemon-medovik.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Mật ong nguyên chất', price: '10.000' }, { name: 'Vỏ chanh bào', price: '3.000' }, { name: 'Hạt hạnh nhân', price: '7.000' }] },
-    { id: 28, name: 'Hot Gochujang', description: 'Sốt cay Hàn Quốc Gochujang', price: '32.000', rating: 4, reviews: '550', image: 'product_hot-gochujang.jpg', categories: ['Bất ngờ Lịm', 'Donut hot'], toppings: [{ name: 'Hành phi', price: '3.000' }, { name: 'Rong biển vụn', price: '5.000' }, { name: 'Sốt Mayo cay', price: '5.000' }] },
-    { id: 29, name: 'Miso Earl Grey', description: 'Miso Bá tước Bá tước', price: '38.000', rating: 5, reviews: '1.4k', image: 'product_miso-earl-grey-milk-cream.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Hạt hạnh nhân', price: '7.000' }, { name: 'Bột trà', price: '5.000' }, { name: 'Sốt kem sữa', price: '7.000' }] },
-    { id: 30, name: 'Nutty Caramel', description: 'Caramel hạt rang', price: '36.000', rating: 5, reviews: '1.2k', image: 'product_nutty-caramel.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Hạt điều rang', price: '7.000' }, { name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạnh nhân lát', price: '7.000' }] },
-    { id: 31, name: 'Oreo Milkshake', description: 'Oreo sữa lắc', price: '32.000', rating: 5, reviews: '2k', image: 'product_oreo-milkshake.jpg', categories: ['Cà phê & Cacao'], toppings: [{ name: 'Vụn bánh Oreo', price: '5.000' }, { name: 'Sốt sữa đặc', price: '5.000' }, { name: 'Kem tươi', price: '10.000' }] },
-    { id: 32, name: 'Pina Colada', description: 'Dứa dừa Pina Colada', price: '35.000', rating: 4, reviews: '750', image: 'product_pina-colada.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Mứt dứa', price: '5.000' }, { name: 'Dừa sợi', price: '5.000' }, { name: 'Hạt hạnh nhân', price: '7.000' }] },
-    { id: 33, name: 'Sa Tế Mayo', description: 'Sa tế Mayo độc lạ', price: '32.000', rating: 4, reviews: '600', image: 'product_sa-tế-mayo.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Hành phi', price: '3.000' }, { name: 'Ớt bột', price: '2.000' }, { name: 'Sốt Mayo thêm', price: '3.000' }] },
-    { id: 34, name: 'Thu Trà Mochi', description: 'Trà Mochi', price: '35.000', rating: 5, reviews: '800', image: 'product_thu-tra-mochi.jpg', categories: ['Trà & Quả'], toppings: [{ name: 'Bột trà xanh', price: '5.000' }, { name: 'Miếng Mochi nhỏ', price: '10.000' }, { name: 'Vụn bánh quy bơ', price: '5.000' }] },
-    { id: 35, name: 'Toasted Mocha', description: 'Mocha nướng', price: '32.000', rating: 5, reviews: '1k', image: 'product_toasted-mocha.jpg', categories: ['Cà phê & Cacao', 'Donut hot'], toppings: [{ name: 'Sốt Cà phê', price: '5.000' }, { name: 'Kẹo dẻo nướng', price: '10.000' }, { name: 'Hạt cafe vụn', price: '5.000' }] },
-    { id: 36, name: 'Trứng Muối Chà Bông', description: 'Vị mặn ngọt hài hòa', price: '30.000', rating: 5, reviews: '1k', image: 'product_trứng-muối-chà-bông.jpg', categories: ['Donut hot', 'Bất ngờ Lịm'], toppings: [{ name: 'Chà bông thêm', price: '10.000' }, { name: 'Sốt phô mai', price: '5.000' }, { name: 'Trứng muối vụn', price: '10.000' }] },
-    { id: 37, name: 'Ube Creme Brulee', description: 'Khoai lang tím Ube', price: '36.000', rating: 5, reviews: '1.2k', image: 'product_ube-creme-brulee.jpg', categories: ['Bất ngờ Lịm'], toppings: [{ name: 'Mứt khoai môn', price: '10.000' }, { name: 'Vụn đường khò', price: '5.000' }, { name: 'Cơm dừa', price: '5.000' }] },
-    { id: 38, name: 'Young Coconut Glazed', description: 'Dừa non phủ men đường', price: '30.000', rating: 4, reviews: '850', image: 'product_young-coconut-glazed.jpg', categories: ['Nguyên Bản'], toppings: [{ name: 'Dừa sợi', price: '5.000' }, { name: 'Cốm rắc', price: '3.000' }, { name: 'Sốt cốt dừa', price: '5.000' }] },
-    { id: 99, name: 'Combo Box 4', description: 'Hộp 4 bánh tự chọn vị tùy thích', price: 'Tự tính', rating: 5, reviews: '250', image: 'box4.jpg', categories: ['Món mới'], toppings: [{ name: 'Sốt Socola', price: '5.000' }, { name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt điều rang', price: '10.000' }, { name: 'Vụn bánh quy', price: '5.000' }] },
-    { id: 100, name: 'Combo Box 6', description: 'Hộp 6 bánh tự chọn vị tùy thích', price: 'Tự tính', rating: 5, reviews: '380', image: 'box6.jpg', categories: ['Món mới'], toppings: [{ name: 'Sốt Socola', price: '5.000' }, { name: 'Sốt Caramel', price: '5.000' }, { name: 'Hạt điều rang', price: '10.000' }, { name: 'Vụn bánh quy', price: '5.000' }] }
-  ];
+  get products(): Product[] { return this.productService.getProducts(); }
 
   selectedBoxDonuts: {
     productId?: number;
@@ -100,23 +58,64 @@ export class ProductDetailComponent implements OnInit {
     selectableToppings?: { name: string, price: string }[];
   }[] = [];
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute) {
+    // Khi danh sách sản phẩm (signal) tải xong sau khi vào trang, tìm lại sản phẩm theo id trên URL.
+    // setTimeout để không gán this.product giữa chu trình change detection (tránh NG0100)
+    effect(() => {
+      this.productService.getProducts();
+      setTimeout(() => this.tryLoadProduct());
+    });
+  }
+
+  // Giờ vàng: tick mỗi giây cho đồng hồ đếm ngược
+  readonly flashTick = signal(0);
+  private flashTimer: any = null;
+
+  isFlashSale(): boolean {
+    this.flashTick();
+    return this.product ? this.productService.isFlashSaleActive(this.product) : false;
+  }
+
+  flashCountdown(): string {
+    this.flashTick();
+    if (!this.product) return '00:00';
+    const s = this.productService.flashSaleSecondsLeft(this.product);
+    const m = Math.floor(s / 60), sec = s % 60;
+    return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  }
+
+  ngOnDestroy(): void {
+    if (this.flashTimer) clearInterval(this.flashTimer);
+  }
+
+  private routeProductId: number | null = null;
 
   ngOnInit(): void {
+    this.flashTimer = setInterval(() => this.flashTick.update(v => v + 1), 1000);
     this.route.paramMap.subscribe(params => {
-      const id = Number(params.get('id'));
-      this.product = this.products.find(p => p.id === id);
-      if (this.product) {
-        this.productImages = [this.product.image, this.product.image, this.product.image];
-        this.currentImageIndex = 0;
-        this.loadRelatedProducts();
-        window.scrollTo(0, 0);
-        this.selectedHeating = 'Không';
-        this.selectedToppings = [];
-        this.quantity = 1;
-        this.initializeBoxSlots();
-      }
+      this.routeProductId = Number(params.get('id'));
+      this.product = undefined;
+      this.tryLoadProduct();
     });
+  }
+
+  /** Danh sách sản phẩm tải async từ API — thử tìm lại khi dữ liệu về (gọi từ effect) */
+  private tryLoadProduct(): void {
+    if (this.routeProductId === null || this.product) return;
+    this.product = this.products.find(p => p.id === this.routeProductId);
+    if (this.product) {
+      this.productImages = [this.product.image, this.product.image, this.product.image];
+      this.currentImageIndex = 0;
+      this.loadRelatedProducts();
+      window.scrollTo(0, 0);
+      this.selectedHeating = 'Không';
+      this.selectedToppings = [];
+      this.quantity = 1;
+      this.initializeBoxSlots();
+      this.loadReviews(this.product.id);
+      // App chạy zoneless — báo cho scheduler render lại sau khi gán product ngoài chu trình CD
+      this.cdr.markForCheck();
+    }
   }
 
   initializeBoxSlots(): void {
@@ -216,6 +215,27 @@ export class ProductDetailComponent implements OnInit {
         slot.toppings.splice(index, 1);
       }
     }
+  }
+
+  applyToAllSlots(sourceIndex: number): void {
+    const source = this.selectedBoxDonuts[sourceIndex];
+    if (source.productId === undefined) return;
+    this.selectedBoxDonuts.forEach((slot, i) => {
+      if (i === sourceIndex || slot.productId === undefined) return;
+      slot.heating = source.heating;
+      const validNames = (slot.selectableToppings || []).map(t => t.name);
+      slot.toppings = source.toppings
+        .filter(t => validNames.includes(t.name))
+        .map(t => ({ name: t.name, price: t.price, quantity: t.quantity }));
+    });
+  }
+
+  canApplyToAll(index: number): boolean {
+    const slot = this.selectedBoxDonuts[index];
+    if (slot.productId === undefined) return false;
+    const hasCustom = slot.heating !== 'Không' || slot.toppings.length > 0;
+    const filledCount = this.selectedBoxDonuts.filter(s => s.productId !== undefined).length;
+    return hasCustom && filledCount >= 2;
   }
 
   get mainImage(): string {
@@ -331,7 +351,10 @@ export class ProductDetailComponent implements OnInit {
       return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
     
-    const basePrice = parseInt(this.product.price.replace('.', ''));
+    let basePrice = parseInt(this.product.price.replace('.', ''));
+    if (this.productService.isFlashSaleActive(this.product)) {
+      basePrice = this.productService.getFlashSalePrice(this.product);
+    }
     const toppingsPrice = this.selectedToppings.reduce((acc, t) => acc + (t.price * t.quantity), 0);
     const total = (basePrice + toppingsPrice);
     return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -342,6 +365,20 @@ export class ProductDetailComponent implements OnInit {
     const total = parseInt(this.currentPrice.replace(/\./g, ''));
     const vip = Math.round(total * 0.85);
     return vip.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  /** Thành tiền = đơn giá hiện tại × số lượng */
+  get totalPrice(): string {
+    const unit = parseInt(this.currentPrice.replace(/\./g, ''), 10) || 0;
+    const total = unit * this.quantity;
+    return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  /** Nhãn "đã bán" rút gọn: 2000 -> '2k', 1500 -> '1.5k' */
+  get soldLabel(): string {
+    const n = this.product?.sold ?? 0;
+    if (n < 1000) return n.toString();
+    return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k';
   }
 
   setTab(tab: string): void {
@@ -356,19 +393,33 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
-  addToCart() {
+  toggleFavorite() {
+    if (!this.product) return;
+    const obs = this.authService.toggleFavorite(this.product.id);
+    if (obs) obs.subscribe();
+  }
+
+  isFavorite(): boolean {
+    return this.product ? this.authService.isFavorite(this.product.id) : false;
+  }
+
+  addToCart(): boolean {
     if (this.product) {
+      if (this.productService.isOutOfStock(this.product)) {
+        alert(`"${this.product.name}" đã hết hàng hôm nay! Vui lòng chọn sản phẩm khác.`);
+        return false;
+      }
       const options: any = {
         heating: this.selectedHeating,
         toppings: this.selectedToppings
       };
-      
+
       let productToSend = { ...this.product };
-      
+
       if (this.product.id === 99 || this.product.id === 100) {
         if (this.totalBoxDonutsCount !== this.maxBoxDonutsCapacity) {
           alert(`Vui lòng chọn đủ ${this.maxBoxDonutsCapacity} vị bánh cho hộp của bạn.`);
-          return;
+          return false;
         }
         options.boxDonuts = this.selectedBoxDonuts.map(d => ({
           productId: d.productId,
@@ -398,6 +449,67 @@ export class ProductDetailComponent implements OnInit {
       }
       
       this.cartService.addToCart(productToSend, this.quantity, options);
+      this.productService.decreaseStock(this.product.id, this.quantity);
+      return true;
     }
+    return false;
+  }
+
+  /** Thêm vào giỏ rồi đi thẳng tới trang thanh toán */
+  buyNow(): void {
+    if (this.addToCart()) {
+      this.router.navigate(['/checkout']);
+    }
+  }
+
+  /** Mua nhanh một sản phẩm (dùng cho các card gợi ý) */
+  buyNowProduct(p: Product): void {
+    this.cartService.addToCart(p);
+    this.router.navigate(['/checkout']);
+  }
+
+  setRating(n: number): void {
+    this.selectedRating.set(n);
+  }
+
+  loadReviews(productId: number): void {
+    this.reviewService.getReviews(productId).subscribe({
+      next: (reviews) => {
+        this.reviews.set(reviews);
+        this.syncRatingFromReviews(reviews);
+      },
+      error: () => this.reviews.set([])
+    });
+  }
+
+  /** Đồng bộ rating/số review hiển thị với dữ liệu review thật (thay số tĩnh) */
+  private syncRatingFromReviews(reviews: Review[]): void {
+    if (!this.product || reviews.length === 0) return;
+    const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+    this.product.rating = Math.round(avg);
+    this.product.reviews = String(reviews.length);
+  }
+
+  submitReview(): void {
+    if (!this.reviewComment.trim() || !this.product || this.isSubmittingReview()) return;
+    this.isSubmittingReview.set(true);
+    this.reviewService.addReview({
+      productId: this.product.id,
+      rating: this.selectedRating(),
+      comment: this.reviewComment.trim()
+    }).subscribe({
+      next: (review) => {
+        this.reviews.update(list => [review, ...list]);
+        this.reviewComment = '';
+        this.selectedRating.set(5);
+        this.reviewSuccessMessage.set('Cảm ơn bạn đã đánh giá!');
+        this.isSubmittingReview.set(false);
+        setTimeout(() => this.reviewSuccessMessage.set(''), 3000);
+      },
+      error: () => {
+        this.isSubmittingReview.set(false);
+        alert('Lỗi khi gửi đánh giá!');
+      }
+    });
   }
 }

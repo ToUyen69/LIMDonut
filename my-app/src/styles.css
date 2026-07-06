@@ -16,15 +16,9 @@
   --font-heading: 'Playfair Display', serif;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  font-family: var(--font-primary);
-  background-color: var(--color-light-green); /* Or another light color */
+  font-family: var(--font-primary) !important;
+  background-color: var(--color-light-green);
   color: #333;
   line-height: 1.5;
   overflow-x: hidden;
@@ -35,13 +29,20 @@ a {
   color: inherit;
 }
 
-ul {
-  list-style: none;
-}
-
 button {
   font-family: var(--font-primary);
   cursor: pointer;
   border: none;
   outline: none;
 }
+
+/* ===== Bootstrap Icons – căn chỉnh & màu ===== */
+.bi {
+  display: inline-block;
+  vertical-align: -0.125em;
+  line-height: 1;
+}
+/* Sao đánh giá giữ màu vàng như truoc day */
+.bi-star-fill { color: #f5a623; }
+/* Trong badge/nút có nền màu, icon kế thừa màu chữ của badge */
+.badge .bi, .hot-rank-badge .bi { color: inherit; }
