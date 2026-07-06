@@ -398,10 +398,10 @@ export class DonutRenderer {
     cancelAnimationFrame(this.animationId);
     this.controls.dispose();
     this.renderer.dispose();
-    this.scene.traverse(obj => {
+    this.scene.traverse((obj: THREE.Object3D) => {
       if (obj instanceof THREE.Mesh) {
         obj.geometry.dispose();
-        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        if (Array.isArray(obj.material)) obj.material.forEach((m: THREE.Material) => m.dispose());
         else obj.material.dispose();
       }
     });
