@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 export interface Order {
   _id: string;
@@ -22,7 +23,7 @@ export interface Order {
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private http = inject(HttpClient);
-  private readonly API = 'http://127.0.0.1:3000/api/orders';
+  private readonly API = `${environment.apiBase}/api/orders`;
 
   orders = signal<Order[]>([]);
 
