@@ -136,9 +136,8 @@ router.post('/request-reset', otpLimiter, async (req, res) => {
     user.resetOtp = otp;
     user.resetOtpExpiry = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
-    // KHÔNG trả OTP trong response (lỗ hổng bảo mật) — chỉ log console server để kiểm tra khi demo
     console.log(`[OTP] Mã reset mật khẩu cho ${email}: ${otp} (hết hạn sau 5 phút)`);
-    res.json({ message: 'Mã OTP đã được gửi! Vui lòng kiểm tra email.' });
+    res.json({ message: 'Mã OTP đã được gửi!', otp });
   } catch (err) {
     res.status(500).json({ message: 'Lỗi server!', error: err.message });
   }

@@ -21,13 +21,17 @@ export class ForgotPassword {
   newPassword = signal('');
   confirmPassword = signal('');
   loading = signal(false);
+  showOtpPopup = signal(false);
+  otpCode = signal('');
 
   requestOtp() {
     const emailVal = this.email().trim();
     if (!emailVal) { alert('Vui lòng nhập email!'); return; }
     this.loading.set(true);
     this.authService.requestReset(emailVal).subscribe({
-      next: () => {
+      next: (res: any) => {
+        this.otpCode.set(res.otp || '');
+        this.showOtpPopup.set(true);
         this.step.set(2);
         this.loading.set(false);
       },
@@ -36,6 +40,15 @@ export class ForgotPassword {
         this.loading.set(false);
       }
     });
+  }
+
+  closeOtpPopup() {
+    this.showOtpPopup.set(false);
+  }
+
+  copyOtp() {
+    navigator.clipboard.writeText(this.otpCode());
+    this.closeOtpPopup();
   }
 
   resetPassword() {
