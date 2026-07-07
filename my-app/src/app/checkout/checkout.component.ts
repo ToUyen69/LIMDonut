@@ -103,6 +103,7 @@ export class CheckoutComponent implements OnInit {
   
   paymentMethod = signal('cash');
   agreedToTerms = signal(false);
+  paymentSplit = signal<'deposit' | 'full'>('deposit');
 
   ngOnInit() {
     if (this.authService.isLoggedIn()) {
@@ -200,15 +201,19 @@ export class CheckoutComponent implements OnInit {
   }
 
   decreaseQty(id: string, currentQty: number) {
-    this.cartService.updateQuantity(id, currentQty - 1);
+    if (currentQty <= 1) {
+      this.cartService.removeFromCart(id);
+    } else {
+      this.cartService.updateQuantity(id, currentQty - 1);
+    }
   }
 
   removeItem(id: string) {
     this.cartService.removeFromCart(id);
   }
 
-  removeOption(id: string, type: 'heating' | 'topping', topping?: string) {
-    this.cartService.removeOption(id, type, topping);
+  removeOption(itemId: string, type: 'heating' | 'topping', name?: string) {
+    this.cartService.removeOption(itemId, type, name);
   }
 
   openTimeModal() {
@@ -221,10 +226,20 @@ export class CheckoutComponent implements OnInit {
 
   confirmTime() {
     const now = new Date();
-    const chosen = new Date(`${this.selectedDate()}T${this.selectedHour()}:${this.selectedMinute()}:00`);
+    const selDate = new Date(this.selectedDate());
+    
+    // Đơn lớn đặt trước tối thiểu 3 ngày (Party L, bánh tiệc)
+    const cls = this.orderClassification();
+    const minDays = cls.orderType === 'custom' ? 3 : 0;
+    
+    const minDate = new Date();
+    minDate.setDate(now.getDate() + minDays);
+    minDate.setHours(0,0,0,0);
+    selDate.setHours(0,0,0,0);
 
-    if (chosen <= now) {
-      this.timeError.set('Thời gian nhận hàng phải sau thời gian hiện tại');
+    if (selDate < minDate) {
+      const minDateStr = `${minDate.getDate().toString().padStart(2, '0')}/${(minDate.getMonth() + 1).toString().padStart(2, '0')}/${minDate.getFullYear()}`;
+      this.timeError.set(`Đơn lớn cần đặt trước tối thiểu ${minDays} ngày. Vui lòng chọn từ ngày ${minDateStr}`);
       return;
     }
 
@@ -237,13 +252,20 @@ export class CheckoutComponent implements OnInit {
 
   private buildOrder(): any {
     const cls = this.orderClassification();
+    const split = this.paymentSplit();
+    const isFull = cls.orderType === 'small' || split === 'full';
+    
+    const depositPercent = isFull ? 100 : cls.depositPercent;
+    const depositAmount = isFull ? this.total : cls.depositAmount;
+    const remainingAmount = isFull ? 0 : cls.remainingAmount;
+
     return {
       orderId: 'DH-' + Math.floor(1000000 + Math.random() * 9000000),
       totalAmount: this.total,
       orderType: cls.orderType,
-      depositPercent: cls.depositPercent,
-      depositAmount: cls.depositAmount,
-      remainingAmount: cls.remainingAmount,
+      depositPercent,
+      depositAmount,
+      remainingAmount,
       deliveryMethod: this.deliveryMethod(),
       paymentMethod: this.paymentMethod(),
       paymentStatus: this.paymentMethod() === 'cash' ? 'pending' : 'pending',
@@ -315,7 +337,10 @@ export class CheckoutComponent implements OnInit {
   get qrPayAmount(): number {
     if (!this.pendingOrder) return 0;
     const cls = this.orderClassification();
-    return cls.orderType === 'small' ? this.total : cls.depositAmount;
+    if (cls.orderType === 'small' || this.paymentSplit() === 'full') {
+      return this.total;
+    }
+    return cls.depositAmount;
   }
 
   get qrCodeUrl(): string {
