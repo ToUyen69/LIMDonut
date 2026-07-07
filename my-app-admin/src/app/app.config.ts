@@ -5,7 +5,7 @@ import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 
 const adminAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('admin_token');
+  const token = sessionStorage.getItem('admin_token');
   if (token && req.url.startsWith(environment.apiBase)) {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }

@@ -9,7 +9,7 @@ export class AdminAuthService {
   private router = inject(Router);
   private apiUrl = `${environment.apiBase}/api/auth`;
 
-  isLoggedIn = signal(!!localStorage.getItem('admin_token'));
+  isLoggedIn = signal(!!sessionStorage.getItem('admin_token'));
 
   login(username: string, password: string) {
     return this.http.post<any>(`${this.apiUrl}/login`, { username, password });
@@ -19,18 +19,18 @@ export class AdminAuthService {
     if (res.user.role !== 'admin') {
       return 'Tài khoản này không có quyền quản trị.';
     }
-    localStorage.setItem('admin_token', res.token);
+    sessionStorage.setItem('admin_token', res.token);
     this.isLoggedIn.set(true);
     return null;
   }
 
   logout() {
-    localStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_token');
     this.isLoggedIn.set(false);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('admin_token');
+    return sessionStorage.getItem('admin_token');
   }
 }
