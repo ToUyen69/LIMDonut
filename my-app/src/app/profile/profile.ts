@@ -115,6 +115,62 @@ export class Profile {
     });
   }
 
+  // ---- Đổi mật khẩu ----
+  oldPassword = '';
+  newPassword = '';
+  confirmNewPassword = '';
+  changingPassword = signal(false);
+  changePasswordMsg = signal('');
+  passwordSuccess = signal(false);
+
+  changePassword() {
+    const oldPass = this.oldPassword.trim();
+    const newPass = this.newPassword.trim();
+    const confirmPass = this.confirmNewPassword.trim();
+
+    if (!oldPass || !newPass || !confirmPass) {
+      this.changePasswordMsg.set('Vui lòng nhập đầy đủ thông tin.');
+      this.passwordSuccess.set(false);
+      return;
+    }
+    if (newPass.length < 6) {
+      this.changePasswordMsg.set('Mật khẩu mới phải có ít nhất 6 ký tự.');
+      this.passwordSuccess.set(false);
+      return;
+    }
+    if (newPass !== confirmPass) {
+      this.changePasswordMsg.set('Xác nhận mật khẩu mới không khớp.');
+      this.passwordSuccess.set(false);
+      return;
+    }
+
+    this.changingPassword.set(true);
+    this.changePasswordMsg.set('');
+
+    const payload = {
+      username: this.user()?.username || '',
+      oldPassword: oldPass,
+      newPassword: newPass
+    };
+
+    this.authService.changePassword(payload).subscribe({
+      next: (res: any) => {
+        this.changingPassword.set(false);
+        this.passwordSuccess.set(true);
+        this.changePasswordMsg.set(res.message || 'Đổi mật khẩu thành công!');
+        this.oldPassword = '';
+        this.newPassword = '';
+        this.confirmNewPassword = '';
+        setTimeout(() => this.changePasswordMsg.set(''), 4000);
+      },
+      error: (err: any) => {
+        this.changingPassword.set(false);
+        this.passwordSuccess.set(false);
+        this.changePasswordMsg.set(err.error?.message || 'Đổi mật khẩu thất bại.');
+      }
+    });
+  }
+
   logout() {
     this.authService.logout();
   }
