@@ -4,10 +4,11 @@ import { CartService } from './cart.service';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from './auth.service';
+import { TasteQuizComponent } from './taste-quiz/taste-quiz.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, TasteQuizComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   encapsulation: ViewEncapsulation.None

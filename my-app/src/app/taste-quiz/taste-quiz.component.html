@@ -1,0 +1,219 @@
+<!-- Floating Quiz Trigger Button -->
+@if (showButton() && !isOpen()) {
+  <button class="quiz-floating-btn shadow-lg" (click)="openQuiz()" title="Tìm món ăn phù hợp với bạn">
+    <div class="d-flex align-items-center gap-2">
+      <span class="pulse-icon">🍩</span>
+      <span class="btn-text">Chưa biết ăn gì? Làm quiz 30 giây</span>
+    </div>
+  </button>
+}
+
+<!-- Quiz Modal Overlay -->
+@if (isOpen()) {
+  <div class="quiz-overlay d-flex align-items-center justify-content-center p-3">
+    <div class="quiz-modal bg-white shadow-lg rounded-4 overflow-hidden position-relative animate-modal">
+      
+      <!-- Close button -->
+      <button class="btn-close-quiz" (click)="closeQuiz()" title="Đóng">&times;</button>
+
+      <!-- Step Header (Only for Steps 1-4) -->
+      @if (step() <= 4) {
+        <div class="quiz-header p-4 pb-0">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="quiz-progress-text small text-muted fw-bold">CÂU HỎI {{ step() }}/4</span>
+            <button class="btn-skip text-muted small" (click)="closeQuiz()">Bỏ qua quiz &times;</button>
+          </div>
+          <!-- Progress Bar -->
+          <div class="quiz-progress-bar">
+            <div class="progress-fill" [style.width.%]="step() * 25"></div>
+          </div>
+        </div>
+      }
+
+      <div class="quiz-body p-4">
+        <!-- Question 1: Taste -->
+        @if (step() === 1) {
+          <div class="quiz-step">
+            <h3 class="step-title font-heading mb-3">Khẩu vị hôm nay bạn thích gì? 😋</h3>
+            <p class="step-desc text-muted small mb-4">Chúng mình sẽ chọn nhóm hương vị phù hợp nhất với tâm trạng của bạn.</p>
+            <div class="options-grid d-flex flex-column gap-3">
+              <button class="option-btn" (click)="selectTaste('ngot_dam')">
+                <span class="option-emoji">🍫</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Ngọt đậm đà</strong>
+                  <span class="text-muted small">Cacao, sô-cô-la, béo ngậy ngọt ngào</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectTaste('ngot_nhe')">
+                <span class="option-emoji">🍩</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Ngọt thanh nhẹ</strong>
+                  <span class="text-muted small">Nguyên bản đường kính, nhẹ nhàng dễ ăn</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectTaste('man')">
+                <span class="option-emoji">🍕</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Đậm đà vị mặn</strong>
+                  <span class="text-muted small">Chà bông sốt dầu trứng, phô mai, xúc xích</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectTaste('chua_nhe')">
+                <span class="option-emoji">🍓</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Chua nhẹ từ trái cây</strong>
+                  <span class="text-muted small">Hương dâu tây, dứa, chanh dây thanh mát</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Question 2: Dietary constraints -->
+        @if (step() === 2) {
+          <div class="quiz-step animate-slide">
+            <h3 class="step-title font-heading mb-3">Bạn có cần kiêng cữ gì không? 🌱</h3>
+            <p class="step-desc text-muted small mb-4">Lọc nhanh các món phù hợp với chế độ dinh dưỡng lành mạnh của bạn.</p>
+            <div class="options-grid d-flex flex-column gap-3">
+              <button class="option-btn" (click)="selectDiet('none')">
+                <span class="option-emoji">✨</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Không có gì đặc biệt</strong>
+                  <span class="text-muted small">Tôi ăn gì cũng được, cứ gợi ý món ngon nhất nhé</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectDiet('chay')">
+                <span class="option-emoji">🥦</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Ăn chay (Vegetarian)</strong>
+                  <span class="text-muted small">Chỉ chọn bánh ngọt chay lành tính</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectDiet('it_duong')">
+                <span class="option-emoji">🍃</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Kiêng ngọt / Ít đường</strong>
+                  <span class="text-muted small">Ưu tiên các món ít calo, ít đường ngọt</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectDiet('khong_gluten')">
+                <span class="option-emoji">🌾</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Không chứa Gluten</strong>
+                  <span class="text-muted small">Dành cho bạn có cơ địa dị ứng bột mì</span>
+                </div>
+              </button>
+            </div>
+            <!-- Back navigation -->
+            <button class="btn-back mt-3" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Quay lại câu trước</button>
+          </div>
+        }
+
+        <!-- Question 3: Preferences -->
+        @if (step() === 3) {
+          <div class="quiz-step animate-slide">
+            <h3 class="step-title font-heading mb-3">Bạn thích kiểu bánh thế nào hơn? 🥞</h3>
+            <p class="step-desc text-muted small mb-4">Chọn kết cấu bánh và trải nghiệm bạn muốn thưởng thức hôm nay.</p>
+            <div class="options-grid d-flex flex-column gap-3">
+              <button class="option-btn" (click)="selectPref('nhan_chay')">
+                <span class="option-emoji">🌋</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Nhân chảy ngập tràn</strong>
+                  <span class="text-muted small">Cắn một miếng kem sốt tuôn trào bùng nổ</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectPref('gion_rum')">
+                <span class="option-emoji">🥖</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Giòn rụm truyền thống</strong>
+                  <span class="text-muted small">Bánh phủ hạnh nhân giòn giòn, hạt cốm thơm</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectPref('hot')">
+                <span class="option-emoji">🔥</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Món đang được săn lùng nhất</strong>
+                  <span class="text-muted small">Ưu tiên các món bán chạy nhất hệ thống</span>
+                </div>
+              </button>
+            </div>
+            <!-- Back navigation -->
+            <button class="btn-back mt-3" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Quay lại câu trước</button>
+          </div>
+        }
+
+        <!-- Question 4: Budget -->
+        @if (step() === 4) {
+          <div class="quiz-step animate-slide">
+            <h3 class="step-title font-heading mb-3">Ngân sách cho mỗi chiếc bánh? 💰</h3>
+            <p class="step-desc text-muted small mb-4">Cuối cùng, hãy chọn mức giá phù hợp với túi tiền của bạn.</p>
+            <div class="options-grid d-flex flex-column gap-3">
+              <button class="option-btn" (click)="selectBudget('duoi_30')">
+                <span class="option-emoji">💸</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Tiết kiệm (Dưới 30k)</strong>
+                  <span class="text-muted small">Các vị bánh đơn giản tinh tế</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectBudget('30_40')">
+                <span class="option-emoji">⭐</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Phổ biến (Từ 30k - 40k)</strong>
+                  <span class="text-muted small">Thoải mái thử các vị bánh kem trứng, sốt thịt</span>
+                </div>
+              </button>
+              <button class="option-btn" (click)="selectBudget('none')">
+                <span class="option-emoji">👑</span>
+                <div class="option-text text-start">
+                  <strong class="d-block">Không quan trọng</strong>
+                  <span class="text-muted small">Cứ món nào ngon nhất là mình duyệt luôn</span>
+                </div>
+              </button>
+            </div>
+            <!-- Back navigation -->
+            <button class="btn-back mt-3" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Quay lại câu trước</button>
+          </div>
+        }
+
+        <!-- Step 5: Recommendations Results -->
+        @if (step() === 5) {
+          <div class="quiz-results text-center animate-fade-in">
+            <span class="celebrate-icon">🎉</span>
+            <h3 class="step-title font-heading mb-2">Món ngon dành riêng cho bạn!</h3>
+            <p class="step-desc text-muted small mb-4">Dựa trên khẩu vị hôm nay, LỊM gợi ý bạn dùng thử 3 cực phẩm sau:</p>
+            
+            <!-- Recommendations Cards Grid -->
+            <div class="results-grid d-flex flex-column gap-3 mb-4">
+              @for (item of recommendations(); track item.id) {
+                <a [routerLink]="['/product', item.id]" class="result-card d-flex align-items-center gap-3 p-2 rounded-3 text-start decoration-none" (click)="closeQuiz()">
+                  <div class="result-card-img rounded-2 overflow-hidden flex-shrink-0" style="width:70px;height:70px;">
+                    <!-- In Angular, it will be piped/resolved in imgUrl or similar -->
+                    <!-- We will just map it dynamically -->
+                    <img [src]="'/api/uploads/' + item.image" alt="" class="w-100 h-100" style="object-fit:cover;" onerror="this.src='/box6.jpg'">
+                  </div>
+                  <div class="flex-grow-1 min-width-0">
+                    <div class="d-flex justify-content-between align-items-baseline gap-2">
+                      <h4 class="result-card-name fw-bold mb-0 text-truncate" style="font-size:0.95rem; color:#2c3e50;">{{ item.name }}</h4>
+                      <span class="result-card-price text-primary fw-bold text-nowrap" style="font-size:0.9rem;">{{ item.price }}d</span>
+                    </div>
+                    <p class="result-card-reason text-muted small mb-0 mt-1" style="font-size:0.75rem; line-height:1.35;">{{ item.reason }}</p>
+                  </div>
+                  <div class="flex-shrink-0 text-primary fs-5 pe-2">
+                    <i class="bi bi-chevron-right"></i>
+                  </div>
+                </a>
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-outline-primary rounded-pill px-4" (click)="resetQuiz()"><i class="bi bi-arrow-counterclockwise"></i> Làm lại quiz</button>
+              <button class="btn btn-primary rounded-pill px-4" (click)="closeQuiz()" routerLink="/menu">Xem toàn bộ menu</button>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}
