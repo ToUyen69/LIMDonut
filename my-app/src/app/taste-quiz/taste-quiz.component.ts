@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product } from '../product.service';
+import { ImgUrlPipe } from '../img-url.pipe';
 
 interface QuizAnswers {
   taste: string; // ngot_dam | ngot_nhe | man | chua_nhe
@@ -14,7 +15,7 @@ interface QuizAnswers {
 @Component({
   selector: 'app-taste-quiz',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ImgUrlPipe],
   templateUrl: './taste-quiz.component.html',
   styleUrl: './taste-quiz.component.css'
 })
@@ -178,33 +179,33 @@ export class TasteQuizComponent implements OnInit {
         if (priceNum >= 30000 && priceNum <= 40000) score += 2;
       }
 
-      // Dynamic custom reason mapping
+      // Dynamic custom reason mapping (no emojis)
       const reasons: string[] = [];
       if (answers.taste === 'ngot_dam' && (cats.includes('Cà phê & Cacao') || cats.includes('Nguyên Bản'))) {
-        reasons.push("vị ngọt đậm đà thơm béo 🍫");
+        reasons.push("vị ngọt đậm đà thơm béo");
       } else if (answers.taste === 'chua_nhe' && cats.includes('Trà & Quả')) {
-        reasons.push("vị chua nhẹ thanh mát 🍓");
+        reasons.push("vị chua nhẹ thanh mát");
       } else if (answers.taste === 'man' && (cats.includes('Mặn') || name.includes('chà bông') || name.includes('hotdog'))) {
-        reasons.push("vị mặn ngon lạ miệng 🍕");
+        reasons.push("vị mặn ngon lạ miệng");
       } else if (answers.taste === 'ngot_nhe') {
-        reasons.push("vị thanh ngọt dễ chịu 🍩");
+        reasons.push("vị thanh ngọt dễ chịu");
       }
 
       if (answers.diet !== 'none') {
-        if (answers.diet === 'chay') reasons.push("ăn chay lành tính 🌱");
-        if (answers.diet === 'it_duong') reasons.push("ít ngọt kiêng đường 🍃");
-        if (answers.diet === 'khong_gluten') reasons.push("không gluten 🌾");
+        if (answers.diet === 'chay') reasons.push("ăn chay lành tính");
+        if (answers.diet === 'it_duong') reasons.push("ít ngọt kiêng đường");
+        if (answers.diet === 'khong_gluten') reasons.push("không gluten");
       }
 
       if (answers.pref === 'nhan_chay' && (labels.some(l => l.includes('Nhân chảy')) || name.includes('chảy'))) {
-        reasons.push("nhân sốt chảy độc đáo 🔥");
+        reasons.push("nhân sốt chảy độc đáo");
       } else if (answers.pref === 'hot' && p.sold > 150) {
-        reasons.push("bán chạy nhất tiệm 🌟");
+        reasons.push("bán chạy nhất tiệm");
       }
 
-      let reason = "Món ngon đề cử dành riêng cho bạn! ✨";
+      let reason = "Món ngon đề cử dành riêng cho bạn!";
       if (reasons.length > 0) {
-        reason = `Hợp vì ${reasons.slice(0, 2).join(' + ')} 🔥`;
+        reason = `Hợp vì ${reasons.slice(0, 2).join(' + ')}`;
       }
 
       return { ...p, score, reason };
