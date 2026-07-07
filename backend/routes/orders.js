@@ -46,9 +46,13 @@ router.get('/lookup', async (req, res) => {
   try {
     const { phone, name } = req.query;
     if (!phone || !name) return res.status(400).json({ message: 'Vui lòng cung cấp tên và số điện thoại.' });
+    
+    const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const flexibleNamePattern = `^\\s*${escapedName.replace(/\s+/g, '\\s+')}\\s*$`;
+    
     const orders = await Order.find({
       'customerInfo.phone': phone,
-      'customerInfo.name': { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+      'customerInfo.name': { $regex: new RegExp(flexibleNamePattern, 'i') },
     }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
@@ -65,6 +69,7 @@ router.post('/', async (req, res) => {
     if (!data.customerInfo || !data.customerInfo.name || !data.customerInfo.name.trim()) {
       return res.status(400).json({ message: 'Vui lòng nhập tên người nhận.' });
     }
+    data.customerInfo.name = data.customerInfo.name.trim();
     if (!data.customerInfo.phone || !/^\d{10}$/.test(data.customerInfo.phone)) {
       return res.status(400).json({ message: 'Số điện thoại phải gồm đúng 10 chữ số.' });
     }
