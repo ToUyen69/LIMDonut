@@ -1,4 +1,179 @@
 .lookup-page {
-  padding: 3rem 1rem;
-  min-height: 60vh;
+  padding-bottom: 70px;
+  background-color: #f8fafc;
+  font-family: var(--font-primary);
+  min-height: 90vh;
+}
+
+/* Page Banner */
+.page-banner {
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  max-width: 100%;
+  margin: 0 auto 40px;
+  padding: 3.5rem 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 40px 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(219, 234, 254, 0.3);
+}
+
+.banner-content {
+  max-width: 800px;
+  width: 100%;
+}
+
+.banner-content .subtitle {
+  color: var(--color-blue);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.75rem;
+  display: block;
+  font-size: 0.9rem;
+}
+
+.banner-content .title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.banner-content .desc {
+  font-size: 1.05rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* Card layout */
+.lookup-form-card {
+  border: 1px solid #e2e8f0 !important;
+  background-color: #ffffff;
+}
+
+.form-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background-color: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-blue);
+}
+
+/* Form Styles */
+.form-label {
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.form-control {
+  border: 1.5px solid #cbd5e1;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.95rem;
+  color: #1e293b;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: #fff;
+}
+
+.submit-lookup-btn {
+  background: var(--color-blue);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
+}
+
+.submit-lookup-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* Results section */
+.text-slate {
+  color: #1e293b;
+}
+
+.result-order-card {
+  border: 1px solid #e2e8f0 !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.result-order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Status Badges */
+.order-status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.order-status-badge[data-status="processing"],
+.order-status-badge[data-status="Đang xử lý"] {
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+
+.order-status-badge[data-status="shipping"],
+.order-status-badge[data-status="Đang giao/lấy"] {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.order-status-badge[data-status="completed"],
+.order-status-badge[data-status="Hoàn thành"] {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.order-status-badge[data-status="cancelled"],
+.order-status-badge[data-status="Đã hủy"] {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.empty-card {
+  border: 1.5px dashed #cbd5e1 !important;
+  background-color: #fff;
+}
+
+.empty-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+@media (max-width: 576px) {
+  .page-banner {
+    padding: 2.5rem 15px;
+  }
+  .banner-content .title {
+    font-size: 1.8rem;
+  }
 }

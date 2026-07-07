@@ -50,6 +50,18 @@ export class HomepageComponent implements OnInit, OnDestroy {
     this.cartService.addToCart(product ?? { name, price, image, id });
   }
 
+  buyNow(name: string, price: string, image: string, id: number) {
+    const product = this.productService.getById(id);
+    const targetProduct = (product ?? { name, price, image, id }) as any;
+    if (this.productService.isOutOfStock(targetProduct)) {
+      alert(`"${targetProduct.name}" đã hết hàng hôm nay!`);
+      return;
+    }
+    this.cartService.addToCart(targetProduct);
+    this.productService.decreaseStock(targetProduct.id, 1);
+    this.router.navigate(['/checkout']);
+  }
+
   onCategoryClick(category: string) {
     this.router.navigate(['/menu'], { queryParams: { category } });
   }

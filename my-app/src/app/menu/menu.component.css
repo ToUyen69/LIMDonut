@@ -2,6 +2,7 @@
 :host {
   display: block;
 }
+
 .menu-page {
   background-color: #f5f7fa;
   padding-bottom: 4rem;
@@ -10,7 +11,7 @@
 /* Banner */
 .menu-banner {
   background-color: #e6f0fa;
-  padding: 2rem 0;
+  padding: 2.25rem 0;
   border-radius: 0 0 20px 20px;
 }
 
@@ -23,28 +24,36 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .menu-banner-content .title {
-  font-size: 2.2rem;
+  font-size: 2rem;
   color: #333;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   line-height: 1.2;
 }
 
 .menu-banner-content .desc {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #666;
   line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.menu-banner-image {
+  max-height: 320px;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
 .menu-banner-image img {
   width: 100%;
-  border-radius: 15px;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+  height: 320px;
+  object-fit: cover;
 }
 
 /* Filters & Search */
@@ -56,7 +65,7 @@
   background: #fff;
   padding: 0.5rem 1.5rem;
   border-radius: 30px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
 }
 
@@ -97,12 +106,20 @@
   line-height: 1;
   flex: 0 0 auto;
 }
-.clear-search:hover { background: #ddd; }
+
+.clear-search:hover {
+  background: #ddd;
+}
 
 .sort-box {
   display: flex;
   align-items: center;
   color: #666;
+}
+
+.sort-box label {
+  white-space: nowrap;
+  margin-bottom: 0;
 }
 
 .sort-box .form-select {
@@ -122,7 +139,7 @@
   background: #fff;
   padding: 1rem 1.5rem;
   border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
 }
 
@@ -149,7 +166,12 @@
   transition: all 0.2s;
   font-size: 0.85rem;
 }
-.diet-chip:hover { border-color: var(--color-steel-blue); color: var(--color-steel-blue); }
+
+.diet-chip:hover {
+  border-color: var(--color-steel-blue);
+  color: var(--color-steel-blue);
+}
+
 .diet-chip.active {
   background: #e6f0fa;
   border-color: var(--color-steel-blue);
@@ -179,7 +201,10 @@
   font-size: 0.85rem;
   font-weight: 600;
 }
-.clear-filters:hover { background: #ffdada; }
+
+.clear-filters:hover {
+  background: #ffdada;
+}
 
 .category-tabs {
   gap: 1rem;
@@ -202,8 +227,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .tab {
@@ -237,7 +269,7 @@
   background: #fff;
   border-radius: 20px;
   padding: 3rem 2rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 /* Grid now handled by Bootstrap row g-4 */
@@ -266,6 +298,7 @@
   color: #d9534f;
   margin-bottom: 0.25rem;
 }
+
 .hot-today-header p {
   color: #666;
   margin-bottom: 1.25rem;
@@ -278,21 +311,24 @@
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(217,83,79,0.10);
+  box-shadow: 0 8px 20px rgba(217, 83, 79, 0.10);
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
   border: 1px solid #ffe3e1;
   height: 100%;
 }
+
 .hot-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 14px 28px rgba(217,83,79,0.18);
+  box-shadow: 0 14px 28px rgba(217, 83, 79, 0.18);
 }
+
 .hot-card img {
   width: 100%;
   height: 160px;
   object-fit: cover;
 }
+
 .hot-rank-badge {
   position: absolute;
   top: 10px;
@@ -305,24 +341,52 @@
   font-weight: 700;
   z-index: 2;
 }
+
 .hot-card-info {
   padding: 0.9rem 1rem 1.1rem;
 }
-.hot-card-info h4 { margin: 0 0 0.2rem; font-size: 1.05rem; color: #333; }
-.hot-desc { font-size: 0.82rem; color: #888; display: block; margin-bottom: 0.6rem; min-height: 2.2em; }
-.hot-card-bottom { display: flex; justify-content: space-between; align-items: center; }
-.hot-card-bottom .price { color: var(--color-steel-blue); font-weight: 700; }
-.hot-rating { font-size: 0.85rem; color: #f5a623; }
+
+.hot-card-info h4 {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.hot-desc {
+  font-size: 0.82rem;
+  color: #888;
+  display: block;
+  margin-bottom: 0.6rem;
+  min-height: 2.2em;
+}
+
+.hot-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hot-card-bottom .price {
+  color: var(--color-steel-blue);
+  font-weight: 700;
+}
+
+.hot-rating {
+  font-size: 0.85rem;
+  color: #f5a623;
+}
 
 /* ===== Card badges & labels ===== */
-.seller-img { position: relative; }
+.seller-img {
+  position: relative;
+}
 
 .fav-btn {
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 3;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -356,6 +420,7 @@
   gap: 4px;
   z-index: 2;
 }
+
 .card-badges .badge {
   padding: 0.2rem 0.55rem;
   border-radius: 12px;
@@ -363,14 +428,17 @@
   font-weight: 700;
   white-space: nowrap;
 }
+
 .card-badges .bg-stock-low {
   background-color: #fd7e14 !important;
   color: #fff;
 }
+
 .out-of-stock-card .card-actions button {
   opacity: 0.5;
   pointer-events: none;
 }
+
 .card-actions button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -382,6 +450,7 @@
   gap: 4px;
   margin: 0.4rem 0;
 }
+
 .quick-label {
   background: #f0f3f7;
   color: #5a6b7b;
@@ -390,6 +459,7 @@
   font-size: 0.72rem;
   font-weight: 500;
 }
+
 .quick-label.diet {
   background: #eaf6ec;
   color: #3a8a47;
@@ -408,13 +478,22 @@
   font-size: 0.9rem;
   margin-bottom: 1.25rem;
 }
+
 .no-results {
   text-align: center;
   padding: 3rem 1rem;
   color: #777;
 }
-.no-results-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
-.no-results p { margin-bottom: 1.25rem; }
+
+.no-results-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.no-results p {
+  margin-bottom: 1.25rem;
+}
 
 /* Seller card height for Bootstrap columns */
 .seller-card {
@@ -433,23 +512,55 @@
   cursor: pointer;
   transition: box-shadow 0.25s;
 }
-.flash-banner:hover { box-shadow: 0 6px 18px rgba(217,83,79,0.18); }
+
+.flash-banner:hover {
+  box-shadow: 0 6px 18px rgba(217, 83, 79, 0.18);
+}
+
 .flash-banner-icon {
   color: #f39c12;
   font-size: 1.4rem;
   animation: flashBlink 1.2s infinite;
 }
-.flash-banner-text { color: #b03a2e; font-size: 0.92rem; flex: 1; }
-.flash-banner-text strong { color: #c0392b; margin-right: 0.4rem; }
-.flash-banner-cta { color: #c0392b; font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
 
-.flash-badge { animation: flashBlink 1.2s infinite; }
-@keyframes flashBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
+.flash-banner-text {
+  color: #b03a2e;
+  font-size: 0.92rem;
+  flex: 1;
 }
 
-.flash-price { color: #e74c3c !important; }
+.flash-banner-text strong {
+  color: #c0392b;
+  margin-right: 0.4rem;
+}
+
+.flash-banner-cta {
+  color: #c0392b;
+  font-weight: 700;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.flash-badge {
+  animation: flashBlink 1.2s infinite;
+}
+
+@keyframes flashBlink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.flash-price {
+  color: #e74c3c !important;
+}
+
 .old-price {
   color: #aaa;
   text-decoration: line-through;

@@ -8,6 +8,21 @@
       "port": 4321,
       "autoPort": false,
       "cwd": "my-app"
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 3000,
+      "cwd": "backend"
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ng", "serve", "--port", "4201"],
+      "port": 4201,
+      "autoPort": false,
+      "cwd": "my-app-admin"
     }
   ]
 }

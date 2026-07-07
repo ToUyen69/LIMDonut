@@ -22,7 +22,7 @@
         </div>
         <div class="thumbnail-list mt-3">
           @for (img of productImages; track $index) {
-            <img [src]="img" [class.active]="currentImageIndex === $index" (click)="setMainImageIndex($index)" alt="Thumb" />
+            <img [src]="img | imgUrl" [class.active]="currentImageIndex === $index" (click)="setMainImageIndex($index)" alt="Thumb" />
           }
         </div>
       </div>

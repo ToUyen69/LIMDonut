@@ -7,6 +7,7 @@ import {
   PartyTier, SauceCoverage, ToppingParticle, generateParticles, DonutVariant
 } from './party.config';
 import { DonutRenderer, DonutState, ShapeGeometry } from './donut-renderer';
+import { PartySetRenderer, ArrangementType } from './party-set-renderer';
 import { OrderService } from '../order.service';
 import { AuthService } from '../auth.service';
 
@@ -34,6 +35,7 @@ function createDefaultVariant(): DonutVariant {
 })
 export class CustomPartyComponent implements OnDestroy {
   @ViewChild('donutCanvas') donutCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('setCanvas') setCanvas!: ElementRef<HTMLCanvasElement>;
 
   readonly tiers = PARTY_TIERS;
   readonly shapes = SHAPES;
@@ -45,6 +47,8 @@ export class CustomPartyComponent implements OnDestroy {
 
   private donutRenderer: DonutRenderer | null = null;
   private rendererInitialized = false;
+  private setRenderer: PartySetRenderer | null = null;
+  private setRendererInitialized = false;
 
   readonly selectedTier = signal<PartyTier | null>(null);
   readonly variants = signal<DonutVariant[]>([]);
@@ -56,6 +60,8 @@ export class CustomPartyComponent implements OnDestroy {
   readonly pickupTime = signal('');
   readonly selectedArrangement = signal('none');
   readonly activeGroup = signal<'shape' | 'flavor' | 'sauce' | 'topping'>('shape');
+  readonly slotAssignments = signal<number[]>([]);
+  readonly selectedSlotIndex = signal(-1);
 
   readonly arrangements = [
     { id: 'none', name: 'Mặc định (hộp)', icon: 'bi-box-seam', description: 'Xếp trong hộp tiêu chuẩn' },
@@ -245,7 +251,7 @@ export class CustomPartyComponent implements OnDestroy {
     if (step === 2) {
       const vs = this.variants();
       if (vs.length === 0) return false;
-      const allComplete = vs.every(v => v.shapeId && v.flavorId && v.sauceId && v.toppingIds.length > 0);
+      const allComplete = vs.every(v => v.shapeId && v.flavorId && v.quantity > 0);
       return allComplete && this.allocationMatch();
     }
     return true;
@@ -344,6 +350,50 @@ export class CustomPartyComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.donutRenderer?.dispose();
+    this.setRenderer?.dispose();
+  }
+
+  private buildSlotAssignments(): number[] {
+    const vs = this.variants();
+    const assignments: number[] = [];
+    vs.forEach((v, idx) => {
+      for (let i = 0; i < v.quantity; i++) assignments.push(idx);
+    });
+    return assignments;
+  }
+
+  initSet3D() {
+    if (this.setRendererInitialized || !this.setCanvas) return;
+    const canvas = this.setCanvas.nativeElement;
+    if (!canvas) return;
+    this.setRenderer = new PartySetRenderer();
+    this.setRenderer.init(canvas);
+    this.setRendererInitialized = true;
+
+    this.setRenderer.onSwap((a, b) => {
+      const sa = [...this.slotAssignments()];
+      [sa[a], sa[b]] = [sa[b], sa[a]];
+      this.slotAssignments.set(sa);
+    });
+    this.setRenderer.onSelect((idx) => this.selectedSlotIndex.set(idx));
+
+    this.refreshSet3D();
+  }
+
+  refreshSet3D() {
+    if (!this.setRenderer) return;
+    const sa = this.buildSlotAssignments();
+    this.slotAssignments.set(sa);
+    this.setRenderer.updateSet(
+      this.variants(),
+      this.selectedArrangement() as ArrangementType,
+      sa,
+    );
+  }
+
+  onArrangementChange(id: string) {
+    this.selectedArrangement.set(id);
+    this.refreshSet3D();
   }
 
   triggerPulse() {
@@ -465,7 +515,7 @@ export class CustomPartyComponent implements OnDestroy {
   }
 
   isVariantComplete(v: DonutVariant): boolean {
-    return !!(v.shapeId && v.flavorId && v.sauceId && v.toppingIds.length > 0 && v.quantity > 0);
+    return !!(v.shapeId && v.flavorId && v.quantity > 0);
   }
 
   getShapeName(id: string): string { return SHAPES.find(s => s.id === id)?.name ?? ''; }
@@ -517,6 +567,7 @@ export class CustomPartyComponent implements OnDestroy {
       this.currentStep.update(s => s + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (this.currentStep() === 2) setTimeout(() => this.initDonut3D(), 100);
+      if (this.currentStep() === 3) setTimeout(() => this.initSet3D(), 150);
       if (this.currentStep() === 4) setTimeout(() => this.initDonut3D(), 100);
     }
   }
@@ -565,7 +616,7 @@ export class CustomPartyComponent implements OnDestroy {
         notes: `Custom Party ${tier.name} - ${tier.quantity} bánh - Xếp hình: ${this.arrangements.find(a => a.id === this.selectedArrangement())?.name ?? 'Mặc định'}`,
       },
       items,
-      customPartyMeta: data,
+      customPartyMeta: { ...data, arrangement: this.selectedArrangement(), slotAssignments: this.slotAssignments() },
       cancelDeadline: this.cancelDeadline()?.toISOString() ?? null,
       statusHistory: [{ status: 'Đã đặt', at: new Date() }],
     };

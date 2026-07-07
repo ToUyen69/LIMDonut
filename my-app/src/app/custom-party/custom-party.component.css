@@ -445,6 +445,11 @@ img.topping-particle {
 .arrangement-card .selected-check { position: absolute; top: 8px; right: 8px; color: var(--color-blue); font-size: 1.2rem; }
 .arrangement-icon { color: var(--color-steel-blue); }
 
+/* ===== Set 3D Canvas ===== */
+.set-canvas-wrapper { position: relative; }
+.set-canvas { display: block; min-width: 100%; width: 100%; height: 420px; border-radius: 16px; }
+@media (max-width: 767.98px) { .set-canvas { height: 300px; } }
+
 /* ===== Step 4 Summary ===== */
 .summary-title { font-family: var(--font-heading); color: #2d3436; }
 .summary-tier-badge { background: var(--color-blue); color: #fff; padding: 0.35rem 1rem; border-radius: 12px; font-weight: 700; font-size: 0.9rem; }

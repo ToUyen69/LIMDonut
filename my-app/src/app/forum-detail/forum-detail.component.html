@@ -1,8 +1,9 @@
-<div class="forum-detail-page" *ngIf="post">
+@if (post(); as p) {
+<div class="forum-detail-page">
   <!-- Detail Banner -->
   <section class="page-banner">
     <div class="banner-content text-center">
-      <h1 class="title">{{ post.title }}</h1>
+      <h1 class="title">{{ p.title }}</h1>
     </div>
   </section>
 
@@ -11,40 +12,49 @@
       <div class="card border-0 shadow-sm detail-card">
         <div class="card-body p-4 p-md-5">
           <div class="text-center mb-4">
-            <span class="text-muted small border-bottom pb-2">{{ post.date }}</span>
+            <span class="text-muted small border-bottom pb-2">{{ p.date }}</span>
           </div>
-
-          <h2 class="post-title-main text-center text-uppercase mb-4">{{ post.title }}</h2>
 
           <div class="text-center mb-5">
             <div class="logo-circle mx-auto">
-              <img src="logo.png" alt="LIMDonut">
+              <img src="avata.jpeg" alt="LIMDonut">
             </div>
           </div>
 
           <!-- Main Image -->
           <div class="main-image-wrapper rounded-3 overflow-hidden mb-5">
-            <img [src]="post.mainImage | imgUrl" [alt]="post.title" class="w-100 d-block">
+            <img [src]="p.mainImage | imgUrl" [alt]="p.title" class="w-100 d-block">
           </div>
 
           <!-- Content Text -->
           <div class="post-text mb-5">
-            <p>{{ post.content }}</p>
+            <p>{{ p.content }}</p>
           </div>
 
           <!-- Detail Images -->
-          <div class="row g-3 mb-5" *ngIf="post.detailImages && post.detailImages.length > 0">
-            <div [ngClass]="{'col-md-6': post.detailImages.length === 2, 'col-md-4': post.detailImages.length >= 3}" *ngFor="let img of post.detailImages">
-              <img [src]="img | imgUrl" alt="Detail image" class="img-fluid rounded-3 shadow-sm w-100">
+          @if (p.detailImages && p.detailImages.length > 0) {
+          <div class="row g-3 justify-content-center mb-5">
+            @for (img of p.detailImages; track img) {
+            <div [ngClass]="{'col-md-6': p.detailImages.length === 2, 'col-md-4': p.detailImages.length >= 3}"
+              style="max-width: 400px;">
+              <div class="detail-img-container">
+                <img [src]="img | imgUrl" alt="Detail image" class="w-100 h-100">
+              </div>
             </div>
+            }
           </div>
+          }
 
           <!-- Footer Tags -->
-          <div *ngIf="post.tags && post.tags.length > 0" class="border-top pt-4 mb-4">
+          @if (p.tags && p.tags.length > 0) {
+          <div class="border-top pt-4 mb-4">
             <div class="d-flex gap-3 justify-content-center flex-wrap">
-              <span class="badge bg-light text-muted fw-normal" *ngFor="let tag of post.tags">{{ tag }}</span>
+              @for (tag of p.tags; track tag) {
+              <span class="badge bg-light text-muted fw-normal">{{ tag }}</span>
+              }
             </div>
           </div>
+          }
 
           <div class="text-center">
             <button class="btn btn-primary rounded-2 px-4 py-2" routerLink="/forum">Quay lại Diễn đàn</button>
@@ -54,3 +64,4 @@
     </div>
   </section>
 </div>
+}

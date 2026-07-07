@@ -5,7 +5,9 @@ import { environment } from '../environments/environment';
 export class ImgUrlPipe implements PipeTransform {
   transform(value: string | undefined): string {
     if (!value) return '';
-    if (value.startsWith('http') || value.startsWith('data:')) return value;
-    return `${environment.apiBase}/${value}`;
+    if (value.startsWith('uploads/')) {
+      return `${environment.apiBase}/${value}`;
+    }
+    return value;
   }
 }

@@ -6,16 +6,18 @@
       </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/about" routerLinkActive="active">Về chúng tôi</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/menu" routerLinkActive="active">Menu Donut</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active">Custom Party</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active">Custom Party</a>
+          </li>
           <li class="nav-item"><a class="nav-link" routerLink="/contact" routerLinkActive="active">Liên hệ</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/forum" routerLinkActive="active">Diễn đàn</a></li>
           <li class="nav-item"><a class="nav-link" routerLink="/chinhanh" routerLinkActive="active">Chi nhánh</a></li>
@@ -46,14 +48,20 @@
             <!-- User Dropdown Menu -->
             <div class="user-dropdown" *ngIf="showUserMenu()">
               <ul class="list-unstyled mb-0">
-                <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'login' }" (click)="closeUserMenu()"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a></li>
-                <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'register' }" (click)="closeUserMenu()"><i class="bi bi-person-plus"></i> Đăng ký</a></li>
-                <li *ngIf="!isLoggedIn()"><a routerLink="/tra-cuu-don-hang" (click)="closeUserMenu()"><i class="bi bi-search"></i> Tra cứu đơn hàng</a></li>
-                <li *ngIf="isLoggedIn()"><a routerLink="/profile" (click)="closeUserMenu()"><i class="bi bi-person-badge"></i> Hồ sơ</a></li>
-                <li><a routerLink="/orders" (click)="closeUserMenu()"><i class="bi bi-bag-check"></i> Đơn hàng</a></li>
-                <li><a routerLink="/yeu-thich" (click)="closeUserMenu()"><i class="bi bi-heart"></i> Món yêu thích</a></li>
+                <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'login' }"
+                    (click)="closeUserMenu()"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a></li>
+                <li *ngIf="!isLoggedIn()"><a routerLink="/login" [queryParams]="{ mode: 'register' }"
+                    (click)="closeUserMenu()"><i class="bi bi-person-plus"></i> Đăng ký</a></li>
+                <li *ngIf="!isLoggedIn()"><a routerLink="/tra-cuu-don-hang" (click)="closeUserMenu()"><i
+                      class="bi bi-search"></i> Tra cứu đơn khách</a></li>
+                <li *ngIf="isLoggedIn()"><a routerLink="/profile" (click)="closeUserMenu()"><i
+                      class="bi bi-person-badge"></i> Hồ sơ</a></li>
+                <li><a routerLink="/orders" (click)="closeUserMenu()"><i class="bi bi-bag-check"></i> Lịch sử đặt hàng</a></li>
+                <li><a routerLink="/yeu-thich" (click)="closeUserMenu()"><i class="bi bi-heart"></i> Món yêu thích</a>
+                </li>
                 <li *ngIf="isLoggedIn()" class="divider"></li>
-                <li *ngIf="isLoggedIn()"><a href="javascript:void(0)" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+                <li *ngIf="isLoggedIn()"><a href="javascript:void(0)" (click)="logout()"><i
+                      class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
               </ul>
             </div>
           </div>

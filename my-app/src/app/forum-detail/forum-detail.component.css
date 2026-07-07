@@ -52,19 +52,21 @@
 }
 
 .logo-circle {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   border: 1px solid #eee;
-  padding: 10px;
+  padding: 0;
   background: #fff;
   display: inline-block;
+  overflow: hidden;
 }
 
 .logo-circle img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .post-text {
@@ -90,4 +92,40 @@
   .post-title-main {
     font-size: 1.8rem;
   }
+}
+
+/* Custom Image Sizing & Alignment */
+.main-image-wrapper {
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.main-image-wrapper img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.detail-img-container {
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  height: 250px;
+  background: #f7fafc;
+}
+
+.detail-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.detail-img-container:hover img {
+  transform: scale(1.04);
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BlogService, BlogPost } from '../forum/blog.service';
@@ -12,7 +12,7 @@ import { ImgUrlPipe } from '../img-url.pipe';
   styleUrls: ['./forum-detail.component.css']
 })
 export class ForumDetailComponent implements OnInit {
-  post: BlogPost | undefined;
+  post = signal<BlogPost | undefined>(undefined);
 
   constructor(
     private route: ActivatedRoute,
@@ -20,12 +20,14 @@ export class ForumDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.blogService.fetchPostById(id).subscribe({
-        next: post => this.post = post,
-        error: () => this.post = undefined
-      });
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.blogService.fetchPostById(id).subscribe({
+          next: post => this.post.set(post),
+          error: () => this.post.set(undefined)
+        });
+      }
+    });
   }
 }

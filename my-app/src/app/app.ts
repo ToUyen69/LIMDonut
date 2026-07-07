@@ -1,5 +1,5 @@
 import { Component, signal, ViewEncapsulation, inject, computed, effect } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CartService } from './cart.service';
 import { CommonModule } from '@angular/common';
 
@@ -48,6 +48,12 @@ export class App {
   }
 
   constructor() {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        window.scrollTo(0, 0);
+      }
+    });
+
     if (this.authService.isLoggedIn()) {
       this.authService.fetchMe().subscribe({ error: () => {} });
     }
