@@ -15,6 +15,17 @@ export class BlogComponent implements OnInit {
   service = inject(BlogService);
   imageBase = environment.apiBase + '/';
 
+  getImageUrl(imagePath: string | undefined): string {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('assets/')) {
+      return imagePath;
+    }
+    if (imagePath.startsWith('uploads/')) {
+      return `${environment.apiBase}/${imagePath}`;
+    }
+    return `${environment.apiBase}/uploads/${imagePath}`;
+  }
+
   showForm = signal(false);
   editing = signal<BlogPost | null>(null);
   uploading = signal(false);

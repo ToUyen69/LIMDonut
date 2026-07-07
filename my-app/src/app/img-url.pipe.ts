@@ -5,9 +5,12 @@ import { environment } from '../environments/environment';
 export class ImgUrlPipe implements PipeTransform {
   transform(value: string | undefined): string {
     if (!value) return '';
-    if (value.startsWith('uploads/')) {
-      return value.replace('uploads/', '');
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('assets/')) {
+      return value;
     }
-    return value;
+    if (value.startsWith('uploads/')) {
+      return `${environment.apiBase}/${value}`;
+    }
+    return `${environment.apiBase}/uploads/${value}`;
   }
 }
