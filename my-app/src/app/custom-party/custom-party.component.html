@@ -66,7 +66,7 @@
             <span class="limit-badge"><i class="bi bi-droplet me-1"></i>{{ tier.id === 'L' ? '∞' : tier.limits.sauce }} sốt</span>
             <span class="limit-badge"><i class="bi bi-stars me-1"></i>{{ tier.id === 'L' ? '∞' : tier.limits.topping }} topping</span>
           </div>
-          <div class="tier-note" *ngIf="tier.id === 'L'">Báo giá 1-1, không giới hạn lựa chọn</div>
+          <div class="tier-note" *ngIf="tier.id === 'L'">Không giới hạn lựa chọn</div>
           <button class="btn btn-primary w-100 rounded-3 fw-semibold" (click)="selectTier(tier); $event.stopPropagation()">Chọn {{ tier.name }}</button>
         </div>
       </div>
