@@ -28,11 +28,11 @@
             </div>
           </div>
           <div class="mb-3 text-start">
-            <label class="form-label fw-semibold mb-1">Tên người nhận</label>
+            <label class="form-label fw-semibold mb-1">Tên người nhận <span class="text-danger">*</span></label>
             <input type="text" class="form-control rounded-3" placeholder="Nhập tên người nhận" [ngModel]="lookupName()" (ngModelChange)="lookupName.set($event)">
           </div>
           <div class="mb-4 text-start">
-            <label class="form-label fw-semibold mb-1">Số điện thoại</label>
+            <label class="form-label fw-semibold mb-1">Số điện thoại <span class="text-danger">*</span></label>
             <input type="tel" class="form-control rounded-3" placeholder="Nhập số điện thoại đặt bánh" [ngModel]="lookupPhone()" (ngModelChange)="lookupPhone.set($event)">
           </div>
           <button class="btn btn-primary w-100 rounded-3 py-2 fw-semibold" [disabled]="!lookupPhone() || !lookupName()" (click)="searchByPhone()"><i class="bi bi-search me-2"></i>TRA CỨU NGAY</button>

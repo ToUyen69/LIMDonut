@@ -78,11 +78,11 @@
       <p class="text-muted small mb-3">{{ selectedTier()!.name }} cần đặt trước tối thiểu {{ selectedTier()!.leadTimeDays }} ngày. Sớm nhất: {{ earliestDateLabel() }}</p>
       <div class="row g-3">
         <div class="col-7">
-          <label class="form-label small fw-semibold">Ngày nhận</label>
+          <label class="form-label small fw-semibold">Ngày nhận <span class="text-danger">*</span></label>
           <input type="date" class="form-control rounded-3" [min]="minPickupDate()" [ngModel]="pickupDate()" (ngModelChange)="pickupDate.set($event)">
         </div>
         <div class="col-5">
-          <label class="form-label small fw-semibold">Giờ nhận</label>
+          <label class="form-label small fw-semibold">Giờ nhận <span class="text-danger">*</span></label>
           <input type="time" class="form-control rounded-3" [ngModel]="pickupTime()" (ngModelChange)="pickupTime.set($event)">
         </div>
       </div>
