@@ -6,7 +6,7 @@ export class ImgUrlPipe implements PipeTransform {
   transform(value: string | undefined): string {
     if (!value) return '';
     if (value.startsWith('uploads/')) {
-      return `${environment.apiBase}/${value}`;
+      return value.replace('uploads/', '');
     }
     return value;
   }
