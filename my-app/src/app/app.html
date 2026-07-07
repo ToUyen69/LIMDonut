@@ -5,22 +5,21 @@
         <img src="logo.png" alt="LIMDonut Logo" class="logo-img" />
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" (click)="isMenuOpen.set(!isMenuOpen())"
+        [attr.aria-expanded]="isMenuOpen()" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="mainNav">
+      <div class="collapse navbar-collapse" [class.show]="isMenuOpen()" id="mainNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active"
-              [routerLinkActiveOptions]="{exact: true}">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/about" routerLinkActive="active">Về chúng tôi</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/menu" routerLinkActive="active">Menu Donut</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active">Custom Party</a>
-          </li>
-          <li class="nav-item"><a class="nav-link" routerLink="/contact" routerLinkActive="active">Liên hệ</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/forum" routerLinkActive="active">Diễn đàn</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/chinhanh" routerLinkActive="active">Chi nhánh</a></li>
+              [routerLinkActiveOptions]="{exact: true}" (click)="isMenuOpen.set(false)">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/about" routerLinkActive="active" (click)="isMenuOpen.set(false)">Về chúng tôi</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/menu" routerLinkActive="active" (click)="isMenuOpen.set(false)">Menu Donut</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active" (click)="isMenuOpen.set(false)">Custom Party</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/contact" routerLinkActive="active" (click)="isMenuOpen.set(false)">Liên hệ</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/forum" routerLinkActive="active" (click)="isMenuOpen.set(false)">Diễn đàn</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/chinhanh" routerLinkActive="active" (click)="isMenuOpen.set(false)">Chi nhánh</a></li>
         </ul>
 
         <div class="d-flex align-items-center gap-3">

@@ -31,6 +31,7 @@ export class App {
   readonly showUserMenu = signal(false);
   readonly showLogoutModal = signal(false);
   readonly cartAnimation = signal(false);
+  readonly isMenuOpen = signal(false);
 
   logout() {
     this.showLogoutModal.set(true);
@@ -51,6 +52,7 @@ export class App {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         window.scrollTo(0, 0);
+        this.isMenuOpen.set(false);
       }
     });
 
