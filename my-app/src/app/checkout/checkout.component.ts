@@ -102,6 +102,7 @@ export class CheckoutComponent implements OnInit {
   minutes = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'));
   
   paymentMethod = signal('cash');
+  agreedToTerms = signal(false);
 
   ngOnInit() {
     if (this.authService.isLoggedIn()) {
@@ -179,7 +180,7 @@ export class CheckoutComponent implements OnInit {
     const addressValid = this.deliveryMethod() === 'pickup' || this.address().length > 0;
 
     return phoneValid && addressValid && recipientValid && branchValid && timeValid
-      && this.cartService.items().length > 0 && !this.shippingOutOfRange;
+      && this.cartService.items().length > 0 && !this.shippingOutOfRange && this.agreedToTerms();
   }
 
   validatePhone() {
