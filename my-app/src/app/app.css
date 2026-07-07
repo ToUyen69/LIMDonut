@@ -740,25 +740,29 @@ section {
   display: flex;
   background: #fff;
   border-radius: 30px;
-  overflow: hidden;
   padding: 0.3rem;
+  width: 100%;
 }
 
 .email-input-group input {
   flex: 1;
+  min-width: 0;
   border: none;
-  padding: 0.8rem 1.5rem;
+  padding: 0.8rem 1rem;
   outline: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-family: var(--font-primary);
 }
 
 .email-input-group button {
   background: var(--color-blue);
   color: #fff;
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 1.5rem;
   border-radius: 25px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 0.95rem;
   transition: background 0.3s;
 }
 
