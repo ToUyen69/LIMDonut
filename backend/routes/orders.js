@@ -47,12 +47,21 @@ router.get('/lookup', async (req, res) => {
     const { phone, name } = req.query;
     if (!phone || !name) return res.status(400).json({ message: 'Vui lòng cung cấp tên và số điện thoại.' });
     
-    const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const flexibleNamePattern = `^\\s*${escapedName.replace(/\s+/g, '\\s+')}\\s*$`;
+    const nfcName = name.normalize('NFC');
+    const nfdName = name.normalize('NFD');
+    
+    const escapedNFC = nfcName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const patternNFC = `^\\s*${escapedNFC.replace(/\s+/g, '\\s+')}\\s*$`;
+    
+    const escapedNFD = nfdName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const patternNFD = `^\\s*${escapedNFD.replace(/\s+/g, '\\s+')}\\s*$`;
     
     const orders = await Order.find({
       'customerInfo.phone': phone,
-      'customerInfo.name': { $regex: new RegExp(flexibleNamePattern, 'i') },
+      $or: [
+        { 'customerInfo.name': { $regex: new RegExp(patternNFC, 'i') } },
+        { 'customerInfo.name': { $regex: new RegExp(patternNFD, 'i') } }
+      ]
     }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
@@ -69,7 +78,7 @@ router.post('/', async (req, res) => {
     if (!data.customerInfo || !data.customerInfo.name || !data.customerInfo.name.trim()) {
       return res.status(400).json({ message: 'Vui lòng nhập tên người nhận.' });
     }
-    data.customerInfo.name = data.customerInfo.name.trim();
+    data.customerInfo.name = data.customerInfo.name.normalize('NFC').trim();
     if (!data.customerInfo.phone || !/^\d{10}$/.test(data.customerInfo.phone)) {
       return res.status(400).json({ message: 'Số điện thoại phải gồm đúng 10 chữ số.' });
     }
