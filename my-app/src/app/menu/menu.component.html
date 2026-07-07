@@ -218,11 +218,15 @@
                   }
                 </div>
                 <div class="card-actions">
-                  <button class="buy-now-btn-card" [disabled]="isOutOfStock(product)"
-                    (click)="$event.stopPropagation(); buyNow(product)">Mua ngay</button>
-                  <button class="add-to-cart-btn-card" [disabled]="isOutOfStock(product)"
-                    (click)="$event.stopPropagation(); addToCart(product)"><i class="bi bi-cart"></i> Thêm vào giỏ
-                    hàng</button>
+                  @if (product.id === 99 || product.id === 100) {
+                    <button class="customize-btn-card w-100" [routerLink]="['/product', product.id]"><i class="bi bi-sliders me-2"></i>Tự cấu hình ngay</button>
+                  } @else {
+                    <button class="buy-now-btn-card" [disabled]="isOutOfStock(product)"
+                      (click)="$event.stopPropagation(); buyNow(product)">Mua ngay</button>
+                    <button class="add-to-cart-btn-card" [disabled]="isOutOfStock(product)"
+                      (click)="$event.stopPropagation(); addToCart(product)"><i class="bi bi-cart"></i> Thêm vào giỏ
+                      hàng</button>
+                  }
                 </div>
               </div>
             </div>

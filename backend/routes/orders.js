@@ -265,9 +265,9 @@ router.get('/stats', requireAdmin, async (req, res) => {
 
     const [ordersByStatus, revenueToday, revenueThisWeek, revenueThisMonth, topProducts, pendingComplaints, unreadContacts, lowStockProducts, outOfStockCount, recentOrders, dailyRevenue, allProducts] = await Promise.all([
       Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
-      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfDay } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
-      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfWeek } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
-      Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.aggregate([{ $match: { status: 'Hoàn thành', createdAt: { $gte: startOfDay } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.aggregate([{ $match: { status: 'Hoàn thành', createdAt: { $gte: startOfWeek } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
+      Order.aggregate([{ $match: { status: 'Hoàn thành', createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
       Product.find().sort({ sold: -1 }).limit(5).select('id name image sold price'),
       Complaint.countDocuments({ status: 'Chờ xử lý' }),
       ContactMessage.countDocuments({ status: 'Chưa xử lý' }),
@@ -275,7 +275,7 @@ router.get('/stats', requireAdmin, async (req, res) => {
       Product.countDocuments({ stock: 0 }),
       Order.find().sort({ createdAt: -1 }).limit(5).select('orderId customerInfo totalAmount status createdAt'),
       Order.aggregate([
-        { $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000) } } },
+        { $match: { status: 'Hoàn thành', createdAt: { $gte: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000) } } },
         { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$totalAmount' }, count: { $sum: 1 } } },
         { $sort: { _id: 1 } }
       ]),
