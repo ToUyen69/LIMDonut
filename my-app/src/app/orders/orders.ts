@@ -75,8 +75,13 @@ export class Orders implements OnInit {
 
   getProgressPercent(status: string): number {
     const map: Record<string, number> = {
-      'Đã đặt': 10, 'Đã xác nhận': 30, 'Đang chuẩn bị': 50,
-      'Đã đóng gói': 60, 'Đang giao': 70, 'Sẵn sàng lấy': 70, 'Hoàn thành': 100
+      'Đã đặt': 0,
+      'Đã xác nhận': 25,
+      'Đang chuẩn bị': 50,
+      'Đã đóng gói': 62,
+      'Đang giao': 75,
+      'Sẵn sàng lấy': 75,
+      'Hoàn thành': 100
     };
     return map[status] ?? 0;
   }
