@@ -212,11 +212,13 @@
   overflow-x: auto;
   justify-content: flex-start !important;
   padding: 0.5rem 0.25rem;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .category-tabs::-webkit-scrollbar {
-  display: none; /* Safari & Chrome */
+  display: none;
+  /* Safari & Chrome */
 }
 
 @media (min-width: 992px) {
