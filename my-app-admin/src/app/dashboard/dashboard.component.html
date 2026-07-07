@@ -54,22 +54,15 @@
           <canvas #donutChartCanvas style="width: 150px; height: 150px;" (mousemove)="onDonutMouseMove($event)" (mouseleave)="onDonutMouseLeave()"></canvas>
         </div>
         <div class="mt-auto pt-3 border-top d-flex flex-column gap-2 small">
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#71acd0;display:inline-block;"></span>Donut Men</span>
-            <span class="fw-bold">{{ categoryPercentages.men }}%</span>
-          </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#a5c2cb;display:inline-block;"></span>Nhân Kem</span>
-            <span class="fw-bold">{{ categoryPercentages.kem }}%</span>
-          </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#ddd170;display:inline-block;"></span>Mochi Donut</span>
-            <span class="fw-bold">{{ categoryPercentages.mochi }}%</span>
-          </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#b9dbe2;display:inline-block;"></span>Custom Party</span>
-            <span class="fw-bold">{{ categoryPercentages.party }}%</span>
-          </div>
+          @for (item of donutSlicesInfo; track item.name) {
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="d-flex align-items-center gap-2">
+                <span [style.background]="item.color" style="width:10px;height:10px;border-radius:50%;display:inline-block;"></span>
+                {{ item.name }}
+              </span>
+              <span class="fw-bold">{{ item.percent }}%</span>
+            </div>
+          }
         </div>
       </div>
     </div>

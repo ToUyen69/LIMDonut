@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardService } from './dashboard.service';
@@ -23,8 +23,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private chartPoints: { x: number; y: number; label: string; value: number }[] = [];
   activeTooltip: typeof this.chartPoints[0] | null = null;
 
-  // Interactive Donut Slices
-  private donutSlices: { startAngle: number; endAngle: number; name: string; value: number; color: string }[] = [];
+  // Interactive Donut Slice State
   activeDonutTooltip: { name: string; value: number; percent: number } | null = null;
 
   ngOnInit() {
@@ -52,23 +51,57 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .reduce((sum, [, v]) => sum + v, 0);
   }
 
-  // Dynamic percentage values for category sales
-  get categoryPercentages() {
+  // Dynamic calculation of categories based on actual database sales
+  get donutSlicesInfo() {
     const stats = this.stats;
-    if (!stats) return { men: 45, kem: 30, mochi: 15, party: 10 };
+    if (!stats) return [];
+
     const sales = stats.categorySales || {};
-    const menVal = sales['Donut Men'] || 0;
-    const kemVal = sales['Donut Nhân Kem'] || sales['Nhân Kem'] || 0;
-    const mochiVal = sales['Mochi Donut'] || 0;
-    const partyVal = sales['Custom Party'] || sales['Bánh tiệc'] || 0;
-    const total = menVal + kemVal + mochiVal + partyVal;
-    if (total === 0) return { men: 45, kem: 30, mochi: 15, party: 10 };
-    return {
-      men: Math.round((menVal / total) * 100),
-      kem: Math.round((kemVal / total) * 100),
-      mochi: Math.round((mochiVal / total) * 100),
-      party: Math.round((partyVal / total) * 100)
-    };
+    let rawData = Object.entries(sales)
+      .map(([name, value]) => ({ name, value: value as number }))
+      .filter(item => item.value > 0);
+
+    // Sort descending by sold count
+    rawData.sort((a, b) => b.value - a.value);
+
+    const colors = ['#71acd0', '#a5c2cb', '#ddd170', '#b9dbe2', '#daefee'];
+    const total = rawData.reduce((sum, item) => sum + item.value, 0);
+
+    if (total === 0) {
+      // Fallback matching LỊM Donut categories
+      return [
+        { name: 'Nguyên Bản', value: 0, color: '#71acd0', percent: 45 },
+        { name: 'Mochi', value: 0, color: '#a5c2cb', percent: 30 },
+        { name: 'Món mới', value: 0, color: '#ddd170', percent: 15 },
+        { name: 'Khác', value: 0, color: '#b9dbe2', percent: 10 }
+      ];
+    }
+
+    if (rawData.length > 4) {
+      const topThree = rawData.slice(0, 3).map((item, index) => ({
+        name: item.name,
+        value: item.value,
+        color: colors[index],
+        percent: Math.round((item.value / total) * 100)
+      }));
+
+      const othersValue = rawData.slice(3).reduce((sum, item) => sum + item.value, 0);
+      topThree.push({
+        name: 'Khác',
+        value: othersValue,
+        color: colors[3],
+        percent: Math.round((othersValue / total) * 100)
+      });
+
+      return topThree;
+    } else {
+      return rawData.map((item, index) => ({
+        name: item.name,
+        value: item.value,
+        color: colors[index % colors.length],
+        percent: Math.round((item.value / total) * 100)
+      }));
+    }
   }
 
   formatPrice(n: number): string {
@@ -130,23 +163,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
     if (dist >= innerRadius && dist <= outerRadius) {
       let angle = Math.atan2(dy, dx);
-      // Normalize angle to start from -Math.PI / 2 (top of circle)
       if (angle < -Math.PI / 2) {
         angle += Math.PI * 2;
       }
 
-      const total = this.donutSlices.reduce((sum, s) => sum + s.value, 0);
-
-      const match = this.donutSlices.find(s => {
-        return angle >= s.startAngle && angle <= s.endAngle;
-      });
-
-      if (match && total > 0) {
-        hoveredSlice = {
-          name: match.name,
-          value: match.value,
-          percent: Math.round((match.value / total) * 100)
-        };
+      // Reconstruct slices mapping dynamically
+      const slices = this.donutSlicesInfo;
+      const totalPercent = slices.reduce((sum, s) => sum + s.percent, 0) || 100;
+      
+      let currentAngle = -Math.PI / 2;
+      for (const slice of slices) {
+        const sliceAngle = (slice.percent / totalPercent) * (Math.PI * 2);
+        const endAngle = currentAngle + sliceAngle;
+        
+        if (angle >= currentAngle && angle <= endAngle) {
+          hoveredSlice = {
+            name: slice.name,
+            value: slice.value,
+            percent: slice.percent
+          };
+          break;
+        }
+        currentAngle = endAngle;
       }
     }
 
@@ -339,27 +377,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const stats = this.stats;
-    if (!stats) return;
-
-    const sales = stats.categorySales || {};
-    const rawData = [
-      { name: 'Donut Men', value: sales['Donut Men'] || 0, color: '#71acd0' },
-      { name: 'Nhân Kem', value: sales['Donut Nhân Kem'] || sales['Nhân Kem'] || 0, color: '#a5c2cb' },
-      { name: 'Mochi Donut', value: sales['Mochi Donut'] || 0, color: '#ddd170' },
-      { name: 'Custom Party', value: sales['Custom Party'] || sales['Bánh tiệc'] || 0, color: '#b9dbe2' }
-    ];
-
-    let totalSales = rawData.reduce((sum, item) => sum + item.value, 0);
-    if (totalSales === 0) {
-      // Fallback shapes
-      rawData[0].value = 45;
-      rawData[1].value = 30;
-      rawData[2].value = 15;
-      rawData[3].value = 10;
-      totalSales = 100;
-    }
-
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -374,27 +391,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const outerRadius = Math.min(w, h) / 2 - 15;
     const innerRadius = outerRadius * 0.65;
 
+    const slices = this.donutSlicesInfo;
+    const totalPercent = slices.reduce((sum, s) => sum + s.percent, 0) || 100;
+
     let startAngle = -Math.PI / 2;
-    this.donutSlices = [];
 
-    rawData.forEach(item => {
-      const sliceAngle = (item.value / totalSales) * (Math.PI * 2);
+    slices.forEach(slice => {
+      const sliceAngle = (slice.percent / totalPercent) * (Math.PI * 2);
       const endAngle = startAngle + sliceAngle;
-
-      this.donutSlices.push({
-        startAngle,
-        endAngle,
-        name: item.name,
-        value: item.value,
-        color: item.color
-      });
 
       // Draw Slice
       ctx.beginPath();
       ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
       ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
       ctx.closePath();
-      ctx.fillStyle = item.color;
+      ctx.fillStyle = slice.color;
       ctx.fill();
 
       startAngle = endAngle;
@@ -416,7 +427,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       
       ctx.font = '600 9px Montserrat';
       ctx.fillStyle = '#64748b';
-      ctx.fillText(this.activeDonutTooltip.name, centerX, centerY + 3);
+      
+      // Handle display of name safely
+      let displayName = this.activeDonutTooltip.name;
+      if (displayName.length > 12) displayName = displayName.slice(0, 10) + '...';
+      ctx.fillText(displayName, centerX, centerY + 3);
       
       ctx.font = 'bold 9px Montserrat';
       ctx.fillStyle = '#71acd0';
