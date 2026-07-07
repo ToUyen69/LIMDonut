@@ -300,7 +300,7 @@
 
             <div class="form-check terms-check mb-4">
               <input class="form-check-input" type="checkbox" id="terms" [ngModel]="agreedToTerms()" (ngModelChange)="agreedToTerms.set($event)">
-              <label class="form-check-label" for="terms">Tôi đã đọc, hiểu và đồng ý với tất cả các điều khoản, điều kiện và chính sách liên quan</label>
+              <label class="form-check-label" for="terms">Tôi đã đọc, hiểu và đồng ý với tất cả các điều khoản, điều kiện và chính sách liên quan <span class="text-danger">*</span></label>
             </div>
 
             @if (orderClassification().orderType === 'small') {
