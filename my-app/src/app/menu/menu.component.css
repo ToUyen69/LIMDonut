@@ -585,3 +585,32 @@
   font-size: 0.85rem;
   margin-left: 0.4rem;
 }
+
+.customize-btn-card {
+  width: 100%;
+  height: 36px;
+  border-radius: 100px;
+  background-color: var(--color-red);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.customize-btn-card i {
+  font-size: 0.95rem;
+}
+
+.customize-btn-card:hover {
+  background-color: #a54639;
+  transform: translateY(-2px);
+}
+
+.customize-btn-card:active {
+  transform: translateY(0);
+}
