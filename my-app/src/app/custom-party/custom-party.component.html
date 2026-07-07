@@ -343,7 +343,7 @@
                 <button class="coverage-btn" *ngFor="let c of sauceCoverages"
                   [class.active]="activeSauceCoverage() === c.id"
                   (click)="setVariantSauceCoverage(c.id)">
-                  <span class="coverage-icon">{{ c.icon }}</span>
+                  <span class="coverage-icon"><i class="bi" [ngClass]="c.icon"></i></span>
                   <span>{{ c.name }}</span>
                 </button>
               </div>
