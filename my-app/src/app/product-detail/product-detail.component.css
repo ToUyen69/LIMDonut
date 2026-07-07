@@ -532,3 +532,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Sticky Box Designer Sidebar on Large Screens */
+@media (min-width: 992px) {
+  .sticky-box-sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 90px;
+    z-index: 10;
+    height: fit-content;
+  }
+}

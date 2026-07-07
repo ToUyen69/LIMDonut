@@ -127,125 +127,6 @@
           </div>
         }
 
-        <!-- Box Donuts Selection (Only for Box products) -->
-        @if (product.id === 99 || product.id === 100) {
-          <div class="box-selection-group mt-4 pt-3 border-top">
-            <h4 class="option-title text-primary mb-2 fs-6">Chọn vị bánh trong Hộp <span class="box-capacity-status">({{ totalBoxDonutsCount }}/{{ maxBoxDonutsCapacity }})</span></h4>
-
-            @if (totalBoxDonutsCount < maxBoxDonutsCapacity) {
-              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 small fw-semibold">
-                <i class="bi bi-exclamation-triangle-fill"></i> Vui lòng chọn thêm <strong>{{ maxBoxDonutsCapacity - totalBoxDonutsCount }}</strong> chiếc bánh nữa.
-              </div>
-            } @else {
-              <div class="alert alert-success d-flex align-items-center gap-2 py-2 px-3 small fw-semibold">
-                <i class="bi bi-check-circle-fill"></i> Hộp đã đầy! Bạn có thể thêm vào giỏ hàng.
-              </div>
-            }
-
-            <!-- Selected Slots Configuration -->
-            <div class="mb-3">
-              <h5 class="slots-section-title small fw-semibold text-muted mb-2">Các bánh trong hộp của bạn:</h5>
-              <div class="d-flex flex-column gap-3">
-                @for (slot of selectedBoxDonuts; track $index; let slotIndex = $index) {
-                  <div class="card" [class.border-secondary]="slot.productId !== undefined" [class.border-dashed]="slot.productId === undefined">
-                    <div class="card-body p-3">
-                      <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
-                        <span class="slot-number text-uppercase small text-muted fw-bold">Ngăn {{ slotIndex + 1 }}</span>
-                        @if (slot.productId !== undefined) {
-                          <button type="button" class="btn btn-link btn-sm text-danger p-0" (click)="clearSlot(slotIndex)">Xóa bánh x</button>
-                        }
-                      </div>
-
-                      @if (slot.productId !== undefined) {
-                        <div class="slot-content">
-                          <div class="d-flex align-items-center gap-3 mb-3">
-                            <img [src]="slot.image | imgUrl" [alt]="slot.name" class="slot-donut-img rounded-2" style="width:44px;height:44px;object-fit:cover;">
-                            <div class="d-flex flex-column">
-                              <span class="fw-semibold small">{{ slot.name }}</span>
-                              <span class="text-muted small">{{ slot.price }}d</span>
-                            </div>
-                          </div>
-
-                          <!-- Slot Heating -->
-                          <div class="d-flex align-items-center gap-3 mb-2 pt-2 border-top">
-                            <span class="slot-sub-title small text-muted fw-semibold" style="min-width:80px;">Làm nóng:</span>
-                            <div class="d-flex gap-2">
-                              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Khong'" (click)="selectSlotHeating(slotIndex, 'Khong')">Không</button>
-                              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Co'" (click)="selectSlotHeating(slotIndex, 'Co')">Có</button>
-                            </div>
-                          </div>
-
-                          <!-- Slot Toppings -->
-                          @if (slot.selectableToppings && slot.selectableToppings.length > 0) {
-                            <div class="border-top pt-2 mt-2">
-                              <span class="slot-sub-title small text-muted fw-semibold d-block mb-2">Toppings thêm:</span>
-                              <div class="row g-2">
-                                @for (top of slot.selectableToppings; track top.name) {
-                                  <div class="col-6">
-                                    <div class="slot-topping-item d-flex justify-content-between align-items-center p-2 rounded-2 border" [class.active]="getSlotToppingQuantity(slotIndex, top.name) > 0">
-                                      <div class="d-flex flex-column">
-                                        <span class="s-top-name" style="font-size:0.75rem;">{{ top.name }}</span>
-                                        <span class="s-top-price text-muted" style="font-size:0.65rem;">+{{ top.price }}d</span>
-                                      </div>
-                                      <div class="d-flex align-items-center gap-1">
-                                        @if (getSlotToppingQuantity(slotIndex, top.name) > 0) {
-                                          <button type="button" class="s-top-btn" (click)="removeSlotTopping(slotIndex, top.name)">-</button>
-                                          <span class="s-top-qty">{{ getSlotToppingQuantity(slotIndex, top.name) }}</span>
-                                        }
-                                        <button type="button" class="s-top-btn add" (click)="addSlotTopping(slotIndex, top.name, top.price)">+</button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                }
-                              </div>
-                            </div>
-                          }
-                          @if (canApplyToAll(slotIndex)) {
-                            <div class="text-end mt-2">
-                              <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" style="font-size:0.75rem;" (click)="applyToAllSlots(slotIndex)">
-                                <i class="bi bi-arrow-repeat me-1"></i>Áp dụng cho tất cả
-                              </button>
-                            </div>
-                          }
-                        </div>
-                      } @else {
-                        <div class="d-flex align-items-center gap-2 text-muted py-2">
-                          <i class="bi bi-circle fs-5"></i>
-                          <span class="small fst-italic">Ngăn trống - Hãy chọn vị bánh phía dưới</span>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Selectable Grid below -->
-            <h5 class="slots-section-title list-title small fw-semibold text-muted mt-4 pt-3 border-top border-dashed">Danh sách vị bánh Donut tự chọn:</h5>
-            <div class="row g-2 box-donuts-grid-scroll mt-2">
-              @for (donut of selectableDonuts; track donut.id) {
-                <div class="col-md-6">
-                  <div class="box-donut-card d-flex align-items-center gap-3 p-2 rounded-3 border" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
-                    <div class="box-donut-img rounded-2 overflow-hidden flex-shrink-0" style="width:50px;height:50px;">
-                      <img [src]="donut.image | imgUrl" [alt]="donut.name" class="w-100 h-100" style="object-fit:cover;">
-                    </div>
-                    <div class="flex-grow-1 d-flex flex-column">
-                      <span class="box-donut-name small fw-semibold text-start">{{ donut.name }}</span>
-                      <span class="box-donut-price text-muted text-start" style="font-size:0.75rem;">{{ donut.price }}d</span>
-                    </div>
-                    <div class="box-donut-qty d-flex align-items-center gap-1">
-                      @if (getBoxDonutQuantity(donut.id) > 0) {
-                        <button type="button" class="box-qty-btn" (click)="removeBoxDonut(donut.id)">-</button>
-                        <span class="box-qty-val small fw-bold">{{ getBoxDonutQuantity(donut.id) }}</span>
-                      }
-                      <button type="button" class="box-qty-btn add" [disabled]="totalBoxDonutsCount >= maxBoxDonutsCapacity" (click)="addBoxDonut(donut)">+</button>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        }
 
         <!-- Cảnh báo dị ứng ngay cạnh nút đặt -->
         @if (product.allergens.length) {
@@ -280,6 +161,131 @@
       </div>
     </div>
   </section>
+
+  <!-- Box Donuts Selection (Only for Box products) - Side-by-Side Sticky Layout -->
+  @if (product.id === 99 || product.id === 100) {
+    <section class="box-selection-section bg-white rounded-3 shadow-sm p-4 mb-4">
+      <div class="row g-4">
+        <!-- Left: Sticky Box Slots -->
+        <div class="col-lg-5 col-md-12 sticky-box-sidebar">
+          <div class="sticky-top-container">
+            <h4 class="option-title text-primary mb-3 fs-5"><i class="bi bi-box-seam me-2"></i>Thiết kế Hộp Bánh <span class="box-capacity-status fs-6 text-muted">({{ totalBoxDonutsCount }}/{{ maxBoxDonutsCapacity }})</span></h4>
+
+            @if (totalBoxDonutsCount < maxBoxDonutsCapacity) {
+              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 small fw-semibold mb-3">
+                <i class="bi bi-exclamation-triangle-fill"></i> Vui lòng chọn thêm <strong>{{ maxBoxDonutsCapacity - totalBoxDonutsCount }}</strong> chiếc bánh nữa.
+              </div>
+            } @else {
+              <div class="alert alert-success d-flex align-items-center gap-2 py-2 px-3 small fw-semibold mb-3">
+                <i class="bi bi-check-circle-fill"></i> Hộp đã đầy! Bạn có thể thêm vào giỏ hàng.
+              </div>
+            }
+
+            <div class="box-slots-list d-flex flex-column gap-3" style="max-height: 60vh; overflow-y: auto; padding-right: 5px;">
+              @for (slot of selectedBoxDonuts; track $index; let slotIndex = $index) {
+                <div class="card shadow-sm" [class.border-primary]="slot.productId !== undefined" [class.border-dashed]="slot.productId === undefined">
+                  <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                      <span class="slot-number text-uppercase small text-muted fw-bold">Ngăn {{ slotIndex + 1 }}</span>
+                      @if (slot.productId !== undefined) {
+                        <button type="button" class="btn btn-link btn-sm text-danger p-0" (click)="clearSlot(slotIndex)">Xóa bánh x</button>
+                      }
+                    </div>
+
+                    @if (slot.productId !== undefined) {
+                      <div class="slot-content">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                          <img [src]="slot.image | imgUrl" [alt]="slot.name" class="slot-donut-img rounded-2" style="width:44px;height:44px;object-fit:cover;">
+                          <div class="d-flex flex-column">
+                            <span class="fw-semibold small">{{ slot.name }}</span>
+                            <span class="text-muted small">{{ slot.price }}d</span>
+                          </div>
+                        </div>
+
+                        <!-- Slot Heating -->
+                        <div class="d-flex align-items-center gap-3 mb-2 pt-2 border-top">
+                          <span class="slot-sub-title small text-muted fw-semibold" style="min-width:80px;">Làm nóng:</span>
+                          <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Khong'" (click)="selectSlotHeating(slotIndex, 'Khong')">Không</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="font-size:0.75rem;" [class.active]="slot.heating === 'Co'" (click)="selectSlotHeating(slotIndex, 'Co')">Có</button>
+                          </div>
+                        </div>
+
+                        <!-- Slot Toppings -->
+                        @if (slot.selectableToppings && slot.selectableToppings.length > 0) {
+                          <div class="border-top pt-2 mt-2">
+                            <span class="slot-sub-title small text-muted fw-semibold d-block mb-2">Toppings thêm:</span>
+                            <div class="row g-2">
+                              @for (top of slot.selectableToppings; track top.name) {
+                                <div class="col-6">
+                                  <div class="slot-topping-item d-flex justify-content-between align-items-center p-2 rounded-2 border" [class.active]="getSlotToppingQuantity(slotIndex, top.name) > 0">
+                                    <div class="d-flex flex-column">
+                                      <span class="s-top-name" style="font-size:0.75rem;">{{ top.name }}</span>
+                                      <span class="s-top-price text-muted" style="font-size:0.65rem;">+{{ top.price }}d</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                      @if (getSlotToppingQuantity(slotIndex, top.name) > 0) {
+                                        <button type="button" class="s-top-btn" (click)="removeSlotTopping(slotIndex, top.name)">-</button>
+                                        <span class="s-top-qty">{{ getSlotToppingQuantity(slotIndex, top.name) }}</span>
+                                      }
+                                      <button type="button" class="s-top-btn add" (click)="addSlotTopping(slotIndex, top.name, top.price)">+</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                        @if (canApplyToAll(slotIndex)) {
+                          <div class="text-end mt-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" style="font-size:0.75rem;" (click)="applyToAllSlots(slotIndex)">
+                              <i class="bi bi-arrow-repeat me-1"></i>Áp dụng cho tất cả
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    } @else {
+                      <div class="d-flex align-items-center gap-2 text-muted py-2">
+                        <i class="bi bi-circle fs-5"></i>
+                        <span class="small fst-italic">Ngăn trống - Chọn vị bánh bên phải</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Selectable Donuts Grid -->
+        <div class="col-lg-7 col-md-12">
+          <h5 class="slots-section-title list-title small fw-semibold text-muted mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>Danh sách vị bánh Donut tự chọn:</h5>
+          <div class="row g-3">
+            @for (donut of selectableDonuts; track donut.id) {
+              <div class="col-xl-6 col-md-6 col-sm-12">
+                <div class="box-donut-card d-flex align-items-center gap-3 p-3 rounded-3 border" [class.selected]="getBoxDonutQuantity(donut.id) > 0">
+                  <div class="box-donut-img rounded-2 overflow-hidden flex-shrink-0" style="width:60px;height:60px;">
+                    <img [src]="donut.image | imgUrl" [alt]="donut.name" class="w-100 h-100" style="object-fit:cover;">
+                  </div>
+                  <div class="flex-grow-1 d-flex flex-column">
+                    <span class="box-donut-name fw-bold text-start" style="font-size:0.9rem; color:#2c3e50;">{{ donut.name }}</span>
+                    <span class="box-donut-price text-primary fw-bold text-start" style="font-size:0.8rem;">{{ donut.price }}d</span>
+                  </div>
+                  <div class="box-donut-qty d-flex align-items-center gap-2">
+                    @if (getBoxDonutQuantity(donut.id) > 0) {
+                      <button type="button" class="box-qty-btn shadow-sm" (click)="removeBoxDonut(donut.id)">-</button>
+                      <span class="box-qty-val fw-bold text-primary" style="min-width:15px; text-align:center;">{{ getBoxDonutQuantity(donut.id) }}</span>
+                    }
+                    <button type="button" class="box-qty-btn add shadow-sm" [disabled]="totalBoxDonutsCount >= maxBoxDonutsCapacity" (click)="addBoxDonut(donut)">+</button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  }
 
   <!-- Bottom Info Tabs -->
   <section class="card shadow-sm mb-4">
