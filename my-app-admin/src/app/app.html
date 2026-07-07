@@ -1,20 +1,25 @@
-<div class="admin-navbar">
-  <div class="admin-brand">
-    <span class="admin-brand-sub">ADMIN</span>
+@if (isLoggedIn()) {
+  <div class="admin-navbar">
+    <div class="admin-brand">
+      <img src="/avata.jpeg" alt="LIMDonut Logo" class="admin-brand-logo" onerror="this.style.display='none'">
+      <span class="admin-brand-sub">ADMIN</span>
+    </div>
+    <nav class="admin-nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
+      <a routerLink="/orders" routerLinkActive="active">Đơn hàng</a>
+      <a routerLink="/products" routerLinkActive="active">Sản phẩm</a>
+      <a routerLink="/vouchers" routerLinkActive="active">Voucher</a>
+      <a routerLink="/blog" routerLinkActive="active">Blog</a>
+      <a routerLink="/customers" routerLinkActive="active">Khách hàng</a>
+      <a routerLink="/branches" routerLinkActive="active">Chi nhánh</a>
+      <a routerLink="/complaints" routerLinkActive="active">Khiếu nại</a>
+      <a routerLink="/contacts" routerLinkActive="active">Tin nhắn</a>
+      <button class="admin-logout-btn" (click)="logout()">Đăng xuất</button>
+    </nav>
   </div>
-  <nav class="admin-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <a routerLink="/orders" routerLinkActive="active"><i class="bi bi-kanban"></i> Đơn hàng</a>
-    <a routerLink="/products" routerLinkActive="active"><i class="bi bi-box-seam-fill"></i> Sản phẩm</a>
-    <a routerLink="/vouchers" routerLinkActive="active"><i class="bi bi-ticket-perforated"></i> Voucher</a>
-    <a routerLink="/blog" routerLinkActive="active"><i class="bi bi-journal-richtext"></i> Blog</a>
-    <a routerLink="/customers" routerLinkActive="active"><i class="bi bi-people-fill"></i> Khách hàng</a>
-    <a routerLink="/branches" routerLinkActive="active"><i class="bi bi-shop"></i> Chi nhánh</a>
-    <a routerLink="/complaints" routerLinkActive="active"><i class="bi bi-exclamation-diamond-fill"></i> Khiếu nại</a>
-    <a routerLink="/contacts" routerLinkActive="active"><i class="bi bi-envelope-fill"></i> Tin nhắn</a>
-    <button class="admin-logout-btn" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
-  </nav>
-</div>
-<div class="admin-content">
+  <div class="admin-content">
+    <router-outlet />
+  </div>
+} @else {
   <router-outlet />
-</div>
+}

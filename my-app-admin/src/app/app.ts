@@ -10,5 +10,6 @@ import { AdminAuthService } from './admin-auth.service';
 })
 export class App {
   private auth = inject(AdminAuthService);
+  isLoggedIn = this.auth.isLoggedIn;
   logout() { this.auth.logout(); }
 }

@@ -145,6 +145,11 @@
   animation: spin 1s linear infinite;
 }
 
+.login-form {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
 @media (max-width: 500px) {
   .login-card {
     padding: 1.5rem;
