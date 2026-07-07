@@ -263,7 +263,7 @@ router.get('/stats', requireAdmin, async (req, res) => {
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const [ordersByStatus, revenueToday, revenueThisWeek, revenueThisMonth, topProducts, pendingComplaints, unreadContacts, lowStockProducts, outOfStockCount, recentOrders, dailyRevenue] = await Promise.all([
+    const [ordersByStatus, revenueToday, revenueThisWeek, revenueThisMonth, topProducts, pendingComplaints, unreadContacts, lowStockProducts, outOfStockCount, recentOrders, dailyRevenue, allProducts] = await Promise.all([
       Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
       Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfDay } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
       Order.aggregate([{ $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: startOfWeek } } }, { $group: { _id: null, total: { $sum: '$totalAmount' } } }]),
@@ -278,11 +278,19 @@ router.get('/stats', requireAdmin, async (req, res) => {
         { $match: { status: { $ne: 'Đã hủy' }, createdAt: { $gte: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000) } } },
         { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$totalAmount' }, count: { $sum: 1 } } },
         { $sort: { _id: 1 } }
-      ])
+      ]),
+      Product.find().select('categories sold')
     ]);
 
     const statusMap = {};
     ordersByStatus.forEach(s => statusMap[s._id] = s.count);
+
+    const categorySales = {};
+    allProducts.forEach(p => {
+      const sold = p.sold || 0;
+      const cat = p.categories && p.categories[0] ? p.categories[0] : 'Khác';
+      categorySales[cat] = (categorySales[cat] || 0) + sold;
+    });
 
     res.json({
       ordersByStatus: statusMap,
@@ -295,7 +303,8 @@ router.get('/stats', requireAdmin, async (req, res) => {
       lowStockProducts,
       outOfStockCount,
       recentOrders,
-      dailyRevenue
+      dailyRevenue,
+      categorySales
     });
   } catch (err) {
     res.status(500).json({ message: 'Lỗi server!', error: err.message });

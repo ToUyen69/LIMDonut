@@ -42,7 +42,7 @@
     <div class="col-lg-8">
       <div class="admin-card" style="height: 100%;">
         <div class="admin-card-title"><i class="bi bi-graph-up me-2" style="color:var(--color-blue);"></i>Doanh thu 7 ngày gần nhất</div>
-        <canvas #chartCanvas class="revenue-chart"></canvas>
+        <canvas #chartCanvas class="revenue-chart" (mousemove)="onChartMouseMove($event)" (mouseleave)="onChartMouseLeave()"></canvas>
       </div>
     </div>
 
@@ -51,24 +51,24 @@
       <div class="admin-card" style="height: 100%; display: flex; flex-direction: column;">
         <div class="admin-card-title"><i class="bi bi-pie-chart-fill me-2" style="color:var(--color-teal);"></i>Phân tích nhóm Donut</div>
         <div style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 180px;">
-          <canvas #donutChartCanvas style="width: 150px; height: 150px;"></canvas>
+          <canvas #donutChartCanvas style="width: 150px; height: 150px;" (mousemove)="onDonutMouseMove($event)" (mouseleave)="onDonutMouseLeave()"></canvas>
         </div>
         <div class="mt-auto pt-3 border-top d-flex flex-column gap-2 small">
           <div class="d-flex justify-content-between align-items-center">
             <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#71acd0;display:inline-block;"></span>Donut Men</span>
-            <span class="fw-bold">45%</span>
+            <span class="fw-bold">{{ categoryPercentages.men }}%</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#a5c2cb;display:inline-block;"></span>Nhân Kem</span>
-            <span class="fw-bold">30%</span>
+            <span class="fw-bold">{{ categoryPercentages.kem }}%</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#ddd170;display:inline-block;"></span>Mochi Donut</span>
-            <span class="fw-bold">15%</span>
+            <span class="fw-bold">{{ categoryPercentages.mochi }}%</span>
           </div>
           <div class="d-flex justify-content-between align-items-center">
             <span class="d-flex align-items-center gap-2"><span style="width:10px;height:10px;border-radius:50%;background:#b9dbe2;display:inline-block;"></span>Custom Party</span>
-            <span class="fw-bold">10%</span>
+            <span class="fw-bold">{{ categoryPercentages.party }}%</span>
           </div>
         </div>
       </div>

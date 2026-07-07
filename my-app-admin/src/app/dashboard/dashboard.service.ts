@@ -14,6 +14,7 @@ export interface DashboardStats {
   outOfStockCount: number;
   recentOrders: { orderId: string; customerInfo: { name: string }; totalAmount: number; status: string; createdAt: string }[];
   dailyRevenue: { _id: string; revenue: number; count: number }[];
+  categorySales?: Record<string, number>;
 }
 
 @Injectable({ providedIn: 'root' })
