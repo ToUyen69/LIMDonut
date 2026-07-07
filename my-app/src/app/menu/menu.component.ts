@@ -33,7 +33,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   // Sản phẩm bán cho menu (loại bỏ combo box, vốn được chọn ở trang chi tiết)
   // Dùng getter vì danh sách giờ tải async từ API
   private get products(): Product[] {
-    return this.productService.getProducts().filter(p => p.id < 99);
+    return this.productService.getProducts();
   }
 
   constructor(private route: ActivatedRoute) {}
@@ -95,8 +95,13 @@ export class MenuComponent implements OnInit, OnDestroy {
     let list = [...this.products];
 
     // Lọc theo danh mục
-    if (this.selectedCategory !== 'Tất cả') {
-      list = list.filter(p => p.categories.includes(this.selectedCategory));
+    if (this.selectedCategory === 'Combo') {
+      list = list.filter(p => p.id === 99 || p.id === 100);
+    } else {
+      list = list.filter(p => p.id < 99);
+      if (this.selectedCategory !== 'Tất cả') {
+        list = list.filter(p => p.categories.includes(this.selectedCategory));
+      }
     }
 
     // Tìm kiếm theo tên / mô tả
@@ -200,7 +205,8 @@ export class MenuComponent implements OnInit, OnDestroy {
       'Cà phê & Cacao': 'Dành cho tín đồ hảo ngọt, thích vị đắng nhẹ của cà phê, socola và béo ngậy của caramel.',
       'Bất ngờ Lịm': 'Đất diễn cho các dòng Donut mặn (Savory) và sự giao thoa ẩm thực cực lạ (Fusion).',
       'Món mới': 'Những hương vị mới nhất vừa được LIM Donut ra mắt.',
-      'Donut hot': 'Những sản phẩm "quốc dân" được yêu thích nhất tại cửa hàng.'
+      'Donut hot': 'Những sản phẩm "quốc dân" được yêu thích nhất tại cửa hàng.',
+      'Combo': 'Hộp Combo 4 hoặc 6 bánh tự chọn vị với chiết khấu tiết kiệm 10%.'
     };
     return descs[category] || '';
   }
