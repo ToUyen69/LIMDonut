@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../order.service';
 import { Router } from '@angular/router';
-import { classifyOrder, calculateShipping, applyDiscountCap } from '../pricing.util';
+import { classifyOrder, calculateShipping, applyDiscountCap, haversineDistanceKm } from '../pricing.util';
+import { BRANCHES_DATA } from '../branches.data';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -78,6 +79,13 @@ export class CheckoutComponent implements OnInit {
   deliveryMethod = signal<'delivery' | 'pickup'>('delivery');
   distanceKm = signal(3);
   
+  // Geocoding & suggestions state
+  geocodingActive = signal(false);
+  geocodingError = signal(false);
+  nearestBranchSuggestion = signal<string>('');
+  geocodedDistance = signal<number | null>(null);
+  private geocodeTimeout: any = null;
+
   // Form data
   address = signal('');
   recipient = signal('');
@@ -112,14 +120,97 @@ export class CheckoutComponent implements OnInit {
         this.recipient.set(u.username || '');
         this.phoneNumber.set(u.phone || '');
         this.address.set(u.address || '');
+        if (u.address) {
+          this.geocodeAddress(u.address);
+        }
       }
     } else {
       try {
         const saved = JSON.parse(localStorage.getItem('guestCheckoutInfo') || '{}');
         if (saved.name) this.recipient.set(saved.name);
         if (saved.phone) this.phoneNumber.set(saved.phone);
-        if (saved.address) this.address.set(saved.address);
+        if (saved.address) {
+          this.address.set(saved.address);
+          this.geocodeAddress(saved.address);
+        }
       } catch (_) {}
+    }
+
+    // Check if geolocation was stored in sessionStorage from branches page
+    try {
+      const stored = sessionStorage.getItem('userGeoLocation');
+      if (stored) {
+        const coords = JSON.parse(stored);
+        this.calculateNearestBranch(coords.lat, coords.lng);
+      }
+    } catch (_) {}
+  }
+
+  onAddressChange(addr: string) {
+    this.address.set(addr);
+
+    if (this.geocodeTimeout) {
+      clearTimeout(this.geocodeTimeout);
+    }
+
+    if (!addr.trim() || this.deliveryMethod() === 'pickup') {
+      this.nearestBranchSuggestion.set('');
+      this.geocodedDistance.set(null);
+      return;
+    }
+
+    this.geocodeTimeout = setTimeout(() => {
+      this.geocodeAddress(addr);
+    }, 800);
+  }
+
+  geocodeAddress(addr: string) {
+    this.geocodingActive.set(true);
+    this.geocodingError.set(false);
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&limit=1`;
+    this.http.get<any[]>(url).subscribe({
+      next: (res) => {
+        this.geocodingActive.set(false);
+        if (res && res.length > 0) {
+          const lat = parseFloat(res[0].lat);
+          const lng = parseFloat(res[0].lon);
+          this.calculateNearestBranch(lat, lng);
+        } else {
+          this.geocodingError.set(true);
+          this.nearestBranchSuggestion.set('');
+          this.geocodedDistance.set(null);
+        }
+      },
+      error: (err) => {
+        console.error('Geocoding error:', err);
+        this.geocodingActive.set(false);
+        this.geocodingError.set(true);
+        this.nearestBranchSuggestion.set('');
+        this.geocodedDistance.set(null);
+      }
+    });
+  }
+
+  private calculateNearestBranch(lat: number, lng: number) {
+    let closestBranch: any = null;
+    let minDistance = Infinity;
+
+    BRANCHES_DATA.forEach(b => {
+      const dist = haversineDistanceKm(lat, lng, b.lat, b.lng);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestBranch = b;
+      }
+    });
+
+    if (closestBranch) {
+      const mapping: { [key: number]: string } = { 1: 'chinhanh1', 2: 'chinhanh2' };
+      const val = mapping[closestBranch.id] || 'chinhanh1';
+      this.branch.set(val);
+      this.distanceKm.set(minDistance);
+      this.nearestBranchSuggestion.set(closestBranch.name);
+      this.geocodedDistance.set(minDistance);
     }
   }
 

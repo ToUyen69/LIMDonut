@@ -52,13 +52,13 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid transparent !important;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
   border-radius: 15px;
 }
 
 .branch-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .branch-item.active {
@@ -108,7 +108,7 @@
 .map-container {
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   height: 650px;
   position: sticky;
   top: 100px;
@@ -176,4 +176,32 @@
     flex: 0 0 200px;
     width: 100%;
   }
+}
+
+.btn-find-branch {
+  background-color: #358bb3;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 4px 10px rgba(111, 179, 235, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-find-branch:hover {
+  background-color: #5d8e99;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(165, 70, 57, 0.3);
+}
+
+.distance-badge {
+  font-size: 12px;
+  padding: 5px 10px;
+  font-weight: 500;
+  border-radius: 12px;
+  background-color: #28a745 !important;
+  color: white;
 }

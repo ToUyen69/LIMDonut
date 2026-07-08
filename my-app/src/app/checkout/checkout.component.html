@@ -67,7 +67,25 @@
             @if (deliveryMethod() === 'delivery') {
               <div class="mb-3">
                 <label class="form-label fw-semibold">Địa chỉ giao hàng <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" [ngModel]="address()" (ngModelChange)="address.set($event)" placeholder="Nhập địa chỉ giao hàng">
+                <input type="text" class="form-control" [ngModel]="address()" (ngModelChange)="onAddressChange($event)" placeholder="Nhập địa chỉ giao hàng">
+                
+                <div class="mt-2" *ngIf="geocodingActive() || nearestBranchSuggestion() || geocodingError()">
+                  <div class="text-muted small" *ngIf="geocodingActive()">
+                    <span class="spinner-border spinner-border-sm text-primary me-1" role="status" style="width: 1rem; height: 1rem;"></span> Đang tìm kiếm chi nhánh gần nhất...
+                  </div>
+                  <div class="alert alert-info py-2 px-3 rounded-3 small mb-0 d-flex align-items-center gap-2" *ngIf="nearestBranchSuggestion() && !geocodingActive()">
+                    <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
+                    <div>
+                      Chi nhánh gần bạn nhất: <strong>{{ nearestBranchSuggestion() }}</strong>
+                      <span class="text-muted">— cách {{ distanceKm() }} km</span>
+                      <span *ngIf="shippingFee > 0"> — Phí ship: {{ formatPrice(shippingFee) }}</span>
+                      <span *ngIf="shippingFee === 0" class="text-success fw-semibold"> — Freeship!</span>
+                    </div>
+                  </div>
+                  <div class="alert alert-warning py-2 px-3 rounded-3 small mb-0" *ngIf="geocodingError() && !geocodingActive()">
+                    <i class="bi bi-exclamation-circle-fill text-warning me-1"></i> Không tìm thấy tọa độ địa chỉ này. Bạn có thể tự chỉnh khoảng cách bên dưới.
+                  </div>
+                </div>
               </div>
 
               <div class="mb-3">
@@ -78,7 +96,7 @@
                 </div>
                 @if (shippingOutOfRange) {
                   <div class="alert alert-danger small mt-2 mb-0 py-2 rounded-3">
-                    <i class="bi bi-exclamation-triangle-fill"></i> Ngoài phạm vi phục vụ giao hàng (>15km). Vui lòng chọn "Lấy tại quầy".
+                    <i class="bi bi-exclamation-triangle-fill"></i> Ngoài phạm vi phục vụ giao hàng (>15km). Vui lòng chọn "Lấy tại quầy" hoặc đổi địa chỉ gần hơn.
                   </div>
                 }
               </div>
