@@ -1,0 +1,98 @@
+<div class="momo-payment-page">
+  <div class="momo-header">
+    <div class="header-container">
+      <img src="/logo_momo.jpg" alt="MoMo Logo" class="momo-logo-img">
+      <h2>Cổng thanh toán MoMo</h2>
+    </div>
+  </div>
+
+  <div class="momo-container">
+    <div class="momo-layout">
+      <!-- Left Panel -->
+      <div class="momo-left">
+        <div class="momo-card order-box">
+          <h3>Thông tin đơn hàng</h3>
+          <div class="info-group">
+            <div class="label">Nhà cung cấp</div>
+            <div class="supplier">
+              <div class="supplier-logo-box">
+                <img src="/logo_xanh.png" alt="LIM Logo">
+              </div>
+              <div class="supplier-text">
+                <p class="company-name">CÔNG TY TNHH LỊM DONUTS VIETNAM</p>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+          <div class="info-group">
+            <div class="label">Mã đơn hàng</div>
+            <div class="value fw-bold text-dark">{{ order()?.orderId || 'Đang tải...' }}</div>
+          </div>
+
+          <hr>
+          <div class="info-group">
+            <div class="label">Mô tả</div>
+            <div class="value text-dark">Mã đơn hàng {{ order()?.orderId }}</div>
+          </div>
+
+          <hr>
+          <div class="info-group">
+            <div class="label">Số tiền</div>
+            <div class="money text-dark fw-bold">{{ formatPrice(order()?.depositAmount || 0) }}</div>
+            <div class="text-muted small mt-1" *ngIf="order()?.depositPercent && order()?.depositPercent < 100">
+              (Cọc trước {{ order()?.depositPercent }}% của tổng {{ formatPrice(order()?.totalAmount || 0) }})
+            </div>
+          </div>
+        </div>
+
+        <div class="timer-wrap">
+          <div class="timer-title">Đơn hàng sẽ hết hạn sau:</div>
+          <div class="timer-display">
+            <div class="time-box">
+              <span class="time-num">{{ minutes() }}</span>
+              <span class="time-lbl">Phút</span>
+            </div>
+            <div class="time-box ms-3">
+              <span class="time-num">{{ seconds() }}</span>
+              <span class="time-lbl">Giây</span>
+            </div>
+          </div>
+          <div class="back-link-container">
+            <span class="back-link" (click)="cancelPayment()">Quay về</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="momo-right">
+        <div class="momo-pink-box">
+          <div class="pink-header-logos mb-3">
+            <img src="/logo_momo.jpg" alt="MoMo Logo" class="pink-header-momo">
+            <img src="https://static.mservice.io/img/momo-upload-api-220525164235-637890937553534575.png" alt="VietQR" class="pink-header-vietqr" onerror="this.style.display='none'">
+          </div>
+          
+          <div class="qr-box-inner">
+            <img src="/qrcode_momo.jpg" alt="QR Code">
+          </div>
+
+          <div class="qr-instruction mt-3">
+            <p>Sử dụng App MoMo hoặc ứng dụng ngân hàng để quét mã</p>
+            <p class="small text-white-50 mt-2">Gặp khó khăn khi thanh toán? Xem Hướng dẫn</p>
+          </div>
+        </div>
+
+        <div class="check-order-link-container">
+          <span class="check-order-link" (click)="confirmPayment()">Kiểm tra đơn hàng</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="momo-footer">
+    <div class="footer-container">
+      <div>© 2023 - Cổng thanh toán MoMo</div>
+      <div>Hỗ trợ khách hàng: <a href="tel:1900545441">1900 5454 41</a> (1000đ/phút) | <a href="mailto:hotro@momo.vn">hotro@momo.vn</a></div>
+    </div>
+  </footer>
+</div>

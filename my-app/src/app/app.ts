@@ -33,6 +33,7 @@ export class App {
   readonly showLogoutModal = signal(false);
   readonly cartAnimation = signal(false);
   readonly isMenuOpen = signal(false);
+  readonly isPaymentPage = signal(false);
 
   logout() {
     this.showLogoutModal.set(true);
@@ -54,6 +55,7 @@ export class App {
       if (event instanceof NavigationEnd) {
         window.scrollTo(0, 0);
         this.isMenuOpen.set(false);
+        this.isPaymentPage.set(this.router.url.includes('/payment/'));
       }
     });
 

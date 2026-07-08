@@ -1,0 +1,116 @@
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { OrderService } from '../order.service';
+import { CartService } from '../cart.service';
+import { AuthService } from '../auth.service';
+
+@Component({
+  selector: 'app-payment-momo',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './payment-momo.component.html',
+  styleUrl: './payment-momo.component.css'
+})
+export class MoMoPaymentComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private orderService = inject(OrderService);
+  private cartService = inject(CartService);
+  private authService = inject(AuthService);
+
+  order = signal<any>(null);
+  timeLeft = signal<number>(600); // 10 minutes in seconds
+  minutes = signal<string>('09');
+  seconds = signal<string>('59');
+  private timerInterval: any = null;
+
+  ngOnInit() {
+    const raw = localStorage.getItem('pendingOrder');
+    if (!raw) {
+      alert('Không tìm thấy thông tin giao dịch!');
+      window.close();
+      return;
+    }
+    try {
+      const o = JSON.parse(raw);
+      this.order.set(o);
+      this.startTimer();
+    } catch (_) {
+      alert('Thông tin giao dịch không hợp lệ!');
+      window.close();
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopTimer();
+  }
+
+  startTimer() {
+    this.timerInterval = setInterval(() => {
+      const val = this.timeLeft() - 1;
+      if (val <= 0) {
+        this.stopTimer();
+        alert('Giao dịch đã hết hạn thanh toán!');
+        this.cancelPayment();
+      } else {
+        this.timeLeft.set(val);
+        this.minutes.set(Math.floor(val / 60).toString().padStart(2, '0'));
+        this.seconds.set((val % 60).toString().padStart(2, '0'));
+      }
+    }, 1000);
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  formatPrice(price: number): string {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ';
+  }
+
+  confirmPayment() {
+    const o = this.order();
+    if (!o) return;
+
+    o.paymentStatus = 'paid';
+    o.depositPaid = true;
+
+    this.orderService.addOrder(o).subscribe({
+      next: () => {
+        localStorage.removeItem('pendingOrder');
+        localStorage.removeItem('pendingReferralDiscount');
+        this.cartService.clearCart();
+
+        // Redirect back to orders list in this tab
+        if (this.authService.isLoggedIn()) {
+          this.authService.fetchMe().subscribe({ error: () => {} });
+          this.router.navigate(['/orders']);
+        } else {
+          localStorage.setItem('guestCheckoutInfo', JSON.stringify({
+            name: o.customerInfo.name,
+            phone: o.customerInfo.phone,
+            address: o.customerInfo.address
+          }));
+          this.router.navigate(['/orders'], {
+            queryParams: {
+              phone: o.customerInfo.phone,
+              name: o.customerInfo.name,
+              justPlaced: o.orderId
+            }
+          });
+        }
+      },
+      error: (err) => {
+        alert('Đã xảy ra lỗi khi tạo đơn hàng: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
+  cancelPayment() {
+    localStorage.removeItem('pendingOrder');
+    window.close();
+  }
+}

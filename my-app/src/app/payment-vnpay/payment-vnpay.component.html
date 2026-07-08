@@ -1,0 +1,129 @@
+<div class="vnpay-payment-page">
+  <!-- Header -->
+  <div class="vnpay-header">
+    <div class="header-container-inner">
+      <div class="header-left">
+        <button class="btn-back" (click)="cancelPayment()">
+          <i class="bi bi-chevron-left"></i> Quay lại
+        </button>
+      </div>
+      <div class="header-center-logos">
+        <img src="/vnpay-logo.png" alt="VNPAY Logo" class="logo-vnpay">
+        <div class="divider-vertical"></div>
+        <img src="/logo_xanh.png" alt="LIM Logo" class="logo-lim">
+      </div>
+      <div class="header-right-timer">
+        <span class="timer-label">Giao dịch hết hạn sau</span>
+        <div class="timer-box-square">
+          <span>{{ minutes() }}</span>
+          <span>:</span>
+          <span>{{ seconds() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning Banner -->
+  <div class="warning-banner-container">
+    <div class="warning-banner">
+      <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+      <p class="warning-text">
+        Quý khách vui lòng không tắt trình duyệt cho đến khi nhận được kết quả giao dịch trên website. Trường hợp đã thanh toán nhưng chưa nhận kết quả giao dịch, vui lòng bấm <span class="fw-bold text-decoration-underline cursor-pointer" (click)="confirmPayment()">"Tại đây"</span> để nhận kết quả. Xin cảm ơn!
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="vnpay-container">
+    <div class="vnpay-layout">
+      <!-- Left Panel: Order Info -->
+      <div class="vnpay-left">
+        <div class="order-info-card">
+          <h3 class="panel-title">Thông tin đơn hàng</h3>
+          
+          <div class="info-item highlight-row">
+            <span class="info-lbl">Số tiền thanh toán</span>
+            <span class="info-val price-highlight">{{ formatPrice(order()?.depositAmount || 0) }} VND</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-lbl">Giá trị đơn hàng</span>
+            <span class="info-val text-dark fw-semibold">{{ formatPrice(order()?.totalAmount || 0) }} VND</span>
+          </div>
+
+          <div class="info-item" *ngIf="order()?.depositPercent && order()?.depositPercent < 100">
+            <span class="info-lbl">Tỷ lệ đặt cọc</span>
+            <span class="info-val text-dark fw-semibold">{{ order()?.depositPercent }}%</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-lbl">Phí giao dịch</span>
+            <span class="info-val text-dark fw-semibold">0 VND</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-lbl">Mã đơn hàng</span>
+            <span class="info-val text-dark fw-semibold">{{ order()?.orderId || 'Đang tải...' }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-lbl">Nội dung giao dịch</span>
+            <span class="info-val text-muted text-end">Lịm Donuts Mã đơn hàng {{ order()?.orderId }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-lbl">Nhà cung cấp</span>
+            <span class="info-val text-dark fw-semibold text-end">CÔNG TY TNHH LỊM DONUTS VIETNAM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: QR Box & Simulation -->
+      <div class="vnpay-right">
+        <div class="qr-payment-card text-center">
+          <h3 class="qr-title">Quét mã qua App Ngân hàng/ Ví điện tử</h3>
+          
+          <div class="guide-link mb-3">
+            <i class="bi bi-info-circle-fill text-primary me-1"></i>
+            <a href="javascript:void(0)" class="text-primary text-decoration-none small fw-semibold">Hướng dẫn thanh toán</a>
+          </div>
+
+          <div class="qr-outer-box">
+            <div class="qr-logo-brand mb-2">
+              <img src="/vnpay-logo.png" alt="VNPAY Logo">
+            </div>
+            <div class="qr-image-wrapper mb-2">
+              <img src="/qrcode_vnpay.jpg" alt="QR Code">
+            </div>
+            <div class="qr-scan-to-pay mt-2">
+              <span>Scan to Pay</span>
+            </div>
+          </div>
+
+          <div class="vnpay-actions mt-4 w-100">
+            <button class="btn-vnpay-gray w-100 mb-2" (click)="cancelPayment()">
+              Hủy thanh toán
+            </button>
+            <button class="btn-vnpay-blue w-100" (click)="confirmPayment()">
+              Kiểm tra đơn hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="vnpay-footer">
+    <div class="footer-container-inner">
+      <div class="footer-left">
+        <span>Phát triển bởi VNPAY © 2026</span>
+      </div>
+      <div class="footer-right">
+        <span class="me-3">Hỗ trợ khách hàng: <a href="tel:1900555577" class="text-primary text-decoration-none fw-semibold">1900 55 55 77</a></span>
+        <img src="/secure_vnpay.jpg" alt="VNPAY Secure Seal" class="footer-seal" onerror="this.style.display='none'">
+        <img src="/pci.jpg" alt="PCI Compliance" class="footer-seal ms-2" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </footer>
+</div>

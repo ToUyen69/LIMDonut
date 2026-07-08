@@ -21,7 +21,7 @@ const orderSchema = new mongoose.Schema({
   remainingAmount: Number,
   depositPaid: { type: Boolean, default: false },
   deliveryMethod: { type: String, enum: ['delivery', 'pickup'], default: 'delivery' },
-  paymentMethod: { type: String, enum: ['cash', 'momo', 'zalopay', 'wallet'], default: 'cash' },
+  paymentMethod: { type: String, enum: ['cash', 'momo', 'zalopay', 'wallet', 'vnpay'], default: 'cash' },
   paymentStatus: { type: String, enum: ['pending', 'paid'], default: 'pending' },
   customPartyMeta: { type: mongoose.Schema.Types.Mixed, default: null },
   referralDiscount: { type: Number, default: 0 },

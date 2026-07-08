@@ -15,6 +15,8 @@ import { CustomPartyComponent } from './custom-party/custom-party.component';
 import { OrderLookupComponent } from './order-lookup/order-lookup.component';
 import { AboutComponent } from './about/about.component';
 import { FavoritesComponent } from './favorites/favorites.component';
+import { MoMoPaymentComponent } from './payment-momo/payment-momo.component';
+import { VNPayPaymentComponent } from './payment-vnpay/payment-vnpay.component';
 
 export const routes: Routes = [
   { path: '', component: HomepageComponent },
@@ -27,6 +29,8 @@ export const routes: Routes = [
   { path: 'forum/:id', component: ForumDetailComponent },
   { path: 'chinhanh', component: BranchesComponent },
   { path: 'checkout', component: CheckoutComponent },
+  { path: 'payment/momo', component: MoMoPaymentComponent },
+  { path: 'payment/vnpay', component: VNPayPaymentComponent },
   { path: 'orders', component: Orders },
   { path: 'login', component: Login },
   { path: 'forgot-password', component: ForgotPassword },

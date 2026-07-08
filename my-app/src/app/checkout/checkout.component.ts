@@ -302,8 +302,13 @@ export class CheckoutComponent implements OnInit {
     if (!this.isFormValid) return;
 
     if (this.paymentMethod() !== 'cash') {
-      this.pendingOrder = this.buildOrder();
-      this.openQrModal();
+      const order = this.buildOrder();
+      localStorage.setItem('pendingOrder', JSON.stringify(order));
+      if (this.paymentMethod() === 'momo') {
+        window.open('/payment/momo', '_blank');
+      } else if (this.paymentMethod() === 'vnpay') {
+        window.open('/payment/vnpay', '_blank');
+      }
       return;
     }
 
@@ -359,7 +364,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   get paymentMethodLabel(): string {
-    const map: Record<string, string> = { momo: 'MoMo', zalopay: 'ZaloPay', wallet: 'Ví điện tử' };
+    const map: Record<string, string> = { momo: 'MoMo', vnpay: 'Vn Pay' };
     return map[this.paymentMethod()] || this.paymentMethod();
   }
 

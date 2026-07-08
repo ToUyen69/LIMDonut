@@ -260,26 +260,22 @@
               </div>
             </div>
 
-            <div class="payment-methods mb-4">
-              <h3 class="payment-title">Phương thức thanh toán</h3>
+             <div class="payment-methods mb-4">
+               <h3 class="payment-title">Phương thức thanh toán</h3>
 
-              <div class="method-option" [class.selected]="paymentMethod() === 'cash'" (click)="paymentMethod.set('cash')">
-                <input class="form-check-input" type="radio" name="payment" value="cash" [checked]="paymentMethod() === 'cash'">
-                <label>Tiền mặt</label>
-              </div>
-              <div class="method-option" [class.selected]="paymentMethod() === 'momo'" (click)="paymentMethod.set('momo')">
-                <input class="form-check-input" type="radio" name="payment" value="momo" [checked]="paymentMethod() === 'momo'">
-                <label>MoMo</label>
-              </div>
-              <div class="method-option" [class.selected]="paymentMethod() === 'zalopay'" (click)="paymentMethod.set('zalopay')">
-                <input class="form-check-input" type="radio" name="payment" value="zalopay" [checked]="paymentMethod() === 'zalopay'">
-                <label>ZaloPay</label>
-              </div>
-              <div class="method-option" [class.selected]="paymentMethod() === 'wallet'" (click)="paymentMethod.set('wallet')">
-                <input class="form-check-input" type="radio" name="payment" value="wallet" [checked]="paymentMethod() === 'wallet'">
-                <label>Ví điện tử</label>
-              </div>
-            </div>
+               <div class="method-option" [class.selected]="paymentMethod() === 'cash'" (click)="paymentMethod.set('cash')">
+                 <input class="form-check-input" type="radio" name="payment" value="cash" [checked]="paymentMethod() === 'cash'">
+                 <label>Tiền mặt</label>
+               </div>
+               <div class="method-option" [class.selected]="paymentMethod() === 'momo'" (click)="paymentMethod.set('momo')">
+                 <input class="form-check-input" type="radio" name="payment" value="momo" [checked]="paymentMethod() === 'momo'">
+                 <label>MoMo</label>
+               </div>
+               <div class="method-option" [class.selected]="paymentMethod() === 'vnpay'" (click)="paymentMethod.set('vnpay')">
+                 <input class="form-check-input" type="radio" name="payment" value="vnpay" [checked]="paymentMethod() === 'vnpay'">
+                 <label>Vn Pay</label>
+               </div>
+             </div>
 
             @if (orderClassification().orderType !== 'small') {
               <div class="deposit-info alert alert-warning rounded-3 mb-3">
