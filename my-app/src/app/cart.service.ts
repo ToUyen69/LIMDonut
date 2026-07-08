@@ -164,7 +164,7 @@ export class CartService {
     this.cartItems.set([]);
   }
 
-  private showNotification(message: string) {
+  showNotification(message: string) {
     // Clear previous timeout if exists
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);

@@ -145,3 +145,25 @@
 </div>
 
 <app-taste-quiz *ngIf="!isPaymentPage()"></app-taste-quiz>
+
+<!-- Geolocation Request Modal -->
+<div class="modal-overlay" *ngIf="showGeoModal()">
+  <div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 shadow-lg">
+        <div class="modal-header border-0 justify-content-center pt-4">
+          <h2 class="modal-title d-flex align-items-center gap-2">
+            <i class="bi bi-geo-alt-fill text-danger"></i> Tìm chi nhánh gần nhất
+          </h2>
+        </div>
+        <div class="modal-body text-center pb-2 px-4">
+          <p class="modal-text mb-0">Cho phép định vị vị trí hiện tại của bạn để tìm chi nhánh LỊM Donuts gần nhất và tự động tính toán phí ship tốt nhất nhé!</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pb-4 gap-3">
+          <button class="btn btn-secondary px-4 py-2 rounded-pill" (click)="closeGeoModal()">Bỏ qua</button>
+          <button class="btn btn-primary px-4 py-2 rounded-pill" style="background-color: #358bb3; border-color: #358bb3;" (click)="allowGeolocation()">Đồng ý định vị</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -68,7 +68,18 @@ export class App {
         setTimeout(() => this.cartAnimation.set(false), 500);
       }
     });
+
+    // Show location request pop-up on first load
+    setTimeout(() => {
+      const storedLoc = sessionStorage.getItem('userGeoLocation');
+      const hasSeenPopup = sessionStorage.getItem('hasSeenGeoLocationPopup');
+      if (!storedLoc && !hasSeenPopup) {
+        this.showGeoModal.set(true);
+      }
+    }, 1500);
   }
+
+  readonly showGeoModal = signal(false);
 
   formatPrice(price: number): string {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ';
@@ -80,5 +91,31 @@ export class App {
 
   closeUserMenu() {
     this.showUserMenu.set(false);
+  }
+
+  allowGeolocation() {
+    this.showGeoModal.set(false);
+    sessionStorage.setItem('hasSeenGeoLocationPopup', 'true');
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          try {
+            sessionStorage.setItem('userGeoLocation', JSON.stringify({ lat, lng }));
+            this.cartService.showNotification("Định vị thành công! Đã tự động chọn chi nhánh gần nhất cho bạn.");
+          } catch (_) {}
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+        }
+      );
+    }
+  }
+
+  closeGeoModal() {
+    this.showGeoModal.set(false);
+    sessionStorage.setItem('hasSeenGeoLocationPopup', 'true');
   }
 }
