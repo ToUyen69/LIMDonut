@@ -31,11 +31,18 @@ router.get('/', requireAdmin, async (req, res) => {
 
 router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
-    const { status } = req.body;
-    if (!['Chưa xử lý', 'Đã xử lý'].includes(status)) {
-      return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
+    const { status, adminReply } = req.body;
+    const updateData = {};
+    if (status !== undefined) {
+      if (!['Chưa xử lý', 'Đã xử lý'].includes(status)) {
+        return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
+      }
+      updateData.status = status;
     }
-    const msg = await ContactMessage.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (adminReply !== undefined) {
+      updateData.adminReply = adminReply;
+    }
+    const msg = await ContactMessage.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!msg) return res.status(404).json({ message: 'Không tìm thấy tin nhắn.' });
     res.json(msg);
   } catch (err) {

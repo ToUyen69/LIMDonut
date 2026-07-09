@@ -11,6 +11,7 @@ export interface ContactMessage {
   subject: string;
   message: string;
   status: string;
+  adminReply?: string;
   createdAt: string;
 }
 
@@ -28,7 +29,9 @@ export class ContactMessagesService {
     });
   }
 
-  markStatus(id: string, status: string) {
-    return this.http.patch<ContactMessage>(`${this.apiUrl}/${id}/status`, { status });
+  markStatus(id: string, status: string, adminReply?: string) {
+    const body: any = { status };
+    if (adminReply !== undefined) body.adminReply = adminReply;
+    return this.http.patch<ContactMessage>(`${this.apiUrl}/${id}/status`, body);
   }
 }

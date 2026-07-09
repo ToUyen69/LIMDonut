@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ContactMessagesService, ContactMessage } from './contact-messages.service';
 import { AdminAuthService } from '../admin-auth.service';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-contact-messages',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent],
+  imports: [CommonModule, StatusBadgeComponent, FormsModule],
   templateUrl: './contact-messages.component.html',
   styleUrl: './contact-messages.component.css'
 })
@@ -42,8 +43,27 @@ export class ContactMessagesComponent implements OnInit {
     });
   }
 
-  openDetail(msg: ContactMessage) { this.detail.set(msg); }
-  closeDetail() { this.detail.set(null); }
+  replyText = '';
+
+  openDetail(msg: ContactMessage) {
+    this.detail.set(msg);
+    this.replyText = msg.adminReply || '';
+  }
+
+  closeDetail() {
+    this.detail.set(null);
+    this.replyText = '';
+  }
+
+  submitResponse(msg: ContactMessage) {
+    this.service.markStatus(msg._id, 'Đã xử lý', this.replyText).subscribe({
+      next: () => {
+        this.service.fetchAll();
+        this.closeDetail();
+      },
+      error: err => alert(err.error?.message || 'Lỗi gửi phản hồi')
+    });
+  }
 
   formatDate(d: string): string {
     return new Date(d).toLocaleString('vi-VN');

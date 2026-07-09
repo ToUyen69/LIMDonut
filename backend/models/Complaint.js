@@ -7,6 +7,7 @@ const complaintSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   photoUrl: { type: String, default: '' },
   status: { type: String, enum: ['Chờ xử lý', 'Đã xử lý'], default: 'Chờ xử lý' },
+  adminReply: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -52,14 +52,21 @@ router.get('/', requireAdmin, async (req, res) => {
   }
 });
 
-// Đổi trạng thái khiếu nại (admin)
+// Đổi trạng thái và phản hồi khiếu nại (admin)
 router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
-    const { status } = req.body;
-    if (!['Chờ xử lý', 'Đã xử lý'].includes(status)) {
-      return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
+    const { status, adminReply } = req.body;
+    const updateData = {};
+    if (status !== undefined) {
+      if (!['Chờ xử lý', 'Đã xử lý'].includes(status)) {
+        return res.status(400).json({ message: 'Trạng thái không hợp lệ.' });
+      }
+      updateData.status = status;
     }
-    const complaint = await Complaint.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (adminReply !== undefined) {
+      updateData.adminReply = adminReply;
+    }
+    const complaint = await Complaint.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!complaint) return res.status(404).json({ message: 'Không tìm thấy khiếu nại.' });
     res.json(complaint);
   } catch (err) {

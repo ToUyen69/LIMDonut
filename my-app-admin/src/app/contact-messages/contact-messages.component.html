@@ -89,12 +89,32 @@
             </div>
           </div>
           <div class="small text-muted">Nội dung</div>
-          <div class="p-3 bg-light rounded-3 mt-1" style="white-space: pre-wrap;">{{ detail()!.message }}</div>
+          <div class="p-3 bg-light rounded-3 mt-1 mb-3" style="white-space: pre-wrap;">{{ detail()!.message }}</div>
+
+          <!-- Admin Response Section -->
+          <div class="border-top pt-3 mt-3">
+            <h6 class="fw-bold text-secondary mb-2">Phản hồi của Cửa hàng</h6>
+            @if (detail()!.status === 'Đã xử lý') {
+              <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 border border-success border-opacity-25" style="white-space: pre-wrap;">
+                <strong>Nội dung trả lời:</strong> {{ detail()!.adminReply || 'Đã xử lý (Không có nội dung trả lời)' }}
+              </div>
+            } @else {
+              <div class="mb-3">
+                <textarea class="form-control" rows="3" [(ngModel)]="replyText" placeholder="Nhập câu trả lời gửi đến khách hàng hoặc ghi chú hướng xử lý nội bộ..."></textarea>
+              </div>
+            }
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-sm rounded-pill px-3" [class]="detail()!.status === 'Chưa xử lý' ? 'btn-success' : 'btn-outline-secondary'" (click)="toggleStatus(detail()!); closeDetail()">
-            {{ detail()!.status === 'Chưa xử lý' ? 'Đánh dấu đã xử lý' : 'Đánh dấu chưa xử lý' }}
-          </button>
+          @if (detail()!.status === 'Chưa xử lý') {
+            <button class="btn btn-success rounded-pill px-3" [disabled]="!replyText.trim()" (click)="submitResponse(detail()!)">
+              <i class="bi bi-send-fill me-1"></i> Phản hồi & Đóng liên hệ
+            </button>
+          } @else {
+            <button class="btn btn-outline-secondary rounded-pill px-3" (click)="toggleStatus(detail()!); closeDetail()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Mở lại liên hệ
+            </button>
+          }
           <button class="btn btn-secondary rounded-pill px-3" (click)="closeDetail()">Đóng</button>
         </div>
       </div>

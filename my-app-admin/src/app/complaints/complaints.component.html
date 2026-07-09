@@ -32,7 +32,7 @@
           <p class="small text-muted mb-2">{{ c.description }}</p>
         }
         @if (c.photoUrl) {
-          <img [src]="c.photoUrl" alt="Ảnh khiếu nại" class="complaint-thumb rounded mb-2" (click)="openDetail(c)">
+          <img [src]="getPhotoUrl(c.photoUrl)" alt="Ảnh khiếu nại" class="complaint-thumb rounded mb-2" (click)="openDetail(c)">
         }
         <div class="d-flex gap-2">
           <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="openDetail(c)">
@@ -81,14 +81,34 @@
           <div class="small text-muted">Mô tả</div>
           <div class="p-3 bg-light rounded-3 mt-1 mb-3" style="white-space: pre-wrap;">{{ d.description || '—' }}</div>
           @if (d.photoUrl) {
-            <div class="small text-muted mb-1">Ảnh minh chứng</div>
-            <img [src]="d.photoUrl" alt="Ảnh khiếu nại" class="img-fluid rounded-3" style="max-height:400px;">
+            <div class="small text-muted mb-1 mt-2">Ảnh minh chứng</div>
+            <img [src]="getPhotoUrl(d.photoUrl)" alt="Ảnh khiếu nại" class="img-fluid rounded-3 mb-3" style="max-height:400px;">
           }
+
+          <!-- Admin Response Section -->
+          <div class="border-top pt-3 mt-3">
+            <h6 class="fw-bold text-secondary mb-2">Phản hồi giải quyết của cửa hàng</h6>
+            @if (d.status === 'Đã xử lý') {
+              <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 border border-success border-opacity-25" style="white-space: pre-wrap;">
+                <strong>Nội dung phản hồi:</strong> {{ d.adminReply || 'Đã xử lý (Không có nội dung phản hồi)' }}
+              </div>
+            } @else {
+              <div class="mb-3">
+                <textarea class="form-control" rows="3" [(ngModel)]="replyText" placeholder="Nhập câu trả lời hoặc hướng giải quyết cho khách hàng (Ví dụ: Đã hoàn tiền / Tặng voucher đền bù)..."></textarea>
+              </div>
+            }
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-sm rounded-pill px-3" [class]="d.status === 'Chờ xử lý' ? 'btn-success' : 'btn-outline-secondary'" (click)="toggleStatus(d); closeDetail()">
-            {{ d.status === 'Chờ xử lý' ? 'Đánh dấu đã xử lý' : 'Đánh dấu chờ xử lý' }}
-          </button>
+          @if (d.status === 'Chờ xử lý') {
+            <button class="btn btn-success rounded-pill px-3" [disabled]="!replyText.trim()" (click)="submitResponse(d)">
+              <i class="bi bi-send-fill me-1"></i> Phản hồi & Đóng khiếu nại
+            </button>
+          } @else {
+            <button class="btn btn-outline-secondary rounded-pill px-3" (click)="toggleStatus(d); closeDetail()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Mở lại khiếu nại
+            </button>
+          }
           <button class="btn btn-secondary rounded-pill px-3" (click)="closeDetail()">Đóng</button>
         </div>
       </div>

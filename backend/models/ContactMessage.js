@@ -8,6 +8,7 @@ const contactMessageSchema = new mongoose.Schema({
   subject: { type: String, default: '' },
   message: { type: String, required: true },
   status: { type: String, enum: ['Chưa xử lý', 'Đã xử lý'], default: 'Chưa xử lý' },
+  adminReply: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 

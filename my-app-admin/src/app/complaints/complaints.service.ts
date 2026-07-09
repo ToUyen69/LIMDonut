@@ -10,6 +10,7 @@ export interface Complaint {
   description: string;
   photoUrl: string;
   status: string;
+  adminReply?: string;
   createdAt: string;
 }
 
@@ -27,7 +28,9 @@ export class ComplaintsService {
     });
   }
 
-  markStatus(id: string, status: string) {
-    return this.http.patch<Complaint>(`${this.apiUrl}/${id}/status`, { status });
+  markStatus(id: string, status: string, adminReply?: string) {
+    const body: any = { status };
+    if (adminReply !== undefined) body.adminReply = adminReply;
+    return this.http.patch<Complaint>(`${this.apiUrl}/${id}/status`, body);
   }
 }
