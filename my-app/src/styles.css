@@ -16,6 +16,10 @@
   --font-heading: 'Playfair Display', serif;
 }
 
+html {
+  font-size: calc(16px * var(--user-font-scale, 1)) !important;
+}
+
 body {
   font-family: var(--font-primary) !important;
   background-color: var(--color-light-green);
@@ -42,7 +46,39 @@ button {
   vertical-align: -0.125em;
   line-height: 1;
 }
+
 /* Sao đánh giá giữ màu vàng như truoc day */
-.bi-star-fill { color: #f5a623; }
+.bi-star-fill {
+  color: #f5a623;
+}
+
 /* Trong badge/nút có nền màu, icon kế thừa màu chữ của badge */
-.badge .bi, .hot-rank-badge .bi { color: inherit; }
+.badge .bi,
+.hot-rank-badge .bi {
+  color: inherit;
+}
+
+/* Accessibility: High Contrast overrides */
+body.high-contrast, 
+body.high-contrast *, 
+body.high-contrast *::before, 
+body.high-contrast *::after {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body.high-contrast a, 
+body.high-contrast button,
+body.high-contrast .btn,
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+  text-decoration: underline !important;
+  font-weight: bold !important;
+  border: 2px solid #000000 !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}

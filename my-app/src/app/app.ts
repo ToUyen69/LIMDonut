@@ -5,10 +5,11 @@ import { CommonModule } from '@angular/common';
 
 import { AuthService } from './auth.service';
 import { TasteQuizComponent } from './taste-quiz/taste-quiz.component';
+import { AccessibilityToolbarComponent } from './accessibility-toolbar/accessibility-toolbar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, TasteQuizComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, TasteQuizComponent, AccessibilityToolbarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   encapsulation: ViewEncapsulation.None
@@ -18,16 +19,16 @@ export class App {
   private cartService = inject(CartService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
   // Auth state
   readonly isLoggedIn = this.authService.isLoggedIn;
   readonly user = this.authService.user;
-  
+
   // Cart signals
   readonly cartTotal = this.cartService.totalPrice;
   readonly cartCount = this.cartService.totalItems;
   readonly notification = this.cartService.notification;
-  
+
   // UI state
   readonly showUserMenu = signal(false);
   readonly showLogoutModal = signal(false);
@@ -60,7 +61,7 @@ export class App {
     });
 
     if (this.authService.isLoggedIn()) {
-      this.authService.fetchMe().subscribe({ error: () => {} });
+      this.authService.fetchMe().subscribe({ error: () => { } });
     }
     effect(() => {
       if (this.cartCount() > 0) {
@@ -105,7 +106,7 @@ export class App {
           try {
             sessionStorage.setItem('userGeoLocation', JSON.stringify({ lat, lng }));
             this.cartService.showNotification("Định vị thành công! Đã tự động chọn chi nhánh gần nhất cho bạn.");
-          } catch (_) {}
+          } catch (_) { }
         },
         (error) => {
           console.error('Geolocation error:', error);

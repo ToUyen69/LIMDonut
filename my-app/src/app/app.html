@@ -14,12 +14,18 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active"
               [routerLinkActiveOptions]="{exact: true}" (click)="isMenuOpen.set(false)">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/about" routerLinkActive="active" (click)="isMenuOpen.set(false)">Về chúng tôi</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/menu" routerLinkActive="active" (click)="isMenuOpen.set(false)">Menu Donut</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active" (click)="isMenuOpen.set(false)">Custom Party</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/contact" routerLinkActive="active" (click)="isMenuOpen.set(false)">Liên hệ</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/forum" routerLinkActive="active" (click)="isMenuOpen.set(false)">Diễn đàn</a></li>
-          <li class="nav-item"><a class="nav-link" routerLink="/chinhanh" routerLinkActive="active" (click)="isMenuOpen.set(false)">Chi nhánh</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/about" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Về chúng tôi</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/menu" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Menu Donut</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/custom-party" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Custom Party</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/contact" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Liên hệ</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/forum" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Diễn đàn</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/chinhanh" routerLinkActive="active"
+              (click)="isMenuOpen.set(false)">Chi nhánh</a></li>
         </ul>
 
         <div class="d-flex align-items-center gap-3">
@@ -55,7 +61,8 @@
                       class="bi bi-search"></i> Tra cứu đơn khách</a></li>
                 <li *ngIf="isLoggedIn()"><a routerLink="/profile" (click)="closeUserMenu()"><i
                       class="bi bi-person-badge"></i> Hồ sơ</a></li>
-                <li><a routerLink="/orders" (click)="closeUserMenu()"><i class="bi bi-bag-check"></i> Lịch sử đặt hàng</a></li>
+                <li><a routerLink="/orders" (click)="closeUserMenu()"><i class="bi bi-bag-check"></i> Lịch sử đặt
+                    hàng</a></li>
                 <li><a routerLink="/yeu-thich" (click)="closeUserMenu()"><i class="bi bi-heart"></i> Món yêu thích</a>
                 </li>
                 <li *ngIf="isLoggedIn()" class="divider"></li>
@@ -157,13 +164,18 @@
           </h2>
         </div>
         <div class="modal-body text-center pb-2 px-4">
-          <p class="modal-text mb-0">Cho phép định vị vị trí hiện tại của bạn để tìm chi nhánh LỊM Donuts gần nhất và tự động tính toán phí ship tốt nhất nhé!</p>
+          <p class="modal-text mb-0">Cho phép định vị vị trí hiện tại của bạn để tìm chi nhánh LỊM Donuts gần nhất và tự
+            động tính toán phí ship tốt nhất nhé!</p>
         </div>
         <div class="modal-footer border-0 justify-content-center pb-4 gap-3">
           <button class="btn btn-secondary px-4 py-2 rounded-pill" (click)="closeGeoModal()">Bỏ qua</button>
-          <button class="btn btn-primary px-4 py-2 rounded-pill" style="background-color: #358bb3; border-color: #358bb3;" (click)="allowGeolocation()">Đồng ý định vị</button>
+          <button class="btn btn-primary px-4 py-2 rounded-pill"
+            style="background-color: #358bb3; border-color: #358bb3;" (click)="allowGeolocation()">Đồng ý định
+            vị</button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<app-accessibility-toolbar></app-accessibility-toolbar>
