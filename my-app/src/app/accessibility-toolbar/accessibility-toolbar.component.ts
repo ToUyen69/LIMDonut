@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -72,7 +72,7 @@ import { CommonModule } from '@angular/common';
       bottom: 60px;
       right: 0;
       width: 250px;
-      background: var(--card-bg);
+      background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.12);
@@ -156,6 +156,15 @@ export class AccessibilityToolbarComponent implements OnInit {
 
   fontPercent(): number {
     return Math.round(this.fontScale() * 100);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const widget = document.querySelector('.accessibility-widget');
+    if (this.isOpen() && widget && !widget.contains(target)) {
+      this.isOpen.set(false);
+    }
   }
 
   toggleOpen() {

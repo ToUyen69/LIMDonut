@@ -396,9 +396,9 @@ export class CheckoutComponent implements OnInit {
       const order = this.buildOrder();
       localStorage.setItem('pendingOrder', JSON.stringify(order));
       if (this.paymentMethod() === 'momo') {
-        window.open('/payment/momo', '_blank');
+        this.router.navigate(['/payment/momo']);
       } else if (this.paymentMethod() === 'vnpay') {
-        window.open('/payment/vnpay', '_blank');
+        this.router.navigate(['/payment/vnpay']);
       }
       return;
     }

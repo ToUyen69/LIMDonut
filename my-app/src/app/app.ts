@@ -1,4 +1,4 @@
-import { Component, signal, ViewEncapsulation, inject, computed, effect } from '@angular/core';
+import { Component, signal, ViewEncapsulation, inject, computed, effect, HostListener } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CartService } from './cart.service';
 import { CommonModule } from '@angular/common';
@@ -84,6 +84,15 @@ export class App {
 
   formatPrice(price: number): string {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + 'đ';
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const profileContainer = document.querySelector('.user-profile-container');
+    if (this.showUserMenu() && profileContainer && !profileContainer.contains(target)) {
+      this.closeUserMenu();
+    }
   }
 
   toggleUserMenu() {

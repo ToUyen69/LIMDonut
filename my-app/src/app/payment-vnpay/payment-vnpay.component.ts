@@ -30,7 +30,7 @@ export class VNPayPaymentComponent implements OnInit, OnDestroy {
     const raw = localStorage.getItem('pendingOrder');
     if (!raw) {
       alert('Không tìm thấy thông tin giao dịch!');
-      window.close();
+      this.router.navigate(['/checkout']);
       return;
     }
     try {
@@ -40,7 +40,7 @@ export class VNPayPaymentComponent implements OnInit, OnDestroy {
       this.startTimer();
     } catch (_) {
       alert('Thông tin giao dịch không hợp lệ!');
-      window.close();
+      this.router.navigate(['/checkout']);
     }
   }
 
@@ -113,6 +113,6 @@ export class VNPayPaymentComponent implements OnInit, OnDestroy {
 
   cancelPayment() {
     localStorage.removeItem('pendingOrder');
-    window.close();
+    this.router.navigate(['/checkout']);
   }
 }

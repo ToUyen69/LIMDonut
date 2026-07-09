@@ -10,8 +10,8 @@
 
 <!-- Quiz Modal Overlay -->
 @if (isOpen()) {
-  <div class="quiz-overlay d-flex align-items-center justify-content-center p-3">
-    <div class="quiz-modal bg-white shadow-lg rounded-4 overflow-hidden position-relative animate-modal">
+  <div class="quiz-overlay d-flex align-items-center justify-content-center p-3" (click)="closeQuiz()">
+    <div class="quiz-modal bg-white shadow-lg rounded-4 overflow-hidden position-relative animate-modal" (click)="$event.stopPropagation()">
       
       <!-- Close button -->
       <button class="btn-close-quiz" (click)="closeQuiz()" title="Đóng">&times;</button>
