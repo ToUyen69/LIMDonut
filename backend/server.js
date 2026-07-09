@@ -71,6 +71,13 @@ app.use((err, req, res, next) => {
 // Lắng nghe server
 app.listen(PORT, () => {
   console.log(`Server dang chay tai: http://localhost:${PORT}`);
+
+  // Self-ping mỗi 14 phút để Render free tier không ngủ
+  if (process.env.RENDER_EXTERNAL_URL) {
+    setInterval(() => {
+      fetch(process.env.RENDER_EXTERNAL_URL).catch(() => {});
+    }, 14 * 60 * 1000);
+  }
 });
 
 // Graceful shutdown
