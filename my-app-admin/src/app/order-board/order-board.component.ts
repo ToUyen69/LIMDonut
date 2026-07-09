@@ -29,6 +29,13 @@ export class OrderBoardComponent implements OnInit {
   orderService = inject(OrderService);
   private auth = inject(AdminAuthService);
   columns = COLUMNS;
+  imageBase = environment.apiBase + '/';
+
+  getItemImageUrl(imagePath: string): string {
+    if (!imagePath) return 'avata.jpeg';
+    if (imagePath.startsWith('http')) return imagePath;
+    return this.imageBase + imagePath;
+  }
 
   private http = inject(HttpClient);
   showPhotoModal = signal(false);
@@ -57,9 +64,20 @@ export class OrderBoardComponent implements OnInit {
   }
   pendingOrder = signal<Order | null>(null);
   pendingStatus = signal('');
+  selectedOrderForDetails = signal<Order | null>(null);
 
   ngOnInit() {
     this.orderService.fetchAll();
+  }
+
+  viewOrderDetails(order: Order, event: Event) {
+    const target = event.target as HTMLElement;
+    if (target.closest('button')) return;
+    this.selectedOrderForDetails.set(order);
+  }
+
+  closeOrderDetails() {
+    this.selectedOrderForDetails.set(null);
   }
 
   logout() { this.auth.logout(); }

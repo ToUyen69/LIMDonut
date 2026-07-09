@@ -14,7 +14,7 @@
         </div>
         <div class="column-body">
           @for (order of ordersByStatus(col); track order._id) {
-            <div class="order-card card mb-2">
+            <div class="order-card card mb-2" (click)="viewOrderDetails(order, $event)" style="cursor: pointer;">
               <div class="card-body p-2">
                 <div class="d-flex justify-content-between align-items-start mb-1">
                   <span class="fw-bold text-primary small">{{ order.orderId }}</span>
@@ -93,6 +93,150 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="showPhotoModal.set(false)">Hủy</button>
           <button class="btn btn-primary" [disabled]="!photoUrl()" (click)="confirmPhoto()">Xác nhận & chuyển</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Order Details Modal -->
+@if (selectedOrderForDetails()) {
+  <div class="modal-backdrop fade show" (click)="closeOrderDetails()"></div>
+  <div class="modal d-block text-start" (click)="closeOrderDetails()">
+    <div class="modal-dialog modal-dialog-centered modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-content border-0 rounded-4 shadow-lg">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold text-primary">
+            Chi tiết đơn hàng: {{ selectedOrderForDetails()?.orderId }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeOrderDetails()"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-4">
+            <!-- Left Panel: Customer & Delivery Info -->
+            <div class="col-md-6 border-end">
+              <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Thông tin giao nhận</h6>
+              <div class="mb-2">
+                <strong>Khách hàng:</strong> {{ selectedOrderForDetails()?.customerInfo?.name }}
+              </div>
+              <div class="mb-2">
+                <strong>Số điện thoại:</strong> {{ selectedOrderForDetails()?.customerInfo?.phone }}
+              </div>
+              <div class="mb-2">
+                <strong>Thời gian nhận hàng:</strong> {{ selectedOrderForDetails()?.customerInfo?.deliveryTime }}
+              </div>
+              <div class="mb-2">
+                <strong>Phương thức nhận:</strong> 
+                <span class="badge ms-1" [ngClass]="selectedOrderForDetails()?.deliveryMethod === 'pickup' ? 'bg-info text-dark' : 'bg-warning text-dark'">
+                  {{ selectedOrderForDetails()?.deliveryMethod === 'pickup' ? 'Lấy tại quầy' : 'Giao hàng tận nơi' }}
+                </span>
+              </div>
+              @if (selectedOrderForDetails()?.deliveryMethod === 'delivery') {
+                <div class="mb-2 text-wrap">
+                  <strong>Địa chỉ giao:</strong> {{ selectedOrderForDetails()?.customerInfo?.address }}
+                </div>
+              }
+              <div class="mb-2">
+                <strong>Ghi chú:</strong> 
+                <span class="text-muted">{{ selectedOrderForDetails()?.customerInfo?.notes || 'Không có ghi chú' }}</span>
+              </div>
+
+              <!-- Gift options -->
+              @if (selectedOrderForDetails()?.customerInfo?.isGift) {
+                <div class="mt-3 p-3 rounded bg-light border-start border-danger border-3">
+                  <div class="fw-bold text-danger mb-1"><i class="bi bi-gift-fill"></i> Chế độ quà tặng</div>
+                  @if (selectedOrderForDetails()?.customerInfo?.hideGiftPrice) {
+                    <div class="small text-muted mb-1"><i class="bi bi-eye-slash-fill"></i> Ẩn giá trị đơn hàng trên hóa đơn người nhận</div>
+                  }
+                  @if (selectedOrderForDetails()?.customerInfo?.giftMessage) {
+                    <div class="small bg-white p-2 rounded border font-italic">
+                      "{{ selectedOrderForDetails()?.customerInfo?.giftMessage }}"
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Evidence Photo -->
+              @if (selectedOrderForDetails()?.evidencePhotoUrl) {
+                <div class="mt-3">
+                  <strong class="d-block mb-1">Ảnh bằng chứng đóng gói:</strong>
+                  <img [src]="selectedOrderForDetails()?.evidencePhotoUrl" class="img-fluid rounded border w-100" alt="Evidence" style="max-height: 200px; object-fit: contain;">
+                </div>
+              }
+            </div>
+
+            <!-- Right Panel: Ordered Products List -->
+            <div class="col-md-6">
+              <h6 class="fw-bold mb-3 text-secondary border-bottom pb-2">Danh sách sản phẩm</h6>
+              <div class="order-items-list pe-2" style="max-height: 350px; overflow-y: auto;">
+                @for (item of selectedOrderForDetails()?.items; track item.id) {
+                  <div class="p-2 border-bottom mb-2 rounded bg-light d-flex gap-3 align-items-start">
+                    <!-- Product Image -->
+                    <div style="flex: 0 0 55px; width: 55px; height: 55px;">
+                      <img [src]="getItemImageUrl(item.image)" class="img-fluid rounded border" alt="" style="width: 55px; height: 55px; object-fit: cover;" onerror="this.src='avata.jpeg'">
+                    </div>
+                    
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div class="fw-semibold text-dark">{{ item.name }}</div>
+                        <span class="badge bg-secondary">x{{ item.quantity }}</span>
+                      </div>
+                      
+                      <!-- Product Options/Toppings -->
+                      <div class="small text-muted mt-1 ps-2 border-start" style="font-size: 0.85rem;">
+                        @if (item.options?.heating && item.options?.heating !== 'Không') {
+                          <div>• Làm nóng: {{ item.options.heating }}</div>
+                        }
+                        
+                        @if (item.options?.toppings && item.options.toppings.length > 0) {
+                          <div>
+                            • Toppings: 
+                            @for (t of item.options.toppings; track t.name; let last = $last) {
+                              <span>{{ t.name }} (x{{ t.quantity }}){{ !last ? ', ' : '' }}</span>
+                            }
+                          </div>
+                        }
+
+                        @if (item.options?.boxDonuts && item.options.boxDonuts.length > 0) {
+                          <div class="mt-1">
+                            <strong>• Vị bánh trong hộp:</strong>
+                            <div class="ps-2">
+                              @for (d of item.options.boxDonuts; track d.name) {
+                                <div>- {{ d.name }}</div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="text-end fw-bold text-primary mt-1" style="font-size: 0.9rem;">
+                        {{ formatPrice(item.price * item.quantity) }}
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Payment Summary -->
+              <div class="border-top pt-3 mt-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Hình thức:</span>
+                  <span class="fw-semibold">{{ selectedOrderForDetails()?.orderType === 'custom' ? 'Đặt tiệc' : 'Đơn lẻ' }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Trạng thái:</span>
+                  <span class="fw-bold text-success">{{ selectedOrderForDetails()?.status }}</span>
+                </div>
+                <div class="d-flex justify-content-between mt-2 fs-5 fw-bold text-danger">
+                  <span>Tổng tiền thanh toán:</span>
+                  <span>{{ formatPrice(selectedOrderForDetails()?.totalAmount ?? 0) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary px-4 rounded-pill" (click)="closeOrderDetails()">Đóng</button>
         </div>
       </div>
     </div>
