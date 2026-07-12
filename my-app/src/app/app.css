@@ -684,17 +684,14 @@ section {
   line-height: 1.6;
 }
 
-.qr-placeholder {
+.qr-image {
   width: 160px;
   height: 160px;
-  border: 4px dashed var(--color-teal);
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: var(--color-teal);
-  background: var(--color-cream);
+  object-fit: contain;
+  background: #fff;
+  padding: 8px;
+  border: 2px solid var(--color-teal);
 }
 
 .email-box {
