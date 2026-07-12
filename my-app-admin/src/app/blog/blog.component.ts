@@ -20,10 +20,7 @@ export class BlogComponent implements OnInit {
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('assets/')) {
       return imagePath;
     }
-    if (imagePath.startsWith('uploads/')) {
-      return `${environment.apiBase}/${imagePath}`;
-    }
-    return `${environment.apiBase}/uploads/${imagePath}`;
+    return imagePath.replace(/^uploads\//, '');
   }
 
   showForm = signal(false);

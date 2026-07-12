@@ -104,7 +104,7 @@
           <td class="fw-semibold" style="color:var(--color-cta);">{{ p.id }}</td>
           <td><small class="text-muted">{{ p.categories?.[0] || '—' }}</small></td>
           <td>
-            <img [src]="imageBase + p.image" alt="" class="product-thumb" onerror="this.style.display='none'">
+            <img [src]="(p.image || '').replace('uploads/', '')" alt="" class="product-thumb" onerror="this.style.display='none'">
           </td>
           <td>
             <span class="fw-semibold">{{ p.name }}</span>
@@ -254,7 +254,7 @@
               <div class="d-flex gap-3 align-items-start">
                 @if (ep.image) {
                   <div class="img-preview">
-                    <img [src]="imageBase + ep.image" alt="" onerror="this.style.display='none'">
+                    <img [src]="(ep.image || '').replace('uploads/', '')" alt="" onerror="this.style.display='none'">
                     <small class="text-muted d-block mt-1">{{ ep.image }}</small>
                   </div>
                 }

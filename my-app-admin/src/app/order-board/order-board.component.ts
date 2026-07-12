@@ -34,7 +34,7 @@ export class OrderBoardComponent implements OnInit {
   getItemImageUrl(imagePath: string): string {
     if (!imagePath) return 'avata.jpeg';
     if (imagePath.startsWith('http')) return imagePath;
-    return this.imageBase + imagePath;
+    return imagePath.replace(/^uploads\//, '');
   }
 
   private http = inject(HttpClient);
